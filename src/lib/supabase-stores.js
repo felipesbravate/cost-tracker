@@ -23,7 +23,18 @@ export function supabaseStores(sb) {
       async remove(/** @type {string} */ u) { ok(await sb.from('user_keys').delete().eq('user_id', u)); },
     },
     docs: {
-      async list(/** @type {string} */ u, /** @type {string} */ c) { return ok(await sb.from('documents').select('*').eq('user_id', u).eq('collection', c)) || []; },
+      // PostgREST caps every response (default 1000 rows), silently. Page through in a stable order
+      // until a page comes back empty, so the result is complete whatever the project's cap is.
+      async list(/** @type {string} */ u, /** @type {string} */ c) {
+        const out = [];
+        for (let from = 0; ; ) {
+          const page = ok(await sb.from('documents').select('*').eq('user_id', u).eq('collection', c)
+            .order('doc_id', { ascending: true }).range(from, from + 999)) || [];
+          if (!page.length) break;
+          out.push(...page); from += page.length;
+        }
+        return out;
+      },
       async get(/** @type {string} */ u, /** @type {string} */ c, /** @type {string} */ i) { return ok(await sb.from('documents').select('*').eq('user_id', u).eq('collection', c).eq('doc_id', i).maybeSingle()); },
       async put(/** @type {any} */ row) { ok(await sb.from('documents').upsert(row, { onConflict: 'user_id,collection,doc_id' })); },
       async remove(/** @type {string} */ u, /** @type {string} */ c, /** @type {string} */ i) { ok(await sb.from('documents').delete().eq('user_id', u).eq('collection', c).eq('doc_id', i)); },

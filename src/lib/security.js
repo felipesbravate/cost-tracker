@@ -26,6 +26,10 @@ export function passesCsrf(req, appOrigin) {
  */
 export function passesFormCsrf(req, appOrigin) {
   if (req.method.toUpperCase() !== 'POST') return false;
+  // Sec-Fetch-Site is set by the browser itself and cannot be forged by page scripts. Origin alone is not
+  // reliable here: under Referrer-Policy: no-referrer browsers send "Origin: null" even for same-origin forms.
+  const site = req.headers['sec-fetch-site'];
+  if (site) return site === 'same-origin';
   return req.headers['origin'] === appOrigin;
 }
 

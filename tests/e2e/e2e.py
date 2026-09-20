@@ -59,6 +59,29 @@ async def main():
             body = await pg.inner_text('body')
             check('entry visible after reload (decrypted, totals updated)', '777,50' in body)
 
+            # 2b. an imported spreadsheet cell with a note shows as a base line + the note's sub-lines
+            ym = await pg.evaluate("[String(new Date().getFullYear()), new Date().getMonth()]")
+            hdr = {'origin': BASE, 'x-requested-with': 'costs-tracker'}
+            r = await admin_ctx.request.post(BASE + '/api/db/entries', headers=hdr, data={
+                'year': ym[0], 'monthIndex': ym[1], 'type': 'expense', 'group': 'Fixed', 'category': 'Habitation', 'item': 'Note test item',
+                'description': 'Imported', 'amount': 100, 'date': ym[0] + '-01-01', 'note': 'Alpha shop\nBeta shop (5/3)', 'realAmounts': [60, 40]})
+            check('imported entry with note accepted', r.status in (200, 201), r.status)
+            await pg.reload(); await pg.wait_for_selector('.ct-shell'); await pg.wait_for_timeout(700)
+            row = pg.locator('.bd-row', has_text='Note test item').first
+            check('note item row visible', await row.count() == 1)
+            await row.locator('.note-count').click(); await pg.wait_for_timeout(200)
+            tip = await pg.inner_text('#note-tip')
+            check('note tip: base line + both sub-lines with real amounts', 'From your spreadsheet' in tip and 'Alpha shop' in tip and 'Beta shop' in tip and '60,00' in tip and '40,00' in tip and 'Imported' not in tip, tip)
+            check('note tip: badge counts the 2 note lines', (await row.locator('.note-count').inner_text()).strip() == '2')
+            await pg.keyboard.press('Escape'); await pg.mouse.click(5, 5)
+
+            # 2c. years list: newest first, and a duplicated year label appears once
+            for y in ('2031', '2029', '2030', '2030'):
+                await admin_ctx.request.post(BASE + '/api/db/years', headers=hdr, data={'year': y, 'currency': 'EUR', 'createdAt': '2026-01-01T00:00:00.000Z'})
+            await pg.reload(); await pg.wait_for_selector('.ct-shell'); await pg.wait_for_timeout(700)
+            labels = [t.strip() for t in await pg.locator('.year-btn').all_inner_texts()]
+            check('years listed newest first (as designed), each label once', labels[:3] == ['2031', '2030', '2029'] and labels.count('2030') == 1, labels)
+
             # 3. CSV reading via the server-side reader
             await open_panel(pg)
             check('upload dropzone enabled', not await pg.evaluate("document.getElementById('dropzone').classList.contains('is-off')"))
@@ -66,7 +89,7 @@ async def main():
             await pg.click('#doc-add'); await pg.wait_for_selector('#ap-review:not([hidden])', timeout=8000)
             check('CSV: review shows a row from the AI reply', await pg.locator('.rv-row').count() == 1)
             await pg.click('#rv-submit'); await pg.wait_for_timeout(700)
-            check('reviewed row saved as second entry', len([r for r in state()['rows'] if r['collection'] == 'entries']) == 2)
+            check('reviewed row saved as third entry (after the imported note entry)', len([r for r in state()['rows'] if r['collection'] == 'entries']) == 3)
             check('AI got text only for CSV', state()['aiCalls'][-1]['images'] == 0 and 'FAKE SUPERMARKET' in state()['aiCalls'][-1]['prompt'], state()['aiCalls'][-1])
 
             # 4. photo reading sends an image

@@ -22,7 +22,8 @@ if (error || !prof) { console.error('No such account. Sign in once with that ema
 const existing = await stores.docs.list(prof.user_id, 'entries');
 if (existing.length && !args.force) { console.error(`Account already has ${existing.length} entries. Re-run with --force to add anyway (this can duplicate).`); process.exit(1); }
 const vault = new Vault({ master: loadMasterKeys(process.env), keys: stores.keys, docs: stores.docs });
-for (const y of years) await vault.add(prof.user_id, 'years', y);
+const haveYears = new Set((await vault.list(prof.user_id, 'years')).map((d) => String(d.data.year)));
+for (const y of years) if (!haveYears.has(y.year)) await vault.add(prof.user_id, 'years', y);
 let n = 0;
 for (const e of entries) { await vault.add(prof.user_id, 'entries', e); if (++n % 200 === 0) console.log(`  ${n}/${entries.length}`); }
 console.log(`imported ${years.length} years and ${entries.length} entries (encrypted).`);

@@ -3,6 +3,7 @@
 // Run before every commit:  npm run scan   (the pre-commit hook in scripts/hooks does this for you)
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const SKIP_DIRS = new Set(['node_modules', '.git', '.next', 'private']);
@@ -18,6 +19,10 @@ const RULES = [
 const EMAIL = /[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+\.)+[A-Za-z]{2,}/g;
 const OK_EMAIL = /(@example\.(com|org|test)|@users\.noreply\.github\.com|noreply@anthropic\.com|you@example\.com)$/i;
 
+// True only when Git itself confirms the file is ignored (exit 0). Any other outcome
+// (not ignored, not a Git repo, git missing) counts as NOT ignored, so we fail closed.
+const gitIgnored = (root, rel) => spawnSync('git', ['check-ignore', '-q', '--', rel], { cwd: root }).status === 0;
+
 export function scan(root) {
   const hits = [];
   (function walk(dir) {
@@ -26,8 +31,8 @@ export function scan(root) {
       const st = statSync(p);
       if (st.isDirectory()) { if (!SKIP_DIRS.has(name)) walk(p); continue; }
       if (SKIP_FILES.test(name) || st.size > 2_000_000) continue;
-      if (/^\.env(\..*)?$/.test(name) && name !== '.env.example') { hits.push([rel, 'env file present (must be git-ignored)']); continue; }
-      if (name === 'monthly_costs_data.js') { hits.push([rel, 'spreadsheet export file']); continue; }
+      if (/^\.env(\..*)?$/.test(name) && name !== '.env.example') { if (!gitIgnored(root, rel)) hits.push([rel, 'env file present and NOT git-ignored']); continue; }
+      if (name === 'monthly_costs_data.js') { if (!gitIgnored(root, rel)) hits.push([rel, 'spreadsheet export file and NOT git-ignored']); continue; }
       const text = readFileSync(p, 'utf8');
       for (const [label, re] of RULES) if (re.test(text)) hits.push([rel, label]);
       for (const m of text.matchAll(EMAIL)) if (!OK_EMAIL.test(m[0])) { hits.push([rel, `email address ${m[0].replace(/^(.).*(@.*)$/, '$1***$2')}`]); break; }

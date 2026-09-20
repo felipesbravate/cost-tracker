@@ -6,7 +6,10 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const TEMPLATE = readFileSync(join(here, '..', 'legacy', 'tracker.template.html'), 'utf8');
+const templatePath = join(here, '..', 'legacy', 'tracker.template.html');
+// Read once in production; re-read on every request in development so edits show up without a restart.
+let cached = process.env.NODE_ENV === 'production' ? readFileSync(templatePath, 'utf8') : null;
+const template = () => cached ?? readFileSync(templatePath, 'utf8');
 
 export const newNonce = () => randomBytes(16).toString('base64');
 
@@ -36,7 +39,7 @@ export function securityHeaders(csp) {
   /** @type {Record<string,string>} */
   const h = {
     'x-content-type-options': 'nosniff',
-    'referrer-policy': 'no-referrer',
+    'referrer-policy': 'same-origin',
     'x-frame-options': 'DENY',
     'permissions-policy': 'camera=(), microphone=(), geolocation=()',
     'strict-transport-security': 'max-age=63072000; includeSubDomains',
@@ -48,6 +51,6 @@ export function securityHeaders(csp) {
 
 /** @param {string} nonce @returns {string} full HTML document */
 export function renderTracker(nonce) {
-  const body = TEMPLATE.replace(/<script(?=[\s>])/g, `<script nonce="${nonce}"`);
+  const body = template().replace(/<script(?=[\s>])/g, `<script nonce="${nonce}"`);
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">${body}</body></html>`;
 }

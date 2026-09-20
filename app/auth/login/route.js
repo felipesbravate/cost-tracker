@@ -14,7 +14,10 @@ export async function POST(request) {
   // Same response whether or not the address exists or the request was throttled: no account enumeration.
   if (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) && deps.loginLimiter.take(`ip:${ip}`) && deps.loginLimiter.take(`em:${email}`)) {
     const sb = await authClient();
-    await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: `${deps.appOrigin}/auth/callback`, shouldCreateUser: true } });
+    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: `${deps.appOrigin}/auth/callback`, shouldCreateUser: true } });
+    // Shown only in the server log, never to the visitor (same response either way).
+    if (error) console.error('[login] sign-in email failed:', error.status, error.message);
+    else console.log('[login] sign-in email requested');
   }
   return back('/login?sent=1');
 }

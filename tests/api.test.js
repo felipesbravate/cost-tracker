@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
 import { handle, memoryProfiles, memoryUsage } from '../src/lib/api.js';
 import { Vault, memoryStores } from '../src/lib/vault.js';
-import { RateLimiter, parseAdminEmails, passesCsrf, effectiveStatus } from '../src/lib/security.js';
+import { RateLimiter, parseAdminEmails, passesCsrf, passesFormCsrf, effectiveStatus } from '../src/lib/security.js';
 
 const ORIGIN = 'https://app.test';
 function setup(cap = 3) {
@@ -115,4 +115,12 @@ test('percent-encoded ids (as sent by the browser) are decoded before validation
   assert.equal((await call('DELETE', `/api/db/budgetDefaults/${encodeURIComponent(raw)}`, boss)).status, 200);
   assert.equal((await call('GET', '/api/db/budgetDefaults', boss)).body.docs.length, 0);
   assert.equal((await call('PUT', '/api/db/budgetDefaults/%E0%A4%A', boss, { a: 1 })).status, 400);
+});
+
+test('form CSRF: works when the browser sends Origin: null but Sec-Fetch-Site: same-origin; refuses cross-site', () => {
+  assert.equal(passesFormCsrf({ method: 'POST', headers: { origin: 'null', 'sec-fetch-site': 'same-origin' } }, ORIGIN), true);
+  assert.equal(passesFormCsrf({ method: 'POST', headers: { origin: ORIGIN } }, ORIGIN), true);
+  assert.equal(passesFormCsrf({ method: 'POST', headers: { origin: 'https://evil.test', 'sec-fetch-site': 'cross-site' } }, ORIGIN), false);
+  assert.equal(passesFormCsrf({ method: 'POST', headers: { origin: 'null' } }, ORIGIN), false);
+  assert.equal(passesFormCsrf({ method: 'GET', headers: { 'sec-fetch-site': 'same-origin' } }, ORIGIN), false);
 });

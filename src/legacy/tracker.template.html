@@ -1770,9 +1770,14 @@ document.addEventListener('DOMContentLoaded', function(){
     // Notes still describe whatever the sheet's own figure is made of --
     // shown whenever there's a sheet-backed note, real or a future guess --
     // just hidden once that figure has been deleted (nothing left to explain).
-    const noteEntries = (!eff.deleted && note) ? buildNoteEntries(note, sheetItem.values[mi]||0, realAmounts) : [];
+    let noteEntries = (!eff.deleted && note) ? buildNoteEntries(note, sheetItem.values[mi]||0, realAmounts) : [];
+    // Multi-user build: an imported spreadsheet cell arrives as one entry carrying its own `note`
+    // (and optional `realAmounts`). It is shown the way a sheet cell was: one base line (with its
+    // delete button) followed by the note's sub-lines, instead of as a plain manual entry.
+    const importedCells = eff.manual.filter(e => e.note);
+    importedCells.forEach(e => { noteEntries = noteEntries.concat(buildNoteEntries(e.note, e.amount, e.realAmounts)); });
     return {
-      item: r.item, category: r.category, amount: eff.amount, entries: eff.manual, noteEntries,
+      item: r.item, category: r.category, amount: eff.amount, entries: eff.manual.filter(e => !e.note), importedCells, noteEntries,
       isEstimate: eff.isEstimate, deleted: eff.deleted, override: eff.override,
       baseAmount: eff.baseAmount, estimateSamples: eff.estimateSamples, estimateSource: eff.estimateSource,
       type, group: group||null, yearLabel: y.year, mi,
@@ -2135,6 +2140,9 @@ document.addEventListener('DOMContentLoaded', function(){
     } else if (Math.abs(row.baseAmount||0) > 0.004){
       lines.push(`<div class="tip-line base"><span><span class="tip-dot"></span>From the spreadsheet</span><span class="tip-right"><span class="tip-amount">${fmtMoney(row.baseAmount,cur)}</span><button type="button" class="tip-del" title="Delete this value" data-base="1">${renderIcon('x')}</button></span></div>`);
     }
+    (row.importedCells||[]).forEach(e=>{
+      lines.push(`<div class="tip-line base"><span><span class="tip-dot"></span>From your spreadsheet</span><span class="tip-right"><span class="tip-amount">${fmtMoney(e.amount,cur)}</span><button type="button" class="tip-del" title="Delete this value" data-id="${e.id}">${renderIcon('x')}</button></span></div>`);
+    });
     const anyEstimateNote = (row.noteEntries||[]).some(n=>n.isEstimate);
     (row.noteEntries||[]).forEach(n=>{
       const amtHtml = n.amount!=null ? `<span class="tip-amount${n.isEstimate?' is-estimate':''}">${n.isEstimate?'~':''}${fmtMoney(n.amount,cur)}</span>` : '';
@@ -2567,7 +2575,7 @@ document.addEventListener('DOMContentLoaded', function(){
       } else {
         const pdfjs = await loadPdfJs();
         const buf = await d.file.arrayBuffer();
-        const pdf = await pdfjs.getDocument({ data:new Uint8Array(buf) }).promise;
+        const pdf = await pdfjs.getDocument({ data:new Uint8Array(buf), isEvalSupported:false }).promise;
         // 1) Try the text layer first: cheaper, exact, and it works in views without image input.
         let text = '', pagesRead = 0; const cap = textBudget() * MAX_CHUNKS;
         for (let i=1; i<=pdf.numPages; i++){
@@ -3047,9 +3055,14 @@ ${chunk}
         const currentLabel = DATA[yearIdx] ? DATA[yearIdx].year : null;
         const firstLoad = !yearsHydrated;
         yearsHydrated = true;
+        // Kept in year order (the tab bar shows newest first). Imported years all share one createdAt, so sort by the year itself
+        // (non-numeric labels last, then by creation time). A label that somehow exists twice is
+        // shown once, so the duplicate can't be picked and deleted with the year's entries.
+        const yNum = y => { const n = parseInt(y.year, 10); return isNaN(n) ? Infinity : n; };
         EXTRA_YEARS = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-          .sort((a,b) => (a.createdAt||'').localeCompare(b.createdAt||''));
-        DATA = BASE_YEARS.concat(EXTRA_YEARS.map(y => {
+          .sort((a,b) => (yNum(a) === yNum(b) ? 0 : yNum(a) < yNum(b) ? -1 : 1) || (a.createdAt||'').localeCompare(b.createdAt||'') || (a.id < b.id ? -1 : 1));
+        const seenYearLabels = new Set();
+        DATA = BASE_YEARS.concat(EXTRA_YEARS.filter(y => !seenYearLabels.has(y.year) && seenYearLabels.add(y.year)).map(y => {
           const o = emptyYearObj(y.year, y.currency);
           o.dbId = y.id; o.isExtra = true;
           return o;

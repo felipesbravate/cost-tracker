@@ -9,7 +9,10 @@ export const dynamic = 'force-dynamic';
 
 const html = (body, csp) => new Response(body, { headers: { 'content-type': 'text/html; charset=utf-8', ...securityHeaders(csp || "default-src 'none'; style-src 'unsafe-inline'; img-src data:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'") } });
 
-export async function GET() {
+export async function GET(request) {
+  // If Supabase falls back to the Site URL, the sign-in code lands here: hand it to the callback.
+  const code = new URL(request.url).searchParams.get('code');
+  if (code) return new Response(null, { status: 303, headers: { location: `/auth/callback?code=${encodeURIComponent(code)}` } });
   const access = await pageAccess(await currentUser(), getDeps());
   if (access === 'login') return new Response(null, { status: 303, headers: { location: '/login' } });
   if (access === 'pending') return html(pendingHtml());

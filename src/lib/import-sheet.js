@@ -6,12 +6,12 @@
 /**
  * @param {{ years: any[] }} data
  * @param {{ now?: string }} [opts]
- * @returns {{ years: any[], entries: any[], report: { years: number, entries: number, negatives: number, notesDropped: number } }}
+ * @returns {{ years: any[], entries: any[], report: { years: number, entries: number, negatives: number, notes: number, notesWithoutEntry: number } }}
  */
 export function convertSheet(data, opts = {}) {
   const now = opts.now || new Date().toISOString();
   const years = [], entries = [];
-  let negatives = 0, notesDropped = 0;
+  let negatives = 0, notes = 0, notesWithoutEntry = 0;
   for (const y of data.years || []) {
     const label = String(y.year);
     years.push({ year: label, currency: y.currency === 'SEK' ? 'SEK' : 'EUR', createdAt: now });
@@ -23,21 +23,25 @@ export function convertSheet(data, opts = {}) {
     ];
     for (const { type, group, list } of groups) {
       for (const it of list) {
-        if (it.notes) notesDropped++;
         (it.values || []).forEach((/** @type {any} */ v, /** @type {number} */ m) => {
-          if (typeof v !== 'number' || !isFinite(v) || v === 0) return;
+          // Per-month note: a text with one line per sub-item, plus optional real amounts for those lines.
+          const noteText = Array.isArray(it.notes) && typeof it.notes[m] === 'string' && it.notes[m].trim() ? it.notes[m] : null;
+          const real = noteText && Array.isArray(it.realAmounts) && Array.isArray(it.realAmounts[m]) && it.realAmounts[m].every((/** @type {any} */ x) => typeof x === 'number' && isFinite(x)) ? it.realAmounts[m] : null;
+          if (typeof v !== 'number' || !isFinite(v) || v === 0) { if (noteText) notesWithoutEntry++; return; }
           if (v < 0) negatives++;
+          if (noteText) notes++;
           entries.push({
             year: label, monthIndex: m, type, group,
             category: type === 'expense' ? (it.category || null) : null,
             item: it.item, description: 'Imported', amount: Math.round(v * 100) / 100,
             date: `${label}-${String(m + 1).padStart(2, '0')}-01`, createdAt: now,
+            ...(noteText ? { note: noteText, ...(real ? { realAmounts: real } : {}) } : {}),
           });
         });
       }
     }
   }
-  return { years, entries, report: { years: years.length, entries: entries.length, negatives, notesDropped } };
+  return { years, entries, report: { years: years.length, entries: entries.length, negatives, notes, notesWithoutEntry } };
 }
 
 /** Evaluates a `window.MONTHLY_COSTS_DATA = {...}` file without executing anything but that assignment. */

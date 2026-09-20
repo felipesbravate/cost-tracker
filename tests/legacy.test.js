@@ -25,3 +25,8 @@ test('template contains no real financial data', () => {
   const s = readFileSync(new URL('../public/legacy/taxonomy.js', import.meta.url), 'utf8');
   assert.ok(/years:\s*\[\]/.test(s));
 });
+
+test('pdf.js is opened with eval disabled (hardening against CVE-2024-4367-style font exploits)', () => {
+  const html = readFileSync(new URL('../src/legacy/tracker.template.html', import.meta.url), 'utf8');
+  assert.match(html, /getDocument\(\{[^}]*isEvalSupported:\s*false/);
+});
