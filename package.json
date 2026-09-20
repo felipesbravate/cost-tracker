@@ -1,0 +1,30 @@
+{
+  "name": "costs-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Multi-user, end-to-end-protected monthly costs tracker (Next.js + Supabase).",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "node --test \"tests/**/*.test.js\"",
+    "dev:mock": "node scripts/dev-mock-server.mjs",
+    "gen-key": "node scripts/gen-key.mjs",
+    "import": "node --env-file=.env.local scripts/import-data.mjs",
+    "rewrap": "node --env-file=.env.local scripts/rewrap.mjs",
+    "scan": "node scripts/scan-secrets.mjs",
+    "postinstall": "node scripts/vendor-pdfjs.mjs"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.45.0",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "pdfjs-dist": "3.11.174"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

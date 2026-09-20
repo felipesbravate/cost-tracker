@@ -1,0 +1,43 @@
+// Fails (exit 1) if the working tree contains anything that must never reach Git:
+// API keys, JWTs, private keys, master-key material, real-looking emails, or the sheet export.
+// Run before every commit:  npm run scan   (the pre-commit hook in scripts/hooks does this for you)
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const SKIP_DIRS = new Set(['node_modules', '.git', '.next', 'private']);
+const SKIP_FILES = /(\.png|\.jpg|\.ico|\.woff2?|package-lock\.json|pdf\.min\.js|pdf\.worker\.min\.js)$/;
+const RULES = [
+  ['Anthropic key', /sk-ant-[A-Za-z0-9_-]{20,}/],
+  ['Supabase/JWT token', /eyJ[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{10,}/],
+  ['Private key block', /-----BEGIN [A-Z ]*PRIVATE KEY-----/],
+  ['Master key value', /MASTER_KEYS\s*=\s*'?\{\s*"[^"]+"\s*:\s*"[A-Za-z0-9+/=]{40,}"/],
+  ['GitHub token', /gh[pousr]_[A-Za-z0-9]{30,}/],
+  ['Sheet export shape', /MONTHLY_COSTS_DATA\s*=\s*\{\s*"?years"?\s*:\s*\[\s*\{/],
+];
+const EMAIL = /[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+\.)+[A-Za-z]{2,}/g;
+const OK_EMAIL = /(@example\.(com|org|test)|@users\.noreply\.github\.com|noreply@anthropic\.com|you@example\.com)$/i;
+
+export function scan(root) {
+  const hits = [];
+  (function walk(dir) {
+    for (const name of readdirSync(dir)) {
+      const p = join(dir, name); const rel = relative(root, p);
+      const st = statSync(p);
+      if (st.isDirectory()) { if (!SKIP_DIRS.has(name)) walk(p); continue; }
+      if (SKIP_FILES.test(name) || st.size > 2_000_000) continue;
+      if (/^\.env(\..*)?$/.test(name) && name !== '.env.example') { hits.push([rel, 'env file present (must be git-ignored)']); continue; }
+      if (name === 'monthly_costs_data.js') { hits.push([rel, 'spreadsheet export file']); continue; }
+      const text = readFileSync(p, 'utf8');
+      for (const [label, re] of RULES) if (re.test(text)) hits.push([rel, label]);
+      for (const m of text.matchAll(EMAIL)) if (!OK_EMAIL.test(m[0])) { hits.push([rel, `email address ${m[0].replace(/^(.).*(@.*)$/, '$1***$2')}`]); break; }
+    }
+  })(root);
+  return hits;
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const hits = scan(process.cwd());
+  if (hits.length) { for (const [f, why] of hits) console.error(`BLOCKED  ${f}  ->  ${why}`); process.exit(1); }
+  console.log('scan clean');
+}

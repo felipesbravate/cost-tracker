@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+.env
+.env.*
+!.env.example
+/private/
+monthly_costs_data.js
+*.log
+.DS_Store
+public/vendor/pdfjs/
+coverage/

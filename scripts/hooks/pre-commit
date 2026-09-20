@@ -1,0 +1,4 @@
+#!/bin/sh
+# Install once:  git config core.hooksPath scripts/hooks
+node scripts/scan-secrets.mjs || { echo "Commit blocked by the secrets scan."; exit 1; }
+node --test "tests/**/*.test.js" >/dev/null 2>&1 || { echo "Commit blocked: unit tests fail (run npm test)."; exit 1; }
