@@ -2,11 +2,9 @@
 // Serves the tracker UI as an HTML document with a per-response CSP nonce.
 import { randomBytes } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 
-const here = dirname(fileURLToPath(import.meta.url));
-const templatePath = join(here, '..', 'legacy', 'tracker.template.html');
+const templatePath = join(process.cwd(), 'src', 'legacy', 'tracker.template.html');
 // Read once in production; re-read on every request in development so edits show up without a restart.
 let cached = process.env.NODE_ENV === 'production' ? readFileSync(templatePath, 'utf8') : null;
 const template = () => cached ?? readFileSync(templatePath, 'utf8');
