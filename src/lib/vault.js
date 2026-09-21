@@ -62,9 +62,20 @@ export class Vault {
   /** @param {string} userId @param {string} collection @returns {Promise<{id:string, data:any}[]>} */
   async list(userId, collection) {
     assertRef(collection, 'x');
+    console.log(`[vault] list: fetching DEK for user ${userId}`);
     const dek = await this.dekFor(userId);
+    console.log(`[vault] list: got DEK, fetching rows for ${collection}`);
     const rows = await this.docs.list(userId, collection);
-    return rows.map((/** @type {any} */ r) => ({ id: r.doc_id, data: decryptJson(dek, r.payload, docAad(userId, collection, r.doc_id)) }));
+    console.log(`[vault] list: decrypting ${rows.length} rows`);
+    return rows.map((/** @type {any} */ r) => {
+      try {
+        const data = decryptJson(dek, r.payload, docAad(userId, collection, r.doc_id));
+        return { id: r.doc_id, data };
+      } catch (e) {
+        console.error(`[vault] decrypt failed for ${collection}/${r.doc_id}:`, e && e.message);
+        throw e;
+      }
+    });
   }
 
   /** @param {string} userId @param {string} collection @param {string} id */

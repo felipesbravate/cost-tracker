@@ -38,7 +38,10 @@ export async function handle(req, deps) {
       const collection = m[1];
       let id = m[2];
       if (id !== undefined) { try { id = decodeURIComponent(id); } catch { return json(400, { error: { code: 'bad_id', message: 'Invalid document id' } }); } }
-      if (method === 'GET' && !id) return json(200, { docs: await deps.vault.list(user.id, collection) });
+      if (method === 'GET' && !id) {
+        console.log(`[api] list ${collection} for user ${user.id}`);
+        return json(200, { docs: await deps.vault.list(user.id, collection) });
+      }
       if (method === 'POST' && !id) return json(201, await deps.vault.add(user.id, collection, req.body));
       if (method === 'PUT' && id) { await deps.vault.set(user.id, collection, id, req.body); return json(200, { id }); }
       if (method === 'DELETE' && id) { await deps.vault.remove(user.id, collection, id); return json(200, { id }); }
@@ -89,7 +92,14 @@ export async function handle(req, deps) {
   } catch (e) {
     const err = /** @type {any} */ (e);
     if (err instanceof VaultError) return json(err.code === 'too_large' ? 413 : 400, { error: safeError(err) });
-    console.error('[api]', err && err.message);
+    console.error('[api] ERROR', {
+      message: err && err.message,
+      code: err && err.code,
+      name: err && err.name,
+      userId: user && user.id,
+      path,
+      stack: err && err.stack
+    });
     return json(500, { error: safeError(err) });
   }
 }
