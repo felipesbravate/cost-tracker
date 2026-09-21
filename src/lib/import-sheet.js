@@ -4,6 +4,31 @@
 // Pure function: no I/O, so it is unit-tested with fake data. Real data is only ever fed to it at import time.
 
 /**
+ * The categories a year of the sheet really has: every row of that year, including rows that are 0 all year
+ * (they are what you may still book into later in the year). Order of the sheet is kept, duplicates dropped.
+ * @param {any} y  one year of the export
+ * @returns {{ incomes: string[], investments: string[], expenses: Record<string, Record<string, string[]>> }}
+ */
+export function taxonomyOfYear(y) {
+  const uniq = (/** @type {string[]} */ a) => [...new Set(a)];
+  /** @type {Record<string, Record<string, string[]>>} */ const expenses = {};
+  for (const [g, list] of Object.entries(y.expenses || {})) {
+    /** @type {Record<string, string[]>} */ const cats = {};
+    for (const it of /** @type {any[]} */ (list)) {
+      if (!it || !it.item || !it.category) continue;
+      (cats[it.category] ||= []).push(it.item);
+    }
+    for (const c of Object.keys(cats)) cats[c] = uniq(cats[c]);
+    if (Object.keys(cats).length) expenses[g] = cats;
+  }
+  return {
+    incomes: uniq((y.incomes || []).map((/** @type {any} */ i) => i.item).filter(Boolean)),
+    investments: uniq((y.investments || []).map((/** @type {any} */ i) => i.item).filter(Boolean)),
+    expenses,
+  };
+}
+
+/**
  * @param {{ years: any[] }} data
  * @param {{ now?: string }} [opts]
  * @returns {{ years: any[], entries: any[], report: { years: number, entries: number, negatives: number, notes: number, notesWithoutEntry: number } }}
@@ -14,7 +39,7 @@ export function convertSheet(data, opts = {}) {
   let negatives = 0, notes = 0, notesWithoutEntry = 0;
   for (const y of data.years || []) {
     const label = String(y.year);
-    years.push({ year: label, currency: y.currency === 'SEK' ? 'SEK' : 'EUR', createdAt: now });
+    years.push({ year: label, currency: y.currency === 'SEK' ? 'SEK' : 'EUR', createdAt: now, taxonomy: taxonomyOfYear(y) });
     /** @type {{type:string, group:string|null, list:any[]}[]} */
     const groups = [
       { type: 'income', group: null, list: y.incomes || [] },

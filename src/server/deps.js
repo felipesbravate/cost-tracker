@@ -24,7 +24,7 @@ export function getDeps() {
     usage: stores.usage,
     // Optional: without an API key the app runs normally and document reading reports "not configured".
     ai: process.env.ANTHROPIC_API_KEY
-      ? anthropicClient({ apiKey: process.env.ANTHROPIC_API_KEY, model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-5' })
+      ? anthropicClient({ apiKey: process.env.ANTHROPIC_API_KEY, model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-5' })
       : { async complete() { throw Object.assign(new Error('Document reading is not configured on this server'), { code: 'not_available' }); } },
     admins: parseAdminEmails(process.env.ADMIN_EMAILS),
     appOrigin: need('APP_ORIGIN'),

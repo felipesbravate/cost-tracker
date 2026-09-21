@@ -10,7 +10,7 @@ const fake = { years: [{ year: '2025', currency: 'EUR',
 test('converts non-zero cells into entries and years', () => {
   const r = convertSheet(fake, { now: 'N' });
   assert.deepEqual(r.report, { years: 1, entries: 6, negatives: 1, notes: 1, notesWithoutEntry: 1 });
-  assert.deepEqual(r.years, [{ year: '2025', currency: 'EUR', createdAt: 'N' }]);
+  assert.deepEqual(r.years, [{ year: '2025', currency: 'EUR', createdAt: 'N', taxonomy: { incomes: ['Salary'], investments: ['Savings'], expenses: { Fixed: { Habitation: ['Rent'] } } } }]);
   const rent = r.entries.filter((e) => e.item === 'Rent');
   assert.equal(rent.length, 3);
   assert.equal(rent[0].group, 'Fixed'); assert.equal(rent[0].category, 'Habitation'); assert.equal(rent[0].date, '2025-01-01');
