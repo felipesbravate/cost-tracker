@@ -99,12 +99,6 @@ export async function handle(req, deps) {
       path,
       stack: err && err.stack
     });
-    console.error('[vault-error]', {
-      message: err?.message,
-      code: err?.code,
-      stack: err?.stack,
-      path
-    });
     return json(500, { error: safeError(err) });
   }
 }
