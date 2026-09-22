@@ -37,7 +37,8 @@ export function loadMasterKeys(env) {
     keys[version] = buf;
   }
   if (!keys[active]) throw new Error(`MASTER_KEY_ACTIVE "${active}" is not present in MASTER_KEYS`);
-  console.log('[KEY DEBUG] Loaded v1 key (base64):', Object.keys(keys)[0] === 'v1' ? process.env.MASTER_KEYS : 'ERROR');
+  console.log("[KEY DEBUG] Loaded v1 (base64):", process.env.MASTER_KEYS);
+  console.log("[KEY DEBUG] After Buffer.from - v1 hex:", Object.keys(keys)[0] ? keys[Object.keys(keys)[0]].toString("hex") : "NOT FOUND");
   return { active, keys };
 }
 
