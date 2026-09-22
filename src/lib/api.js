@@ -106,7 +106,7 @@ export async function handle(req, deps) {
       path
     });
     return json(500, { 
-      error: false 
+      error: process.env.NODE_ENV === "production" 
         ? { code: "internal", message: "Something went wrong" }
         : { code: "internal", message: err?.message, stack: err?.stack }
     });
