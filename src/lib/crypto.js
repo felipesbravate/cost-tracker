@@ -50,9 +50,9 @@ export function decryptBytes(key, blob, aad) {
   decipher.setAuthTag(tag);
   try {
     return Buffer.concat([decipher.update(ct), decipher.final()]);
-  } catch {
-    // Deliberately generic: never reveal whether the key, the AAD or the data was wrong.
-    throw new Error('crypto: decryption failed');
+  } catch (err) {
+    console.log("[DECRYPT ERROR]", { errMessage: err.message, keyHex: key.toString("hex").substring(0, 16), aadLength: aad.length, ctLength: ct.length, tagHex: tag.toString("hex") });
+    throw new Error("crypto: decryption failed");
   }
 }
 
