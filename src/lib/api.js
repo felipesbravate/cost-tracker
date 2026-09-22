@@ -15,12 +15,11 @@ const json = (/** @type {number} */ status, /** @type {any} */ body) => ({ statu
  * @param {any} req @param {any} deps
  */
 export async function handle(req, deps) {
+  const user = req.user;
   try {
     const { method, path } = req;
     if (!passesCsrf(req, deps.appOrigin)) return json(403, { error: { code: 'forbidden', message: 'Cross-site request refused' } });
     if (!req.user) return json(401, { error: { code: 'unauthenticated', message: 'Sign in first' } });
-
-    const user = req.user;
     let profile = await deps.profiles.get(user.id);
     if (!profile) {
       profile = { user_id: user.id, email: user.email, status: 'pending' };
