@@ -62,11 +62,8 @@ export class Vault {
   /** @param {string} userId @param {string} collection @returns {Promise<{id:string, data:any}[]>} */
   async list(userId, collection) {
     assertRef(collection, 'x');
-    console.log(`[vault] list: fetching DEK for user ${userId}`);
     const dek = await this.dekFor(userId);
-    console.log(`[vault] list: got DEK, fetching rows for ${collection}`);
     const rows = await this.docs.list(userId, collection);
-    console.log(`[vault] list: decrypting ${rows.length} rows`);
     return rows.map((/** @type {any} */ r) => {
       try {
         const data = decryptJson(dek, r.payload, docAad(userId, collection, r.doc_id));

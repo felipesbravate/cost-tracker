@@ -10,3 +10,5 @@ monthly_costs_data.js
 .DS_Store
 public/vendor/pdfjs/
 coverage/
+.vercel
+.env*

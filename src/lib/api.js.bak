@@ -38,6 +38,7 @@ export async function handle(req, deps) {
       let id = m[2];
       if (id !== undefined) { try { id = decodeURIComponent(id); } catch { return json(400, { error: { code: 'bad_id', message: 'Invalid document id' } }); } }
       if (method === 'GET' && !id) {
+        console.log(`[api] list ${collection} for user ${user.id}`);
         return json(200, { docs: await deps.vault.list(user.id, collection) });
       }
       if (method === 'POST' && !id) return json(201, await deps.vault.add(user.id, collection, req.body));
