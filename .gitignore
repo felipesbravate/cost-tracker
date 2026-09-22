@@ -12,3 +12,5 @@ public/vendor/pdfjs/
 coverage/
 .vercel
 .env*
+*.bak
+*.bak[0-9]*
