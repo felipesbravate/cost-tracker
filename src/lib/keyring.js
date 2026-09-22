@@ -62,11 +62,9 @@ export function wrapDek(master, userId, dek) {
  * @returns {Buffer}
  */
 export function unwrapDek(master, userId, kekVersion, wrapped) {
-  const aad = dekAad(userId);
   const kek = master.keys[kekVersion];
   if (!kek) throw new Error(`master key version "${kekVersion}" is not available`);
-  console.log("[UNWRAP DEBUG]", { userId: userId.substring(0, 8), kekVersion, kekHex: kek.toString("hex").substring(0, 16), wrappedBase64: wrapped.substring(0, 16), aad });
-  return decryptBytes(kek, Buffer.from(wrapped, "base64"), aad);
+  return decryptBytes(kek, Buffer.from(wrapped, 'base64'), dekAad(userId));
 }
 
 /** @returns {Buffer} */
