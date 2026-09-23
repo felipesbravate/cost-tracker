@@ -30,6 +30,7 @@ export function getDeps() {
     appOrigin: need('APP_ORIGIN'),
     limiter: new RateLimiter(30, 60_000),
     loginLimiter: new RateLimiter(5, 10 * 60_000),
+    verifyLimiter: new RateLimiter(8, 10 * 60_000),
     dailyReadCap: Number(process.env.DAILY_READ_CAP || 30),
   };
   return cached;

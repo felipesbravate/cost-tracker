@@ -1,10 +1,23 @@
-import { loginHtml } from '../../src/lib/pages.js';
+import { cookies } from 'next/headers';
+import { codeHtml, loginHtml } from '../../src/lib/pages.js';
 import { securityHeaders } from '../../src/lib/legacy.js';
+import { EMAIL_COOKIE, cleanEmail } from '../../src/lib/otp-login.js';
 export const dynamic = 'force-dynamic';
+
+const CSP = "default-src 'none'; style-src 'unsafe-inline'; img-src data:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
+const page = (html) => new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8', ...securityHeaders(CSP) } });
+
 export async function GET(request) {
   const q = new URL(request.url).searchParams;
-  const msg = q.get('error')
-    ? 'That sign-in link did not work. Request a new one and open it in the same browser you requested it from.'
-    : q.get('sent') ? 'If that address is valid, a sign-in link is on its way.' : undefined;
-  return new Response(loginHtml({ message: msg }), { headers: { 'content-type': 'text/html; charset=utf-8', ...securityHeaders("default-src 'none'; style-src 'unsafe-inline'; img-src data:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'") } });
+  const store = await cookies();
+  if (q.get('restart')) { store.delete(EMAIL_COOKIE); return page(loginHtml()); }
+  const email = cleanEmail(store.get(EMAIL_COOKIE)?.value);
+  if (q.get('step') === 'code' && email) {
+    const msg = q.get('error') === 'code' ? "That code didn't work. Check it, or start again to get a new one (codes expire)."
+      : q.get('error') === 'limit' ? 'Too many attempts. Wait a few minutes and start again.' : undefined;
+    return page(codeHtml({ email, message: msg }));
+  }
+  // Old emailed links still land on /auth/callback, which sends failures here with ?error=1.
+  const msg = q.get('error') ? 'That sign-in link did not work. Enter your email to get a sign-in code instead.' : undefined;
+  return page(loginHtml({ message: msg }));
 }
