@@ -50,7 +50,8 @@ export const parseAmount = (v) => {
   if (typeof v === 'number') return isFinite(v) ? Math.abs(v) : 0;
   let s = String(v == null ? '' : v).replace(/[^\d.,-]/g, '');
   if (!s) return 0;
-  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');   // European: 1.163,59
+  else if (/^-?\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, ''); // dots as thousands only: 1.163 = 1163
   const n = parseFloat(s);
   return isFinite(n) ? Math.abs(n) : 0;
 };

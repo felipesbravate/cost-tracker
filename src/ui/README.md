@@ -28,12 +28,10 @@ unchanged. Design changes happen here, one Figma frame at a time.
   It was removed with the legacy page (see git history, `tests/ui/parity.py`).
 - `npm run visual` then `npm run visual:compare -- <new dir>`: whole-page screenshots, 38 states x desktop/mobile.
 
-## Known design-system gaps (kept through the rewrite; next to fix)
+## Known design-system gaps
 
 1. The Add entry panel resizes components through page CSS (`#add-panel .ds-dd--md` is 48px tall, 40px
    elsewhere; the panel hint is 14px, 12px elsewhere). In the DS these should be Size variants.
-2. A removed row's amount is meant to be struck through, but the line doesn't show: `.money` is inline-flex,
-   and text-decoration doesn't reach inside it.
-3. Year budget amounts show in US format (`1163.59`) instead of European.
-4. The year-delete button (Micro round button) is clipped at the top by the tab row.
-5. The closed side panel's shadow shows on the right edge of the page.
+
+Fixed Sept 23, 2026: Year budget amounts in European format, the year-delete button no longer clipped, no panel
+shadow on the page edge when the panels are closed, strike-through on removed rows.

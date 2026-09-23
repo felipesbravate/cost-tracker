@@ -8,7 +8,7 @@ import { AccountBar } from './AccountBar.jsx';
 import { AddPanel } from './AddPanel.jsx';
 import { BudgetPanel } from './BudgetPanel.jsx';
 import { ExpenseStrip, HeroLeft, TrackerCard, TrendChart, YearOverYear } from './Dashboard.jsx';
-import { MONTH_ABBR, budgetDefaultDocId, createModel, currentYearLabel, yearsFromDocs } from './model.js';
+import { MONTH_ABBR, budgetDefaultDocId, createModel, currentYearLabel, parseAmount, yearsFromDocs } from './model.js';
 import { YearNav } from './YearNav.jsx';
 
 const COLLECTIONS = ['entries', 'years', 'overrides', 'budgets', 'budgetDefaults'];
@@ -195,7 +195,7 @@ export default function TrackerApp() {
       // A new year starts with the categories of the nearest existing year (copied, so later edits never leak).
       await db.collection('years').add({ year: label, currency, createdAt: new Date().toISOString(), taxonomy: copy(modelRef.current.taxonomyForYear(label)) });
       for (const r of rows) {
-        const amount = Math.round((parseFloat(r.value) || 0) * 100) / 100;
+        const amount = Math.round(parseAmount(r.value) * 100) / 100; // typed in European format (1.163,59)
         const computed = parseFloat(r.computed) || 0;
         const group = r.group || null, category = r.category || null;
         if (amount > 0) await db.collection('budgets').add({ year: label, type: r.type, group, category, item: r.item, amount, createdAt: new Date().toISOString() }).catch(() => {});

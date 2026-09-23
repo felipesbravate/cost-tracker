@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { ActionLink, Button, FieldGroup, PanelHeader, Segments } from '../ui/index.js';
 import { Icon } from '../ui/Icon.jsx';
 import { actions as actionsIcon, checkmark, plus, trash, x } from '../ui/icons.js';
-import { EXP_GROUPS } from './model.js';
+import { EXP_GROUPS, fmtNum, parseAmount } from './model.js';
 
 const TYPES = [{ value: 'income', label: 'Income' }, { value: 'investment', label: 'Savings/Investments' }, { value: 'expense', label: 'Expenses' }];
 const GROUP_TABS = ['Fixed', 'Variable', 'Additional', 'Extra'].map((g) => ({ value: g, label: g }));
@@ -29,7 +29,7 @@ export function BudgetPanel({ pending, model, onClose, onCreate }) {
     const sugg = model.buildBudgetSuggestions();
     setSections(COMBOS.map(({ type, group: g, label }) => {
       const sec = sugg.find((s) => s.type === type && (type !== 'expense' || s.group === g));
-      const row = (it) => ({ key: ++seq, ...it, value: (it.suggested != null ? it.suggested : 0).toFixed(2) });
+      const row = (it) => ({ key: ++seq, ...it, value: fmtNum(it.suggested != null ? it.suggested : 0) });
       const items = sec ? sec.items : [];
       const blocks = [];
       if (type === 'expense') {
@@ -76,7 +76,7 @@ export function BudgetPanel({ pending, model, onClose, onCreate }) {
                 {s.adding
                   ? <AddItemRow type={s.type} label={s.label} onCancel={() => patchSection(i, (x) => ({ ...x, adding: false }))}
                       onAdd={(it) => patchSection(i, (x) => {
-                        const r = { key: ++seq, type: s.type, group: s.group, ...it, computed: 0, isCustomized: false, value: it.amount.toFixed(2) };
+                        const r = { key: ++seq, type: s.type, group: s.group, ...it, computed: 0, isCustomized: false, value: fmtNum(it.amount) };
                         if (s.type !== 'expense') return { ...x, adding: false, empty: false, pre: [...x.pre, r] };
                         const bi = x.blocks.findIndex((b) => b.category === it.category);
                         const blocks = bi >= 0 ? x.blocks.map((b, k) => (k === bi ? { ...b, rows: [...b.rows, r] } : b)) : [...x.blocks, { category: it.category, rows: [r] }];
@@ -112,7 +112,8 @@ function BudgetRow({ r, onValue, onMenu }) {
     <div className="budget-row" data-type={r.type} data-group={r.group || ''} data-category={r.category || ''} data-item={r.item} data-computed={r.computed || 0}>
       <span className="br-name" title={r.item}>{r.item}</span>
       {r.isCustomized && <span className="br-tag" title="Set from an earlier customization — used as the default suggestion until changed again">●</span>}
-      <span className="br-amt-link"><input type="number" step="0.01" min="0" className="br-input" value={r.value} onChange={(e) => onValue(r.key, e.target.value)} /></span>
+      <span className="br-amt-link"><input type="text" inputMode="decimal" className="br-input" aria-label={`Monthly budget for ${r.item}`} value={r.value} onChange={(e) => onValue(r.key, e.target.value)}
+        onBlur={(e) => onValue(r.key, fmtNum(parseAmount(e.target.value)))} /></span>
       <button type="button" className="round-btn tiny br-more" aria-label={`Actions for ${r.item}`} onClick={(e) => { e.stopPropagation(); onMenu(e.currentTarget); }}><Icon icon={actionsIcon} /></button>
     </div>
   );
@@ -145,7 +146,7 @@ function AddItemRow({ type, label, onAdd, onCancel }) {
   const ok = () => {
     const item = name.trim();
     if (!item) { nameRef.current?.focus(); return; }
-    onAdd({ category: type === 'expense' ? (cat.trim() || 'Other') : null, item, amount: Math.round((parseFloat(amt) || 0) * 100) / 100 });
+    onAdd({ category: type === 'expense' ? (cat.trim() || 'Other') : null, item, amount: Math.round(parseAmount(amt) * 100) / 100 });
   };
   return (
     <div className="budget-add-row">
@@ -155,7 +156,7 @@ function AddItemRow({ type, label, onAdd, onCancel }) {
         <input ref={nameRef} type="text" className="budget-add-input budget-add-name" placeholder="Item name" value={name} onChange={(e) => setName(e.target.value)} />
         <div className="field-with-prefix budget-add-amt">
           <span className="field-prefix">€</span>
-          <input type="number" step="0.01" min="0" placeholder="0.00" className="budget-add-input" value={amt} onChange={(e) => setAmt(e.target.value)} />
+          <input type="text" inputMode="decimal" placeholder="0,00" className="budget-add-input" value={amt} onChange={(e) => setAmt(e.target.value)} />
         </div>
       </div>
       <div className="budget-add-actions">

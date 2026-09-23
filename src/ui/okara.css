@@ -267,7 +267,9 @@
   .year-add-btn:hover{ background:var(--state-surface2-hover); border-color:var(--state-border-hover); color:var(--ink); }
   .year-add-btn:active{ background:var(--state-surface2-press); border-color:var(--state-border-hover); color:var(--ink); }
   .year-add-btn svg{ width:12px; height:12px; display:block; }
-  .year-tabs{ display:flex; flex:1 1 auto; align-items:center; gap:var(--space-md); overflow-x:auto; }
+  .year-tabs{ display:flex; flex:1 1 auto; align-items:center; gap:var(--space-md); overflow-x:auto;
+    /* room for the delete button (top -4px, right -7px): a scroll container clips on every side */
+    padding:4px 8px 0 0; margin:-4px -8px 0 0; }
   .year-btn{
     font-family:inherit; font-weight:600; font-size:16px; color:var(--ink-2); letter-spacing:0;
     background:none; border:none; border-bottom:2px solid transparent; cursor:pointer;
@@ -634,6 +636,8 @@
   .meter-row.is-removed .meter-amt{ color:var(--ink-muted); text-decoration:line-through; }
   .bd-row.is-estimate .n{ color:var(--ink-muted); font-style:italic; }
   .bd-row.is-removed .n{ color:var(--ink-muted); text-decoration:line-through; }
+  /* the Value is inline-flex, so the line has to be drawn on the figure inside it */
+  .bd-row.is-removed .n .money, .bd-row.is-removed .n .money > span, .meter-row.is-removed .meter-amt .money, .meter-row.is-removed .meter-amt .money > span{ text-decoration:line-through; }
 
   /* List of breackdown-rows, grouped into category Blocks (category-mode only;
      flat Income/Savings rows render as meters and skip this list, matching
@@ -704,9 +708,10 @@
     position:fixed; top:0; right:0; height:100vh; width:640px; max-width:92vw;
     background:var(--surface); border-left:1px solid var(--divider);
     box-shadow:0 0 40px rgba(0,0,0,.16); padding:var(--space-lg) var(--space-xl);
-    transform:translateX(100%); transition:transform .18s ease; z-index:41; overflow-y:auto;
+    transform:translateX(100%); transition:transform .18s ease, visibility 0s linear .18s; z-index:41; overflow-y:auto;
+    visibility:hidden; /* closed: no shadow on the page edge, and nothing inside it can take focus */
   }
-  .add-panel.open{ transform:translateX(0); }
+  .add-panel.open{ transform:translateX(0); visibility:visible; transition:transform .18s ease, visibility 0s; }
   .add-panel-header{ display:flex; flex-direction:column; align-items:flex-end; gap:var(--space-xs); }
   .round-btn{
     width:40px; height:40px; border-radius:var(--radius-full); border:none; background:transparent; color:var(--ink);
