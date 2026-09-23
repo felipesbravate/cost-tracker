@@ -4,9 +4,14 @@
   Real data lives in the encrypted database and is loaded by `npm run import` from an ignored folder.
 - **Server-side envelope encryption** over browser-side E2EE, so receipts can be read by Claude and accounts can be recovered.
 - **Service-role-only database access**: the browser never queries Supabase, so RLS misconfiguration cannot leak rows.
-- **Legacy UI kept as a served template** with a shim, to preserve the design system and behaviour. Two behaviour
-  changes for multi-user: new accounts start with the current year (no sheet history) and an item exists once an entry
-  is logged for it.
+- **The UI is React (Sept 23, 2026)**, replacing the legacy single-file template. Ported with parity first: same markup
+  and classes (so `src/ui/okara.css` styles it unchanged), the model logic moved as is (`src/tracker/model.js`), and it
+  was accepted when the e2e test passed on both pages, 74/76 screenshots were identical (the 2 others: a legacy display
+  bug) and Felipe checked it on real data. Why: components that map to the Okara Figma components, cacheable
+  files (repeat visits ~6 KB instead of 332 KB), and less shared state. The page renders in the browser only and
+  shows nothing until `/api/me` says the account is approved (no server round trip to Supabase per page view).
+  Behaviour kept from the multi-user template: new accounts start with the current year and an item exists once an
+  entry is logged for it.
 - **Logic in dependency-free ESM** (`src/lib`) so it is unit-tested without installing anything; framework glue (`app/`, `src/server`) is thin.
 - **The document reader always proposes a category, and says how sure it is.** Each row carries `certainty` ("sure" or "guess").
   Anything that is not "sure", or that had to be moved to another group, shows a "?" chip in the review and a count under the

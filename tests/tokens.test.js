@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-// Every Figma variable must exist in the :root block of the tracker with the same value,
+// Every Figma variable must exist in the :root block of the Okara stylesheet (src/ui/okara.css) with the same value,
 // and the app's short aliases must point at the right Figma variable.
-const css = readFileSync(new URL('../src/legacy/tracker.template.html', import.meta.url), 'utf8');
+const css = readFileSync(new URL('../src/ui/okara.css', import.meta.url), 'utf8');
 const root = css.slice(css.indexOf(':root{'), css.indexOf('*{ box-sizing'));
 const decl = {};
 for (const m of root.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) decl[m[1]] = m[2].trim();

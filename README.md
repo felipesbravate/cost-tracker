@@ -5,8 +5,8 @@ encrypted storage. Next.js route handlers + Supabase (Auth + Postgres). EUR by d
 
 ## How it works
 
-- The tracker UI (`src/legacy/tracker.template.html`) is the original single-file app. A small adapter
-  (`public/legacy/claude-shim.js`) gives it the same `db` / `sample` calls, backed by `/api/*`.
+- The tracker UI is React (`src/tracker/`, served at `/` by `app/page.jsx`), built from the Okara Design System
+  components in `src/ui/`. It loads everything from `/api/*`; the page HTML carries no data.
 - **Every document is encrypted on the server** with AES-256-GCM using a per-user key, and that key is itself
   wrapped by a master key that lives only in your host's environment. The database holds ciphertext only.
 - The browser never talks to Supabase tables. RLS is on with no policies, so even the public keys can read nothing.
@@ -48,3 +48,12 @@ python3 tests/e2e/e2e.py   # browser test against the mock server (needs Python 
 `.env*`, the sheet export) and the unit tests.
 
 See `SECURITY.md` for the threat model and what is and is not protected.
+
+## Checking the UI
+
+- `npm test`: unit tests.
+- Start the app for the browser tests: `npx next build && npx next start -p 3300`, then
+  `npm run e2e` (behaviour, against the in-memory mock backend) and
+  `npm run visual -- /tmp/shots && npm run visual:compare -- /tmp/shots` (38 states x desktop/mobile against
+  `tests/visual/reference`). Both need Python Playwright and Chromium.
+- Component gallery: `npx next dev`, then `/dev/components` (404 in production).

@@ -41,7 +41,12 @@ export default function TrackerApp() {
 
   // ---- data ----
   useEffect(() => {
-    getMe().then(setMe).catch(() => {});
+    // The page shows nothing until the account is known to be approved (signed out: api() goes to /login).
+    getMe().then((m) => {
+      if (m.status === 'pending') location.href = '/pending';
+      else if (m.status === 'blocked') location.href = '/blocked';
+      else setMe(m);
+    }).catch(() => {});
     const offs = COLLECTIONS.map((name) => db.collection(name).onSnapshot((snap) => {
       const docs = docsOf(snap);
       if (name !== 'years') { setData((d) => ({ ...d, [name]: docs })); return; }
@@ -213,6 +218,7 @@ export default function TrackerApp() {
   const selectMonth = (i) => setView((v) => ({ ...v, monthIdx: i }));
   const topTab = (bd.type === 'Income' || bd.type === 'Investments') ? bd.type : 'Expenses';
 
+  if (!me) return null;
   return (
     <>
       <AccountBar me={me} />

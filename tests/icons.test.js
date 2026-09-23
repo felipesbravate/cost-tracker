@@ -1,12 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 
 // The design system's icon sets come in 10px, 12px and 20px. Nearly all are one drawing scaled; X (10px) and Euro / Dollar
-// (10px and 12px) are redrawn per size and carry their own artwork in ICON_LIB. X is drawn at 10px and 12px.
-const html = readFileSync(new URL('../src/legacy/tracker.template.html', import.meta.url), 'utf8');
-const line = html.split('\n').find((l) => l.startsWith('window.ICON_LIB = '));
-const lib = JSON.parse(line.slice('window.ICON_LIB = '.length).replace(/;$/, ''));
+// (10px and 12px) are redrawn per size and carry their own artwork (src/ui/icons.js). X is drawn at 10px and 12px.
+import * as icons from '../src/ui/icons.js';
+const lib = Object.fromEntries(Object.values(icons).map((ic) => [ic.name, ic]));
 
 test('icons that are redrawn per size carry that size\'s artwork on its own frame', () => {
   const want = { x: ['10', '12'], euro: ['10', '12'], dollar: ['10', '12'] };
@@ -42,4 +40,10 @@ test('file-type icons: Document and Image are drawn on the exact 20px frame', ()
     assert.ok(nums.every((n) => n >= -0.01 && n <= 20.01), `${name} has coordinates outside its frame`);
   }
   assert.notEqual(lib.image.d, lib.document.d);
+});
+
+test('every icon is exported once under its own name', () => {
+  const names = Object.values(icons).map((ic) => ic.name);
+  assert.equal(new Set(names).size, names.length);
+  assert.ok(names.length >= 140);
 });

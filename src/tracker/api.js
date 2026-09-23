@@ -10,6 +10,7 @@ function fail(status, body) {
   const e = (body && body.error) || {};
   if (status === 401) location.href = '/login';
   if (status === 403 && e.code === 'pending') location.href = '/pending';
+  if (status === 403 && e.code === 'blocked') location.href = '/blocked';
   const err = new Error(e.message || `Request failed (${status})`);
   err.code = e.code || 'http_' + status;
   return err;

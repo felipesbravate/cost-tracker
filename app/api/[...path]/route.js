@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { securityHeaders } from '../../../src/lib/legacy.js';
+import { securityHeaders } from '../../../src/lib/headers.js';
 import { currentUser } from '../../../src/server/auth.js';
 import { getDeps, handle } from '../../../src/server/deps.js';
 

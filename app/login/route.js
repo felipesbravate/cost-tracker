@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { codeHtml, loginHtml } from '../../src/lib/pages.js';
-import { securityHeaders } from '../../src/lib/legacy.js';
+import { securityHeaders } from '../../src/lib/headers.js';
 import { EMAIL_COOKIE, cleanEmail } from '../../src/lib/otp-login.js';
 export const dynamic = 'force-dynamic';
 

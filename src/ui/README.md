@@ -3,9 +3,8 @@
 The Okara Design System as React components, for the React rewrite of the tracker.
 Figma: Okara Design System `7glNMA9d7iVJFf2CvyrzAb`, screens in Cost-tracker `jHurei4Bb53jEqSosr1Vt5`.
 
-**Rule for the rewrite:** the components render the same markup and class names as the legacy page
-(`src/legacy/tracker.template.html`), so `okara.css` styles both and nothing moves by a pixel.
-Design changes come after the switch, one Figma frame at a time.
+The components render the markup and class names the legacy page used, so `okara.css` (moved from it) styles them
+unchanged. Design changes happen here, one Figma frame at a time.
 
 | Component | Figma | File |
 |---|---|---|
@@ -25,11 +24,11 @@ Design changes come after the switch, one Figma frame at a time.
 ## Checking them
 
 - Gallery: `npx next dev`, then open `/dev/components` (404 in production).
-- `npm run parity` (gallery running on port 3300): every case marked "parity" is compared with the
-  same component on the legacy page, DOM and pixels. 21/21 match as of Sept 23, 2026.
+- During the rewrite, a parity test compared 21 components with the legacy page (DOM and pixels): 21/21 matched.
+  It was removed with the legacy page (see git history, `tests/ui/parity.py`).
 - `npm run visual` then `npm run visual:compare -- <new dir>`: whole-page screenshots, 38 states x desktop/mobile.
 
-## Known design-system gaps (not fixed on purpose, the rewrite keeps parity)
+## Known design-system gaps (kept through the rewrite; next to fix)
 
 1. The Add entry panel resizes components through page CSS (`#add-panel .ds-dd--md` is 48px tall, 40px
    elsewhere; the panel hint is 14px, 12px elsewhere). In the DS these should be Size variants.
