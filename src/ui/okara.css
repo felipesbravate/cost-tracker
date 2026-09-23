@@ -1,0 +1,999 @@
+/* Okara Design System + tracker styles. Moved verbatim from src/legacy/tracker.template.html (Sept 23, 2026)
+   so the React UI renders pixel-identical to the legacy page. From here on this file is the source. */
+  :root{
+    color-scheme: light;
+
+    /* ================================================================
+       FIGMA VARIABLES — Costly Design System (Variables view, node 4:43),
+       read straight from the file on Sept 21, 2026. Custom-property names
+       mirror "collection group/name" (Color/surface/primary -> --surface-primary).
+       Change a value in Figma first, then here. Spacing, Radius and Opacity
+       already used Figma's own names, so they keep them. The Primitives
+       collection is intentionally NOT mirrored: the design-system owner will add primitives
+       to the design system later, and until then nothing here may depend on one.
+       ================================================================ */
+
+    /* Collection: Color (mode "Light") */
+    --surface-primary:      #ffffff;
+    --surface-secondary:    #efeee5;
+    --surface-body:         #f9f9f7;   /* the app's page background */
+    --surface-tertiary:     #7b786d;
+    --surface-accent:       #4f46e5;
+    --surface-accent-light: #e8e7ff;
+    --surface-dark:         #16150f;
+    --surface-success:      #e3f4ec;
+    --surface-fail:         #ffc4c6;
+    --surface-warning:      #ffe9b7;
+    --text-primary:         #16150f;
+    --text-secondary:       #7b786d;
+    --text-muted:           #aaa698;
+    --text-white:           #ffffff;
+    --text-accent:          #4f46e5;
+    --border-default:       #cbcac5;
+    --border-hover:         #acaca1;
+    --border-focus:         #4f46e5;
+    --border-dark:          #16150f;
+    --action-default:       #16150f;
+    --action-hover:         #32312c;
+    --action-press:         #1f1e19;
+    --action-secondey:      #ffffff;   /* sic: Figma's own spelling; text on a dark action fill */
+    --action-accent:        #4f46e5;
+    --action-accent-interaction: #372ecd;
+    --action-recessed-hover: #e4e3da;
+    --action-recessed-press: #deddd4;
+    --action-disable:       #aaa698;
+    --action-destructive:   #d5393f;
+    --link-default:         #4f46e5;
+    --link-hover:           #372ecd;
+    --link-press:           #1f17a7;   /* Figma: link/Press */
+    --data-purple:          #4b0fa5;
+    --data-blue:            #2285bb;
+    --data-light-blue:      #1dc0bb;
+    --data-pink:            #e3029f;
+    --data-lime:            #c4d400;
+    --data-orange:          #ffba3a;
+    --status-success:       #17a768;
+    --status-fail:          #d5393f;
+    --status-warning:       #a87704;
+
+    /* Collection: Spacing */
+    --space-xs:   4px;
+    --space-sm:   8px;
+    --space-md:   16px;
+    --space-lg:   24px;
+    --space-xl:   40px;
+    --space-xxl:  48px;
+
+    /* Collection: Radius */
+    --radius-ty:   4px;
+    --radius-sm:   8px;
+    --radius-md:   16px;
+    --radius-lg:   24px;
+    --radius-full: 999px;
+
+    /* Collection: Opacity */
+    --opacity-disabled: 0.4;
+
+    /* ================================================================
+       App aliases — the short names the rest of this file already uses,
+       each pointing at a Figma variable above so there is one source of truth.
+       ================================================================ */
+    --page:        var(--surface-body);
+    --surface:     var(--surface-primary);
+    --surface-2:   var(--surface-secondary);
+    --ink:         var(--text-primary);
+    --ink-2:       var(--text-secondary);
+    --ink-muted:   var(--text-muted);
+    --border-card: var(--border-default);
+    --on-primary:  var(--action-secondey);
+    --accent:      var(--action-accent);
+    --accent-soft: var(--surface-accent-light);   /* Figma has a solid #e8e7ff here; the old value was indigo at 10% */
+    --critical:    var(--status-fail);
+    --good:        var(--status-success);
+    /* Data colours, as the Cost-tracker screens bind them (Color/data/*).
+       Sept 22 pull of the main page (2:2): the KPI dots and the trend chart are Income indigo (surface/accent),
+       Expenses pink, Savings/Investments lime. Income and Investments meters keep the older purple / light blue.
+       Expense groups (tracker meters, Expense cards): Fixed purple, Variable light blue, Extra orange,
+       Additional pink; the allocation bars draw Extra in data/blue. */
+    --income:      var(--data-purple);
+    --expense:     var(--data-pink);
+    --invest:      var(--data-light-blue);
+    --additional:  var(--data-pink);
+    --group-fixed:    var(--data-purple);
+    --group-variable: var(--data-light-blue);
+    --group-extra:    var(--data-orange);
+    --group-additional: var(--data-pink);
+    --kpi-income:  var(--surface-accent);
+    --kpi-expense: var(--data-pink);
+    --kpi-invest:  var(--data-lime);
+    --alloc-extra: var(--data-blue);
+    /* The Fixed badge on the Expense cards is bound to surface/accent in Figma, not to data/purple. */
+    --badge-fixed: var(--surface-accent);
+    /* Hairlines (chart gridlines, footer rule): text/primary at 9% and 16%, as drawn in the chart. */
+    --border:      color-mix(in srgb, var(--text-primary) 9%, transparent);
+    --border-2:    color-mix(in srgb, var(--text-primary) 16%, transparent);
+    /* Card corner radius: Figma draws every card at 20, which is not a Radius variable. */
+    --radius-card: 20px;
+    /* Series colours of the trend chart, as the lines are drawn in Figma (Sept 22):
+       Income = indigo 2.5px (the file binds it to border/focus, same #4f46e5), Expenses = data/pink, Savings = data/lime.
+       The file's legend paints the Savings swatch #17a768 (green) although the line is lime; the swatch follows the line here. */
+    --chart-income:  var(--surface-accent);
+    --chart-expense: var(--data-pink);
+    --chart-invest:  var(--data-lime);
+    /* Values the designs use without a variable, or with a binding the Costly Design System no longer has.
+       Kept in one place so they are easy to bind later. */
+    --divider:       #d3d2cd;   /* border/card: dividers and the panel edge (not in DS Color today) */
+    --label-muted:   #928e80;   /* unbound: allocation bar names */
+    --legend-text:   #58554b;   /* unbound: chart legend text */
+    --state-ink-hover:      var(--action-hover);
+    --state-ink-press:      var(--action-press);
+    --state-surface2-hover: var(--action-recessed-hover);
+    --state-surface2-press: var(--action-recessed-press);
+    --state-border-hover:   var(--border-hover);
+
+    /* Type scale — matches the DS file's named text styles (text styles, not variables) */
+    --font-size-small:   12px;  /* Body/Small, Label/Default, Value/Small */
+    --font-size-default: 14px;  /* Body/Default, Heading/Card, Value/Medium — the baseline */
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ background:var(--page); }
+  body{
+    margin:0; background:var(--page); color:var(--ink);
+    font-family:"Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-weight:400;
+    font-size:var(--font-size-default);
+    padding:0 var(--space-xl);
+  }
+  .wrap{ max-width:1238px; margin:0 auto; padding-block:8px 72px; }
+  h1,h2,h3{ font-family:inherit; margin:0; font-weight:500; }
+
+  /* ---- Header ---- */
+  header.top{ margin-bottom:var(--space-xl); padding-top:var(--space-sm); }
+  .app-title{ font-size:32px; font-weight:600; letter-spacing:0; line-height:normal; color:var(--ink); }
+  .app-sub{ color:var(--ink-2); font-size:14px; font-weight:500; letter-spacing:-0.14px; line-height:15.2px; margin-top:var(--space-xs); }
+
+  /* ---- Buttons — matches DS "Button" component (Components page, node 4:43) exactly:
+     Size=Medium/Small/Tiny × Style=Primary/Secondary/Tertiary, pulled directly from the
+     live variant geometry (radius/full, action/default fill, border/default stroke,
+     text/white / text/primary text, 4px icon-label gap) rather than approximated. ---- */
+  .btn-pill{
+    font-family:inherit; font-weight:600; font-size:var(--font-size-default); line-height:15.2px; letter-spacing:-0.14px; padding:var(--space-sm) var(--space-md);
+    border-radius:var(--radius-full); border:1px solid transparent; background:var(--ink); color:var(--text-white); cursor:pointer;
+    display:inline-flex; align-items:center; gap:4px; height:40px;
+    transition: background-color .12s ease, color .12s ease, border-color .12s ease, box-shadow .12s ease, opacity .12s ease;
+  }
+  .btn-pill:hover{ background:var(--state-ink-hover); }
+  .btn-pill:active{ background:var(--state-ink-press); }
+  .btn-pill:focus-visible{ outline:none; box-shadow:0 0 0 3px var(--accent-soft); }
+  /* Style=Secondary: no fill, border/default stroke (was incorrectly a solid --ink
+     border with a white fill — corrected to match the real component: transparent
+     background, #cbcac5 border). */
+  .btn-pill.ghost{ background:transparent; color:var(--ink); border-color:var(--border-card); }
+  /* Style=Tertiary: no fill, no border, ink text only — new, not yet used by any
+     button in this app, added for parity with the DS component. */
+  .btn-pill.tertiary{ background:transparent; color:var(--ink); border-color:transparent; }
+  .btn-pill.tertiary:hover{ background:var(--state-surface2-hover); }
+  .btn-pill.tertiary:active{ background:var(--state-surface2-press); }
+  /* Size=Small (32px) / Size=Tiny (24px, 12px text, 8px h-padding) — new size
+     modifiers matching the DS component's real dimensions; not yet applied to any
+     button in the markup below (every button here is Size=Medium today). */
+  .btn-pill.small{ height:32px; }
+  .btn-pill.tiny{ height:24px; font-size:12px; line-height:17px; letter-spacing:-0.12px; padding:var(--space-xs) var(--space-sm); }
+  /* Medium buttons carry a 20px icon (Button/Size=Medium with Plus). */
+  .btn-pill svg{ width:20px; height:20px; display:block; flex-shrink:0; }
+  /* "+Add entry" is the one Button instance node 2:2 actually shows at 16px/-0.16px
+     tracking (SemiBold) rather than the 14px baseline — scoped to this button only,
+     since the Add-year pill's and Add-entry panel's buttons are a separate Small-size
+     instance (32px/12px) unaffected by this. */
+  .btn-pill.ghost:hover{ background:var(--state-surface2-hover); border-color:var(--state-border-hover); }
+  .btn-pill.ghost:active{ background:var(--state-surface2-press); }
+  .btn-pill:disabled{ opacity:var(--opacity-disabled); cursor:not-allowed; }
+  .btn-pill:disabled:hover{ background:var(--ink); }
+  .btn-pill.ghost:disabled:hover{ background:var(--surface); }
+  .btn-plain{ font-size:12px; color:var(--ink-2); background:none; border:none; cursor:pointer; padding:var(--space-sm) 4px; font-weight:500; border-radius:var(--radius-sm); transition:color .12s ease, background-color .12s ease; }
+  .btn-plain:hover{ color:var(--state-ink-hover); background:var(--surface-2); }
+  .btn-plain:active{ color:var(--state-ink-press); background:var(--state-surface2-press); }
+
+  /* ---- New DS components with no current UI slot in this app — coded as reusable
+     utility classes matching their real Figma geometry/tokens, available for future
+     use, not yet placed anywhere in the markup below. ---- */
+  /* Divider: a 1px rule in border/card (#d3d2cd), the binding the Cost-tracker designs use for it. */
+  .ds-divider{ border:none; border-top:1px solid var(--divider); margin:0; }
+  /* Label: the closest thing to a replacement for the deleted "Tag" component —
+     radius/ty (4px) pill, bg/dark fill, 10px SemiBold white text. */
+  .ds-label{
+    display:inline-flex; align-items:center; padding:0 var(--space-sm); height:20px;
+    border-radius:var(--radius-ty); background:var(--ink); color:var(--text-white);
+    font-size:10px; font-weight:600; letter-spacing:-0.1px; white-space:nowrap;
+  }
+  /* Action link: 12px SemiBold link-colored text button. link/default (#4f46e5)
+     is identical to this app's existing --accent, so it reuses that variable rather
+     than introducing a redundant one; hover/press map to the new link/hover
+     (#372ecd) and link/Press (#1f17a7) tokens directly since nothing else in the
+     app defines those two shades yet. Now actually placed in the UI (the note
+     tooltip's "Restore" control, .tip-restore) — layout properties (line-height,
+     icon gap/size, exact -1% letter-spacing) filled in against the live
+     component's real geometry rather than left as an approximation. */
+  .ds-action-link{
+    font-family:inherit; font-size:12px; font-weight:600; letter-spacing:-0.12px; line-height:17px;
+    color:var(--accent); background:none; border:none; padding:0; cursor:pointer;
+    display:inline-flex; align-items:center; gap:4px;
+    transition:color .12s ease;
+  }
+  .ds-action-link svg{ width:12px; height:12px; display:block; }
+  /* v2.18: Hover state also carries a 1px underline in link/hover (Action link, Size=Small, State=Hover, node 143:58676). */
+  .ds-action-link:hover{ color:var(--link-hover); text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; }
+  .ds-action-link:active{ color:var(--link-press); }
+  .ds-action-link:disabled{ opacity:var(--opacity-disabled); cursor:not-allowed; }
+
+  /* ---- Actions row: top-nav (years+months) + Add entry, bottom-aligned.
+     Dims to 16% opacity while the Add-year pill is open (matches the
+     Cost-tracker file's "Add year behavior" frame, where the whole Actions
+     row carries opacity-16 while the pill overlays it). The pill lives in
+     .actions-wrap, a SIBLING of .actions-row rather than a descendant of it —
+     CSS opacity compounds onto all descendants regardless of their own
+     opacity value, so the pill has to sit outside the dimmed subtree or it
+     would fade along with everything else. ---- */
+  .actions-wrap{ position:relative; margin-bottom:var(--space-xl); }
+  .actions-row{ display:flex; gap:var(--space-lg); align-items:flex-end; transition:opacity .18s ease; }
+  .actions-row.dimmed{ opacity:0.16; pointer-events:none; }
+  .top-nav{ display:flex; flex-direction:column; gap:var(--space-sm); flex:1 1 auto; min-width:0; }
+
+  /* ---- Year nav: underline tabs, not pills (matches Nav tabs / Tab components,
+     DS nodes 59:850 / 53:801, re-confirmed Sept 19 2026: round button stays 40px,
+     but tab text is 16px SemiBold (Body/Large/SemiBold) — NOT the 14px this
+     component briefly settled on in an earlier pass — and the row's own gap is
+     space-md (16px), not space-sm (8px). the owner's Figma file has now moved this
+     component's exact sizing three times; this is the current live value,
+     verified by a fresh pull, not carried over from an older doc note. ---- */
+  .years{ display:flex; align-items:center; gap:var(--space-md); }
+  /* Round button, Style=Secondery (Figma's own spelling) — border/default stroke,
+     no fill; was incorrectly using --ink (near-black) as the border color, corrected
+     to match the real component's #cbcac5. */
+  .year-add-btn{
+    width:40px; height:40px; border-radius:var(--radius-full); flex-shrink:0; border:1px solid var(--border-card);
+    background:transparent; color:var(--ink); padding:0;
+    display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+    transition: background-color .12s ease, color .12s ease;
+  }
+  /* Hover/Press were wrongly using the Primary-style dark-ink formula (solid
+     fill + white text). Re-pulled Round button, Style=Secondery directly:
+     Hover/Press keep the ink icon color and swap the fill/border to the same
+     recessed-hover/recessed-press + border-hover tokens Secondary uses
+     everywhere else — confirmed against the live component, not the button
+     that was here before. */
+  .year-add-btn:hover{ background:var(--state-surface2-hover); border-color:var(--state-border-hover); color:var(--ink); }
+  .year-add-btn:active{ background:var(--state-surface2-press); border-color:var(--state-border-hover); color:var(--ink); }
+  .year-add-btn svg{ width:12px; height:12px; display:block; }
+  .year-tabs{ display:flex; flex:1 1 auto; align-items:center; gap:var(--space-md); overflow-x:auto; }
+  .year-btn{
+    font-family:inherit; font-weight:600; font-size:16px; color:var(--ink-2); letter-spacing:0;
+    background:none; border:none; border-bottom:2px solid transparent; cursor:pointer;
+    height:32px; width:auto; padding:0 var(--space-xs); flex-shrink:0;
+    transition: color .12s ease, border-color .12s ease;
+  }
+  .year-btn:hover{ color:var(--accent); }
+  .year-btn[aria-pressed="true"]{ color:var(--ink); border-bottom-color:var(--ink); }
+  .year-btn[aria-pressed="true"]:hover{ color:var(--ink); }
+  /* ---- Delete year (added Sept 16, 2026, v2.15): only years added via
+     "+ Add year" carry a db id and get this affordance -- sheet-sourced
+     years are the official record and aren't deletable here. Re-pulled
+     Sept 19, 2026 against DS node 53:801 (Tab, Hover state): the icon now
+     only appears when hovering the tab that is BOTH extra-year AND the
+     CURRENTLY SELECTED one — not any hovered extra-year tab as before —
+     a real narrowing of when this destructive control shows up. Clicking
+     it swaps that one tab into an inline Yes/Cancel confirm rather than
+     deleting immediately. ---- */
+  .year-tab{ position:relative; flex-shrink:0; }
+  /* Rebuilt again per the Sept 19, 2026 pull as a plain floating icon (no
+     button chrome at all — no border, no fill, no border-radius), using
+     the app's own existing "negative-outlined" icon colored critical-red.
+     This incidentally UNDOES a gap this doc flagged in an earlier pass:
+     when this control was a Round-button instance, Figma's Round button
+     had no destructive style, so the delete affordance lost its red
+     danger cue. Figma's literal spec here has no button at all, so that
+     cue is back "for free," not because a destructive Round-button variant
+     was added. */
+  /* Sept 22 pull (DS 53:801, Type=Selected, State=Hover): the delete control is a Round button Size=Micro (14px,
+     10px X, dark) hanging off the top-right corner of the selected tab (x 41, y -4 in a 48 x 32 tab). */
+  .year-del-btn{
+    position:absolute; top:-4px; right:-7px; width:14px; height:14px; border-radius:var(--radius-full);
+    border:none; background:var(--action-default); color:var(--on-primary);
+    padding:0; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity .12s ease, background-color .12s ease;
+  }
+  .year-tab:hover .year-del-btn, .year-del-btn:focus-visible{ opacity:1; pointer-events:auto; }
+  .year-del-btn:hover{ background:var(--action-hover); }
+  .year-del-btn:active{ background:var(--action-press); }
+  .year-del-btn svg{ width:10px; height:10px; display:block; }
+  .year-confirm{
+    display:flex; align-items:center; gap:6px; height:32px; padding:0 6px; white-space:nowrap;
+    font-size:11px; font-weight:500; color:var(--ink);
+  }
+  /* Yes/Cancel are now real Button, Size=Tiny instances (.btn-pill.tiny /
+     .btn-pill.tiny.ghost, already matching Figma exactly elsewhere in this
+     file) instead of a bespoke red/ghost pair. Same disclosed trade-off as
+     year-del-btn above: Figma's Button has no destructive style, so "Yes"
+     (a permanent delete) is now Style=Primary's plain dark-ink fill, not
+     red — flagging the lost danger cue rather than inventing a red variant
+     Figma doesn't define. */
+  .year-toast{
+    position:fixed; left:50%; bottom:24px; transform:translate(-50%,12px); z-index:60;
+    display:flex; align-items:center; gap:var(--space-md); background:var(--ink); color:var(--page);
+    font-size:13px; padding:var(--space-sm) var(--space-md); border-radius:var(--radius-sm);
+    box-shadow:0 8px 22px rgba(0,0,0,.28); opacity:0; pointer-events:none; transition:opacity .15s ease, transform .15s ease;
+  }
+  .year-toast.visible{ opacity:1; transform:translate(-50%,0); pointer-events:auto; }
+  .year-toast button{
+    font-family:inherit; font-size:12px; font-weight:600; color:var(--page); border:none; cursor:pointer;
+    background:rgba(255,255,255,.14); border-radius:var(--radius-full); padding:4px 10px; transition:background-color .12s ease;
+  }
+  .year-toast button:hover{ background:rgba(255,255,255,.24); }
+
+  /* ---- Toast (DS node 173:6658, Success/Fail/Neutral) — re-pulled Sept 19,
+     2026 as part of the owner's 11-link batch. Distinct from .year-toast above:
+     that one is a specific action-undo affordance (bg/dark, an embedded
+     "Undo" button) with no equivalent in Figma's Toast component (which has
+     no button slot), so it's kept as its own thing rather than force-fit
+     into this. This is the generic ack/error component, built now per
+     the owner's "we will use it soon" and wired to one real event so far: the
+     starting-budget panel's "Create year" save (success on commit, fail on
+     a thrown/caught error) — previously that flow gave zero feedback once
+     the drawer closed on success. Icons reuse the app's existing 144-icon
+     library (checkmark/plus) — Figma's Fail/Neutral icon is genuinely named
+     "Plus" and renders as a plain plus glyph, not a rotated X; taken at
+     face value rather than assumed to be a mislabeled close icon. */
+  .ds-toast{
+    /* Sept 22 pull: 14px SemiBold /15.2 -1%, 8px gap, a 12px checkmark on every type, and the
+       "Toast position" frame (171:13746) puts it bottom-centre, 24px above the window edge. */
+    position:fixed; left:50%; bottom:24px; transform:translate(-50%,12px); z-index:70;
+    display:inline-flex; align-items:center; gap:var(--space-sm); height:32px; padding:0 var(--space-md);
+    border-radius:var(--radius-sm); max-width:400px; box-sizing:border-box;
+    font-size:14px; font-weight:600; line-height:15.2px; letter-spacing:-0.14px; color:var(--text-white); white-space:nowrap;
+    box-shadow:0 0 8px rgba(22,21,15,.08);
+    opacity:0; transform:translate(-50%,12px); pointer-events:none; transition:opacity .18s ease, transform .18s ease;
+  }
+  .ds-toast.visible{ opacity:1; transform:translate(-50%,0); }
+  .ds-toast .ds-toast-icon{ flex-shrink:0; display:flex; width:12px; height:12px; }
+  .ds-toast.success{ background:var(--status-success); }
+  .ds-toast.fail{ background:var(--status-fail); }
+  .ds-toast.neutral{ background:var(--action-default); }
+  .ds-toast svg{ width:100%; height:100%; display:block; }
+
+  /* ---- Dropdown, one component for every choice field in the product.
+     Figma (Costly Design System), measured from the file on Sept 21, 2026:
+     trigger = Dropdown set 71:1096 (Medium h40 px16 14px/15.2 -1%, Small h32 p8 12px/17,
+     Tiny h24 p8 10px; gap 8, 1px border/default, radius/sm, no fill; Empty text is
+     text/secondary, Filled and Active text/primary, Active border is border/focus,
+     Disable text/muted); DropdownItem = set 183:6858 (padding 4/8, radius/ty, 12px
+     Medium /17, Hover fill surface/accent-light); list = Dropdown-list set 182:6851,
+     Type=Group 182:6850 and Type=Simple 183:6887: width 242, padding 16, 1px border,
+     radius/sm, shadow 0 0 8 ink@8%; Group blocks gap 8, label 12px SemiBold /17 -1%
+     flush left, items gap 4, blocks split by a divider; Simple = flat items, no gap.
+     Trigger height in the Add-entry panel is 48 because the panel screen (52:3443)
+     overrides Medium to 48 on its Dropdown and Input instances.
+     It is a progressive enhancement over a real <select> (see the DD module in the
+     script): the select stays in the DOM, hidden, and keeps the value, so .value and
+     'change' work as they always did. <optgroup> becomes a Group block; options
+     outside any optgroup become an unlabelled block. The menu is position:fixed on
+     <body> so no scrolling panel or overflow:hidden row can clip it. */
+  .ds-dd{ position:relative; display:block; min-width:0; }
+  .ds-dd > select{ display:none; }
+  .ds-dd-trigger{
+    display:flex; align-items:center; justify-content:space-between; gap:var(--space-sm);
+    width:100%; height:32px; padding:0 var(--space-sm); box-sizing:border-box;
+    background:transparent; border:1px solid var(--border-default); border-radius:var(--radius-sm);
+    font-family:inherit; font-size:12px; font-weight:400; line-height:17px; letter-spacing:0; text-align:left; color:var(--text-primary); cursor:pointer;
+    transition:border-color .12s ease, box-shadow .12s ease;
+  }
+  .ds-dd--md .ds-dd-trigger{ height:40px; padding:0 var(--space-md); font-size:14px; line-height:15.2px; letter-spacing:-0.14px; }
+  .ds-dd--tiny .ds-dd-trigger{ height:24px; font-size:10px; line-height:13px; }
+  .ds-dd-label{ flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ds-dd-trigger svg{ width:12px; height:12px; flex-shrink:0; color:var(--action-default); transition:transform .12s ease; }
+  .ds-dd.is-empty .ds-dd-trigger{ color:var(--text-secondary); }
+  .ds-dd-trigger:hover{ border-color:var(--border-hover); }
+  .ds-dd.open .ds-dd-trigger, .ds-dd-trigger:focus-visible{ border-color:var(--border-focus); }
+  .ds-dd-trigger:focus-visible{ outline:none; box-shadow:0 0 0 3px var(--accent-soft); }
+  .ds-dd.open .ds-dd-trigger svg{ transform:rotate(180deg); }
+  .ds-dd.is-disabled .ds-dd-trigger{ color:var(--text-muted); cursor:not-allowed; border-color:var(--border-default); box-shadow:none; }
+  .ds-dd.is-disabled .ds-dd-trigger svg{ color:var(--action-disable); }
+  .ds-dd-menu{
+    position:fixed; z-index:80; box-sizing:border-box; width:max(242px, var(--dd-w, 0px)); max-width:calc(100vw - 16px);
+    overflow-y:auto; overscroll-behavior:contain;
+    background:var(--surface-primary); border:1px solid var(--border-default); border-radius:var(--radius-sm); padding:var(--space-md);
+    box-shadow:0 0 8px color-mix(in srgb, var(--text-primary) 8%, transparent);
+    display:flex; flex-direction:column; gap:var(--space-sm);
+  }
+  .ds-dd-block{ display:flex; flex-direction:column; gap:var(--space-sm); }
+  .ds-dd-group{ font-size:14px; font-weight:600; letter-spacing:-0.14px; line-height:15.2px; color:var(--text-primary); }   /* Dropdown-list group label, Sept 22 pull: 14px SemiBold /15.2 -1% */
+  .ds-dd-items{ display:flex; flex-direction:column; gap:var(--space-xs); }
+  .ds-dd-menu:not(.is-group) .ds-dd-items{ gap:0; }
+  .ds-dd-item{
+    padding:var(--space-xs) var(--space-sm); border-radius:var(--radius-ty); cursor:pointer;
+    font-size:12px; font-weight:500; line-height:17px; letter-spacing:0; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .ds-dd-item.is-active{ background:var(--surface-accent-light); }
+
+  /* ---- Add-year pill: overlays the year-tabs row itself (not a row pushed
+     below it) — matches the "Nav tabs - Add year" component (DS node 79:1242,
+     confirmed live over the tabs at Cost-tracker node 60:4608). Opens with a
+     fade + scale-in rather than the old push-down panel. ---- */
+  .year-add-pill{
+    position:absolute; top:0; left:0; z-index:10;
+    display:flex; align-items:center; gap:var(--space-md); height:40px;
+    background:var(--surface); border:1px solid var(--border-card); border-radius:var(--radius-full);
+    padding-right:var(--space-xs);
+    opacity:0; transform:scale(.96); transform-origin:left center; pointer-events:none;
+    transition:opacity .18s ease, transform .18s ease;
+  }
+  .year-add-pill.open{ opacity:1; transform:scale(1); pointer-events:auto; }
+  .year-add-pill .round-btn{
+    width:40px; height:40px; border-radius:var(--radius-full); border:none; background:var(--state-surface2-press); color:var(--ink);
+    display:inline-flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; padding:0;
+    transition: background-color .12s ease;
+  }
+  .year-add-pill .round-btn:hover{ background:var(--state-surface2-hover); }
+  .year-add-pill .round-btn svg{ width:12px; height:12px; }
+  .year-add-pill-inputs{ display:flex; align-items:center; gap:var(--space-xs); }
+  .year-add-pill-field{
+    position:relative; display:flex; align-items:center; height:32px; width:80px;
+    border:1px solid var(--border-card); border-radius:var(--radius-sm); padding:0 var(--space-sm);
+    background:var(--surface); transition:border-color .12s ease, box-shadow .12s ease;
+  }
+  .year-add-pill-field:focus-within{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .year-add-pill-field input{
+    border:none; background:transparent; outline:none; font:inherit; font-size:12px; color:var(--ink);
+    width:100%; padding:0; cursor:text;
+  }
+  .year-add-pill-currency{ width:80px; }
+  #year-add-input{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+  .year-add-pill .btn-pill{ height:32px; padding:var(--space-xs) var(--space-md); }
+  .year-add-pill .add-status{ position:absolute; top:calc(100% + var(--space-xs)); left:0; white-space:nowrap; }
+
+  /* ---- Month nav: pills, indented under the year tabs (Tags nav / Month selector).
+     Indent corrected to space-xl (40px) — confirmed literal value from node 2:2's
+     "Tags nav" node (pl-space-xl), not space-xxl (48px) as a prior pass inferred
+     from "round button + gap should line up under the tab labels." That inference
+     was a coincidence, not what Figma actually specifies. ---- */
+  .months{ display:flex; gap:var(--space-sm); flex-wrap:wrap; padding-left:56px; }  /* round button 40 + tabs gap 16 */
+  .month-btn{
+    /* Month selector (DS node 4:171): 12px SemiBold, line height auto, tracking 0 (the Sept 22 pull dropped the +2%).
+       The pill stays 20px high; Hover and Press use action/recessed-hover and -press. */
+    font-family:inherit; font-size:12px; font-weight:600; line-height:normal; text-transform:uppercase; letter-spacing:0;
+    height:20px; display:inline-flex; align-items:center; padding:0 var(--space-sm); border-radius:var(--radius-full); border:none;
+    background:var(--surface-2); color:var(--ink-2); cursor:pointer;
+    transition: background-color .12s ease, color .12s ease;
+  }
+  .month-btn:hover{ background:var(--state-surface2-hover); }
+  .month-btn:active{ background:var(--state-surface2-press); }
+  .month-btn[aria-pressed="true"]{ background:var(--accent); color:var(--text-white); }
+  .month-btn[aria-pressed="true"]:hover, .month-btn[aria-pressed="true"]:active{ background:var(--accent); }
+  .month-btn.empty{ opacity:var(--opacity-disabled); }
+  /* Has projected (estimated) figures, just not real ones yet -- distinct
+     from .empty, which has nothing at all, not even a projection. */
+  .month-btn.estimated{ background:transparent; color:var(--ink-2); border:1px dashed var(--border-2); }
+  .month-btn.estimated[aria-pressed="true"]{ background:var(--accent); color:var(--text-white); border-style:solid; border-color:var(--accent); }
+
+  .estimate-pill{
+    display:inline-flex; align-items:center; gap:4px; margin-top:var(--space-sm);
+    font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.4px;
+    padding:2px 8px; border-radius:var(--radius-full); background:var(--surface-2); color:var(--ink-2);
+  }
+  .estimate-pill[hidden]{ display:none; }
+
+  /* ---- Row 1: hero-left (Balance, KPIs, Expense allocation) + hero-right
+     (Tracker, ticker-strip, Row2, hero-chart) — matches the current Figma
+     layout (node 2:2), where Expense allocation lives in the left column
+     under the KPIs and everything else nests one level deeper under a
+     dedicated "Right" column instead of sitting as page-level sections.
+     Previously Expense allocation sat in Row2 and ticker-strip/Row2/hero-chart
+     were full-page-width siblings of Row1 — corrected here. ---- */
+  .row1{ display:grid; grid-template-columns:400px 1fr; gap:var(--space-md); margin-bottom:var(--space-lg); }
+  .card{ background:var(--surface); border:1px solid var(--border-card); border-radius:var(--radius-card); padding:var(--space-lg); }
+  .hero-left{ display:flex; flex-direction:column; gap:var(--space-md); }
+  /* Hugs its own content, like every other card in this column — the
+     get_design_context pull for node 2:2 showed this node as flex-[1_0_0]
+     (Figma's fill-container shorthand), but that read the container's
+     numbers, not the designer's intent; corrected per direct feedback. */
+  .hero-left .alloc-card{ flex:0 0 auto; }
+  .hero-right{ display:flex; flex-direction:column; gap:var(--space-md); min-width:0; }
+  .balance-card .label{ font-size:16px; font-weight:600; line-height:1.2; color:var(--ink); text-transform:uppercase; letter-spacing:0; }
+  .balance-card .value{ font-family:var(--font-mono); font-size:36px; font-weight:500; letter-spacing:0; margin-top:var(--space-sm); font-variant-numeric:tabular-nums; }
+  .pill-delta{
+    display:block; font-family:var(--font-mono); font-size:12px; font-weight:500; margin-top:var(--space-sm);
+    letter-spacing:-0.48px; font-variant-numeric:tabular-nums;
+  }
+  .mini-grid{ display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md); }
+  /* Savings/Investments (3rd tile, Net YTD's old slot) now spans both
+     columns per Figma's redesigned mini-grid -- Income/Expenses stay
+     side-by-side above it. */
+  .mini-grid .mini-kpi:nth-child(3){ grid-column:1 / -1; }
+  .mini-kpi{ background:var(--surface); border:1px solid var(--border-card); border-radius:var(--radius-md); padding:var(--space-md); }
+  .mini-kpi .label{ display:flex; align-items:center; gap:var(--space-sm); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mini-kpi .dot{ width:7px; height:7px; border-radius:50%; display:inline-block; flex-shrink:0; }
+  /* KPI card (DS 28:68): label 12px SemiBold, line height auto, tracking 0; the details line is mono 12 Medium -4% in text/secondary, 8px under the value. */
+  .mini-kpi .label{ font-size:12px; font-weight:600; line-height:normal; color:var(--ink); text-transform:uppercase; letter-spacing:0; }
+  .mini-kpi .value{ font-family:var(--font-mono); font-size:var(--font-size-default); font-weight:500; margin-top:var(--space-sm); font-variant-numeric:tabular-nums; letter-spacing:-0.56px; }
+  .mini-kpi .detail{ font-family:var(--font-mono); font-size:12px; font-weight:500; line-height:normal; letter-spacing:-0.48px; color:var(--text-secondary); margin-top:var(--space-sm); font-variant-numeric:tabular-nums; }
+  /* Money with the DS Euro icon: 12px glyph + 4px gap + the figure (Value component). */
+  .money{ display:inline-flex; align-items:center; justify-content:flex-end; gap:var(--space-xs); }
+  .money-ic{ display:inline-flex; width:12px; height:12px; flex-shrink:0; color:var(--text-primary); }
+  .money-ic svg{ width:12px; height:12px; display:block; }
+
+  /* ---- Hero chart card — nested in .hero-right after Row2, sized to that
+     column's width (822px), not the full page width ---- */
+  .hero-chart{ width:100%; margin-bottom:0; }
+  .hero-chart .hc-top{ display:flex; justify-content:space-between; align-items:flex-start; }
+  .hero-chart .hc-label{ font-size:14px; font-weight:600; line-height:1.2; letter-spacing:0; color:var(--ink); text-transform:uppercase; }
+  .hero-chart .hc-value{ font-family:var(--font-mono); font-size:20px; font-weight:500; letter-spacing:0; margin-top:var(--space-sm); font-variant-numeric:tabular-nums; }
+  .hc-delta{ margin-left:8px; }
+  .legend{ display:flex; gap:var(--space-md); flex-wrap:wrap; margin-top:var(--space-md); font-size:12px; color:var(--legend-text); }
+  .legend span{ display:inline-flex; align-items:center; gap:var(--space-sm); font-weight:500; }
+  .swatch{ width:9px; height:9px; border-radius:var(--radius-ty); display:inline-block; }
+
+  svg text{ font-family:"Plus Jakarta Sans",system-ui,sans-serif; }
+  .axis-label{ fill:var(--ink-muted); font-size:12px; font-weight:500; }
+  .gridline{ stroke:var(--border); stroke-width:1; }
+  .baseline{ stroke:var(--border-2); stroke-width:1; }
+  .pin-label{ font-family:var(--font-mono); font-size:12px; font-weight:600; fill:var(--ink); font-variant-numeric:tabular-nums; }
+  .pin-label-sub{ font-size:12px; fill:var(--ink-muted); font-weight:600; letter-spacing:.04em; }
+  .chart-wrap{ position:relative; }
+  #trend-chart{ display:block; width:100%; height:auto; }
+  .tooltip-chart{
+    position:absolute; pointer-events:none; background:var(--ink); color:var(--page);
+    font-family:var(--font-mono); font-size:12px; padding:var(--space-sm) var(--space-md); border-radius:var(--radius-sm); transform:translate(-50%,-118%);
+    white-space:nowrap; opacity:0; transition:opacity .12s; z-index:5; font-variant-numeric:tabular-nums; font-weight:500;
+    box-shadow:0 6px 18px rgba(0,0,0,.18);
+  }
+
+  /* ---- Ticker strip — nested in .hero-right now, spacing comes from that
+     column's own flex gap rather than its own margin-bottom ---- */
+  .ticker-strip{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--space-md); }
+  .ticker-item{
+    background:var(--surface); border:1px solid var(--border-card); border-radius:var(--radius-md);
+    padding:var(--space-md); display:flex; flex-direction:column; gap:var(--space-sm);
+  }
+  .ticker-item .ti-top{ display:flex; align-items:center; gap:8px; }
+  .ticker-item .ti-dot{ width:20px; height:20px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; line-height:17px; letter-spacing:-0.12px; color:var(--text-white); }
+  .ticker-item .ti-name{ font-size:12px; font-weight:600; line-height:normal; letter-spacing:0; }
+  /* Expense card: value is Medium mono 14 (-4%), the delta line sits 4px under it. */
+  .ticker-item .ti-val{ font-family:var(--font-mono); font-size:var(--font-size-default); font-weight:500; font-variant-numeric:tabular-nums; letter-spacing:-0.56px; display:flex; }
+  /* details row (DS 130:3844): 12px arrow icon + 8px + mono 12 Medium -4%, coloured by the direction. */
+  .ticker-item .ti-delta{ display:flex; align-items:center; gap:var(--space-sm); font-family:var(--font-mono); font-size:12px; font-weight:500; line-height:normal; font-variant-numeric:tabular-nums; letter-spacing:-0.48px; margin-top:calc(var(--space-xs) - var(--space-sm)); }
+  .ticker-item .ti-delta svg{ width:12px; height:12px; display:block; flex-shrink:0; }
+  @media (max-width:1100px){ .ticker-strip{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+  /* ---- Year over year: full-width section below Row 1, ported from the
+     live index.html (it had no v2 equivalent until now) and restyled with
+     this file's own card/chart tokens instead of copied CSS. ---- */
+  .yoy-heading{ font-size:20px; font-weight:600; letter-spacing:-0.2px; margin:var(--space-xl) 0 var(--space-xs); }
+  .yoy{ display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md); }
+  .card h2{ font-size:16px; font-weight:600; line-height:1.2; letter-spacing:0; text-transform:uppercase; color:var(--ink); }
+  .card .hint{ font-size:12px; font-weight:400; line-height:17px; color:var(--ink-2); margin-top:var(--space-xs); }
+
+  /* Columns hug their label (min 48), 16 apart, bottoms aligned; bar height is 0.8px per percent, at least 6. */
+  .alloc-bars{ display:flex; align-items:flex-end; gap:var(--space-md); height:120px; margin-top:var(--space-sm); }
+  .alloc-col{ min-width:48px; display:flex; flex-direction:column; align-items:center; gap:var(--space-sm); height:100%; justify-content:flex-end; }
+  .alloc-pct{ font-family:var(--font-mono); font-size:12px; font-weight:500; letter-spacing:-0.48px; }
+  .alloc-bar{ width:48px; border-radius:var(--radius-sm); }
+  .alloc-name{ font-size:10px; font-weight:600; line-height:11.6px; color:var(--label-muted); text-transform:uppercase; letter-spacing:-0.1px; }
+
+  .insight-text{ font-size:12px; font-weight:400; color:var(--ink-2); line-height:17px; margin-top:var(--space-sm); }
+  .insight-text b{ color:var(--ink); font-weight:600; }
+  .insight-tags{ display:flex; gap:var(--space-sm); flex-wrap:wrap; margin-top:var(--space-sm); padding-top:var(--space-sm); }
+  /* Tags are the DS "Label" component (211:859): 20px high, 8px side padding, 4px radius, 12px SemiBold, line height auto,
+     tracking 0. Types: Neutral (surface/secondary + text/secondary), Positive, Negative, Warning (surface/x + status/x). */
+  .insight-tag, .hc-delta{
+    display:inline-flex; align-items:center; gap:var(--space-xs); height:20px; padding:0 var(--space-sm); box-sizing:border-box;
+    font-size:12px; font-weight:600; line-height:normal; text-transform:uppercase; letter-spacing:0; white-space:nowrap;
+    border-radius:var(--radius-ty); background:var(--surface-secondary); color:var(--text-secondary);
+  }
+  .hc-delta{ text-transform:none; }
+  .hc-delta svg{ width:12px; height:12px; display:block; flex-shrink:0; }
+  .hc-delta.positive{ background:var(--surface-success); color:var(--status-success); }
+  .hc-delta.negative{ background:var(--surface-fail); color:var(--status-fail); }
+  .hc-delta.warning{ background:var(--surface-warning); color:var(--status-warning); }
+
+  /* ---- Breakdown / TRACKER — now lives in Row1 next to hero-left, single column
+     (Controllers -> Graph -> List), not a separate full-width section with a
+     two-column meters|items split. ---- */
+  .breakdown-card{ display:flex; flex-direction:column; gap:var(--space-lg); }
+  .bd-header{ display:flex; flex-direction:column; gap:var(--space-xs); }
+  .bd-header h2{ margin:0; }
+  .bd-header .hint{ margin-top:0; font-weight:600; letter-spacing:-0.12px; }
+  .seg-tabs{ display:flex; gap:4px; flex-wrap:wrap; background:var(--surface-secondary); padding:4px; border-radius:var(--radius-sm); width:fit-content; }
+  .seg-tabs button{
+    font-size:12px; font-weight:600; line-height:17px; padding:var(--space-sm); border-radius:var(--radius-sm); border:none;
+    background:transparent; color:var(--ink-2); cursor:pointer; font-family:inherit; letter-spacing:-0.12px;
+    transition: background-color .12s ease, color .12s ease;
+  }
+  .seg-tabs button:hover{ background:var(--state-surface2-hover); color:var(--ink); }
+  .seg-tabs button:active{ background:var(--state-surface2-press); }
+  .seg-tabs button[aria-pressed="true"]{ background:var(--ink); color:var(--on-primary); }
+  .seg-tabs button[aria-pressed="true"]:hover{ background:var(--state-ink-hover); }
+  .seg-tabs button[aria-pressed="true"]:active{ background:var(--state-ink-press); }
+
+  .bd-content{ display:flex; flex-direction:column; gap:var(--space-lg); }
+  .meter-row{ margin-bottom:var(--space-sm); }
+  .meter-row:last-child{ margin-bottom:0; }
+  .meter-row .meter-top{ display:flex; justify-content:space-between; align-items:center; gap:var(--space-md); margin-bottom:4px; }
+  .meter-row .meter-name{ font-size:12px; font-weight:500; line-height:17px; color:var(--ink); display:flex; align-items:center; }
+  .meter-row .meter-amt{ font-family:var(--font-mono); font-size:12px; font-variant-numeric:tabular-nums; font-weight:500; letter-spacing:-0.48px; color:var(--ink); }
+  /* Matches the DS file's Meter component: a single continuous rounded fill
+     bar against a recessed track, driven off a real percentage rather than
+     the DS file's 4 discrete presets (0/50/75/100%). */
+  .meter-track{ height:8px; border-radius:var(--radius-full); background:var(--surface-2); overflow:hidden; }
+  .meter-fill{ height:100%; border-radius:var(--radius-full); background:var(--seg-color, var(--ink)); transition:width .2s ease; }
+  /* Projected (not yet real) vs. removed/deleted line items -- both are
+     still rows, just visually distinct from a normal recorded figure. */
+  .meter-row.is-estimate .meter-fill{ opacity:.5; background-image:repeating-linear-gradient(45deg, rgba(255,255,255,.35) 0 3px, transparent 3px 7px); }
+  .meter-row.is-estimate .meter-amt{ color:var(--ink-muted); font-style:italic; }
+  .meter-row.is-removed .meter-fill{ opacity:.25; }
+  .meter-row.is-removed .meter-amt{ color:var(--ink-muted); text-decoration:line-through; }
+  .bd-row.is-estimate .n{ color:var(--ink-muted); font-style:italic; }
+  .bd-row.is-removed .n{ color:var(--ink-muted); text-decoration:line-through; }
+
+  /* List of breackdown-rows, grouped into category Blocks (category-mode only;
+     flat Income/Savings rows render as meters and skip this list, matching
+     the one state the Figma file shows us). */
+  .bd-list{ display:flex; flex-direction:column; gap:var(--space-md); }
+  .bd-block{ display:flex; flex-direction:column; gap:var(--space-sm); }
+  .bd-block-title{ font-size:12px; font-weight:600; line-height:17px; color:var(--ink); letter-spacing:-0.12px; }
+  .bd-list .ds-divider, .budget-list .ds-divider{ margin:0; }
+  .bd-row{ display:flex; justify-content:space-between; align-items:center; gap:var(--space-xs); height:24px; padding:0; }
+  .bd-row .bd-item-name{ font-size:12px; font-weight:500; line-height:17px; color:var(--ink-2); }
+  .bd-row .n{ font-family:var(--font-mono); font-size:12px; font-weight:500; color:var(--ink); letter-spacing:-0.48px; }
+
+  /* Entry counter (DS node 146:5252). A 14px-high pill: 10px SemiBold text, 4px side padding, "Item" name + 8px gap.
+     The 1px bottom padding lifts the digits by half a pixel: Plus Jakarta's digits sit that much below the middle of a
+     centred 11.6px line, which showed as text hanging low in the pill (measured on a 2x screenshot: 3.5px above, 2.5px below).
+     Default / Hover / Pressed fills are action/default, action/hover, action/press. Pressed is the state with its
+     tooltip open (.is-open). The estimate and removed tints are not in the design system yet. */
+  .note-count{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:14px; height:14px; padding:0 var(--space-xs) 1px; margin-left:var(--space-sm); border-radius:var(--radius-full);
+    background:var(--action-default); color:var(--on-primary);
+    font-size:10px; font-weight:600; line-height:11.6px; letter-spacing:-0.1px; font-variant-numeric:tabular-nums;
+    vertical-align:middle; cursor:pointer; transition: background-color .12s ease;
+  }
+  .note-count:hover{ background:var(--action-hover); }
+  .note-count:active, .note-count.is-open{ background:var(--action-press); }
+  .note-count.is-estimate{ background:var(--ink-muted); }
+  .note-count.is-removed{ background:var(--critical); }
+
+  /* Entries tooltip (DS node 146:5252, "Entries tootip" + node 144:4426 "Tooltip entry item"). Opens beside its counter,
+     4px away and centred on it. Dark surface, radius/md, padding 16 / 8 / 16 / 16, 280px wide. Each entry is a 24px row,
+     8px gaps: 12px Dot | name + date (12px SemiBold +2%) | Euro amount + Micro round button (14px, 10px X). No shadow in the design. */
+  #note-tip{
+    position:fixed; pointer-events:none; z-index:50; box-sizing:border-box; width:max-content; min-width:280px; max-width:360px;
+    padding:var(--space-md) var(--space-sm) var(--space-md) var(--space-md);
+    background:var(--surface-dark); color:var(--text-white); border-radius:var(--radius-md);
+    opacity:0; transition:opacity .1s;
+  }
+  #note-tip.visible{ opacity:1; pointer-events:auto; }
+  #note-tip .tip-item{ display:flex; align-items:center; gap:var(--space-sm); min-height:24px; }
+  #note-tip .tip-dot{ position:relative; flex:none; width:12px; height:12px; }
+  #note-tip .tip-dot::before{ content:''; position:absolute; left:4px; top:4px; width:4px; height:4px; border-radius:50%; background:var(--action-disable); }
+  #note-tip .tip-left{ flex:1 1 0; min-width:0; display:flex; align-items:center; gap:var(--space-sm); }
+  #note-tip .tip-name{ font-size:12px; font-weight:500; line-height:17px; letter-spacing:0; color:var(--text-white); overflow-wrap:anywhere; }
+  #note-tip .tip-date{ flex:none; font-size:12px; font-weight:600; line-height:14.4px; letter-spacing:0.24px; color:var(--text-secondary); white-space:nowrap; }
+  #note-tip .tip-right{ flex:none; display:flex; align-items:center; gap:var(--space-sm); }
+  #note-tip .tip-amount{ font-family:var(--font-mono); font-size:12px; font-weight:500; line-height:16px; letter-spacing:-0.48px; color:var(--text-white); white-space:nowrap; font-variant-numeric:tabular-nums; }
+  #note-tip .tip-amount .money-ic{ color:var(--text-white); }
+  #note-tip .tip-amount.is-estimate{ font-weight:400; opacity:.7; }
+  /* The X is a Micro round button (see .round-btn.micro) in action/disable. Hover and press keep this tooltip's translucent-white
+     convention: the design system's recessed hover/press fills are pale tan, made for light surfaces. */
+  #note-tip .tip-del{ color:var(--action-disable); }
+  #note-tip .tip-del:hover{ color:var(--text-white); background:rgba(255,255,255,.18); }
+  #note-tip .tip-del:active{ color:var(--text-white); background:rgba(255,255,255,.28); }
+  #note-tip .tip-item.sub .tip-name{ font-weight:400; }
+  #note-tip .tip-foot{ margin:var(--space-sm) var(--space-sm) 0 28px; padding-top:var(--space-sm); border-top:1px solid rgba(255,255,255,.16); font-size:12px; line-height:17px; color:var(--text-secondary); }
+
+  /* ---- Add entry panel: right-side slide-over drawer, matching the Cost-tracker
+     file's "Add entry panel - open" frame (border-left, drop shadow, fixed
+     full-height) — not an inline expanding card like the old v2.4 pass. ---- */
+  .add-panel-backdrop{
+    position:fixed; inset:0; background:rgba(22,21,15,.32); opacity:0; pointer-events:none;
+    transition:opacity .15s ease; z-index:40;
+  }
+  .add-panel-backdrop.open{ opacity:1; pointer-events:auto; }
+  .add-panel{
+    display:flex; flex-direction:column; gap:var(--space-lg);
+    position:fixed; top:0; right:0; height:100vh; width:640px; max-width:92vw;
+    background:var(--surface); border-left:1px solid var(--divider);
+    box-shadow:0 0 40px rgba(0,0,0,.16); padding:var(--space-lg) var(--space-xl);
+    transform:translateX(100%); transition:transform .18s ease; z-index:41; overflow-y:auto;
+  }
+  .add-panel.open{ transform:translateX(0); }
+  .add-panel-header{ display:flex; flex-direction:column; align-items:flex-end; gap:var(--space-xs); }
+  .round-btn{
+    width:40px; height:40px; border-radius:var(--radius-full); border:none; background:transparent; color:var(--ink);
+    display:inline-flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
+    transition: background-color .12s ease;
+  }
+  /* Style=Tirtiary Hover/Press, re-pulled directly: Hover was using
+     --surface-2 (neutral/surface-2, #efeee5) — a different, lighter token
+     than the real one, action/recessed-hover (#e4e3da). Press wasn't coded
+     at all. Both fixed/added against the live component. */
+  .round-btn:hover{ background:var(--state-surface2-hover); }
+  .round-btn:active{ background:var(--state-surface2-press); }
+  .round-btn svg{ width:12px; height:12px; }
+  /* Round button, Size=Micro (DS): 14px circle with a 10px icon. Pair it with renderIcon(name, '', 10). */
+  .round-btn.micro{ width:14px; height:14px; }
+  .round-btn.micro svg{ width:10px; height:10px; }
+  .add-panel-title{ font-size:16px; font-weight:600; color:var(--ink); letter-spacing:-0.16px; width:100%; }
+  .add-panel-hint{ font-size:12px; font-weight:400; color:var(--ink-muted); line-height:1.5; width:100%; }
+  .add-panel-content{ display:flex; flex-direction:column; gap:var(--space-md); }
+  .field-group{ display:flex; flex-direction:column; gap:var(--space-xs); }
+  .field-label{ font-size:12px; font-weight:600; color:var(--ink-2); text-transform:uppercase; letter-spacing:0.24px; }
+  .seg-tabs.sub{ height:32px; }
+  .seg-tabs.sub button{ height:24px; padding:0 var(--space-sm); }
+  /* Tracker card's Controllers row (Figma node 61:5499): Segments +
+     Sub-segments stacked on the left, contextual "+Add {type}" button
+     pinned to the right, bottom-aligned with the tab stack. */
+  .bd-controllers{ display:flex; align-items:center; justify-content:space-between; gap:var(--space-md); flex-wrap:wrap; }
+  .bd-tabs-stack{ display:flex; flex-direction:column; gap:var(--space-sm); }
+  .add-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-md); }
+  .field label{ display:block; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:-0.12px; color:var(--ink-muted); margin-bottom:var(--space-xs); }
+  .field input{
+    width:100%; font-size:14px; font-family:inherit; letter-spacing:-0.14px; padding:var(--space-sm) var(--space-md); border-radius:var(--radius-sm); border:1px solid var(--border-card);
+    background:var(--surface); color:var(--ink);
+    transition: border-color .12s ease, box-shadow .12s ease;
+  }
+  .field input:hover{ border-color:var(--state-border-hover); }
+  .field input:focus-visible{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .field input:disabled{ opacity:var(--opacity-disabled); cursor:not-allowed; }
+  .field-with-prefix{ position:relative; display:flex; align-items:center; }
+  .field-with-prefix .field-prefix{ position:absolute; left:var(--space-md); font-size:14px; color:var(--ink); pointer-events:none; }
+  .field-with-prefix input{ padding-left:28px; }
+  #entry-amount{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+  .add-actions{ display:flex; gap:var(--space-sm); align-items:center; }
+  .add-status{ font-size:12px; font-weight:500; }
+  .add-status.err{ color:var(--critical); }
+  /* Success state matches Figma's "Succes" node: 12px checkmark + text,
+     both in status/good, inline-flex with a 4px gap. */
+  .add-status.ok{ color:var(--good); display:inline-flex; align-items:center; gap:4px; }
+  .add-status-check{ width:12px; height:12px; flex-shrink:0; }
+
+  /* ---- breackdown-row, DS node 124:3667 (re-pulled Sept 19, 2026, v2.18).
+     Three variants in Figma: Type=Default (Item + Entry counter + Value +
+     Actions), Type=Editable (Value hovered: link/hover colour + 1px underline),
+     Type=Editing (Value swapped for a 24px Input with a € glyph; the row gets
+     20px of right padding and the Actions button is gone). Coded as modifiers on
+     the existing .bd-row so the Tracker's rows are untouched:
+       .bd-row .bd-value > .bd-euro + .bd-amount   Value (link-coloured mono figure)
+       .bd-row.is-editable                          Editable (or just :hover on .bd-amount)
+       .bd-row.is-editing > .bd-input               Editing
+       .bd-row .bd-action                           Actions (Round button, Size=Tiny)
+     The Tracker's own rows deliberately keep the plain ink figure and no Actions
+     button: they have no edit or action handler, and a link-coloured value there
+     would promise an interaction that doesn't exist. ---- */
+  .bd-value{ display:inline-flex; align-items:center; justify-content:flex-end; gap:var(--space-xs); flex-shrink:0; }
+  .bd-value .bd-euro{ width:12px; height:12px; display:block; color:var(--ink); flex-shrink:0; }
+  .bd-amount{
+    font-family:var(--font-mono); font-size:12px; font-weight:500; letter-spacing:-0.48px; line-height:normal;
+    color:var(--accent); background:none; border:none; padding:0; height:20px; cursor:pointer;
+    display:inline-flex; align-items:center; border-radius:var(--radius-full);
+    text-decoration:none; text-underline-offset:3px; text-decoration-thickness:1px;
+    transition:color .12s ease;
+  }
+  .bd-amount:hover, .bd-row.is-editable .bd-amount{ color:var(--link-hover); text-decoration:underline; }
+  .bd-amount:active{ color:var(--link-press); }
+  .bd-action{ width:24px; height:24px; border-radius:var(--radius-full); border:none; background:transparent; color:var(--ink); padding:0; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; transition:background-color .12s ease; }
+  .bd-action:hover{ background:var(--state-surface2-hover); }
+  .bd-action:active{ background:var(--state-surface2-press); }
+  .bd-action svg{ width:12px; height:12px; display:block; }
+  .bd-row.is-editing{ padding-right:20px; }
+  .bd-input{
+    display:inline-flex; align-items:center; gap:var(--space-sm); height:24px; padding:0 var(--space-sm); flex-shrink:0;
+    border:1px solid var(--border-card); border-radius:var(--radius-sm); background:var(--surface);
+    transition:border-color .12s ease, box-shadow .12s ease;
+  }
+  .bd-input:hover{ border-color:var(--state-border-hover); }
+  .bd-input:focus-within{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .bd-input svg{ width:12px; height:12px; display:block; color:var(--ink); flex-shrink:0; }
+  .bd-input input{
+    border:none; outline:none; background:transparent; padding:0; width:64px; min-width:0;
+    font-family:var(--font-mono); font-size:12px; font-weight:500; letter-spacing:-0.48px; text-align:right; color:var(--ink);
+  }
+  .bd-input input::placeholder{ color:var(--ink-2); opacity:1; }
+
+  /* ---- Add-entry panel, v2.18: Upload documents + Enter manually + review list.
+     Cost-tracker nodes 140:57881 (upload, uploading), 142:58140 (upload, ready +
+     manual), 142:58304 (review entries). ---- */
+  .add-panel [hidden]{ display:none !important; }
+  #add-panel{ gap:var(--space-xl); box-shadow:0 0 64px rgba(22,21,15,.24); }
+  .add-panel-header .round-btn svg{ width:20px; height:20px; }
+  .add-panel-title{ font-size:24px; line-height:1.2; letter-spacing:-0.24px; }
+  #add-panel .add-panel-hint{ font-size:14px; font-weight:500; line-height:15.2px; letter-spacing:-0.14px; color:var(--ink-2); margin-top:var(--space-xs); }
+  /* Year-budget panels use the 12px Medium sub line (Figma 96:5670). */
+  .budget-panel .add-panel-hint{ font-size:12px; font-weight:500; line-height:17px; letter-spacing:0; color:var(--ink-2); margin-top:var(--space-xs); }
+  .ap-main{ display:flex; flex-direction:column; gap:var(--space-lg); }
+  .ap-section{ display:flex; flex-direction:column; gap:var(--space-lg); }
+  .ap-section-title{ margin:0; font-size:16px; font-weight:600; line-height:1.2; color:var(--ink); }
+  .ap-title-block{ display:flex; flex-direction:column; gap:var(--space-xs); }
+  .ap-section-sub{ font-size:14px; font-weight:500; line-height:15.2px; letter-spacing:-0.14px; color:var(--ink-2); }
+  .ap-block{ display:flex; flex-direction:column; gap:var(--space-md); }
+
+  .dropzone{
+    display:flex; flex-direction:column; align-items:center; gap:var(--space-md); padding:var(--space-lg);
+    background:var(--page); border:1px dashed var(--border-card); border-radius:var(--radius-sm); cursor:pointer;
+    transition:border-color .12s ease, background-color .12s ease;
+  }
+  .dropzone:hover{ border-color:var(--state-border-hover); }
+  .dropzone:focus-visible{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .dropzone.is-over{ border-color:var(--accent); background:var(--accent-soft); }
+  .dropzone.is-busy{ opacity:var(--opacity-disabled); pointer-events:none; }
+  /* v2.23: the block is always visible; when this view can't read documents it is disabled and says why (it used to disappear silently). */
+  .dropzone.is-off{ opacity:var(--opacity-disabled); pointer-events:none; cursor:not-allowed; }
+  .dz-off-note{ font-size:12px; font-weight:500; line-height:17px; color:var(--ink-2); }
+  .dropzone > svg{ width:20px; height:20px; display:block; color:var(--ink); }
+  .dz-text{ display:flex; flex-direction:column; align-items:center; gap:var(--space-xs); }
+  .dz-line{ display:flex; align-items:center; justify-content:center; gap:var(--space-xs); flex-wrap:wrap; font-size:14px; font-weight:600; letter-spacing:-0.14px; line-height:20px; color:var(--ink); }
+  .dz-line .ds-action-link{ font-size:14px; letter-spacing:-0.14px; line-height:20px; pointer-events:none; }
+  .dropzone:hover .ds-action-link{ color:var(--link-hover); text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; }
+  .dz-hint{ font-size:12px; font-weight:500; line-height:17px; color:var(--ink-2); text-align:center; }
+
+  .doc-list{ display:flex; flex-direction:column; gap:var(--space-md); }
+  .doc-item{ display:flex; align-items:flex-start; gap:var(--space-sm); min-height:32px; }
+  .doc-ic{ width:20px; height:20px; flex-shrink:0; color:var(--ink); }
+  .doc-ic svg{ width:20px; height:20px; display:block; }
+  .doc-info{ flex:1 1 0; min-width:0; display:flex; flex-direction:column; justify-content:center; }
+  .doc-name{ font-size:14px; font-weight:600; line-height:15.2px; letter-spacing:-0.14px; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .doc-meta{ font-size:12px; font-weight:500; line-height:17px; color:var(--ink-2); }
+  .doc-meta.err{ color:var(--critical); }
+  .doc-pct{ font-size:14px; font-weight:600; line-height:15.2px; letter-spacing:-0.14px; color:var(--accent); font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap; }
+  /* Delete button (Cost-tracker 174:15198): Tiny tertiary round button, 24px, with the 12px X in status/fail; Hover/Press come from .round-btn. */
+  .round-btn.doc-remove{ width:24px; height:24px; color:var(--critical); }
+  #add-panel .round-btn.doc-remove svg{ width:12px; height:12px; }
+
+  .ap-manual .field-group{ gap:var(--space-sm); }
+  /* Figma 174:15081: every gap in the form is 8, the Type block and the form are 24 apart, the buttons sit 40 below. */
+  #add-panel .add-grid{ gap:var(--space-sm); }
+  .ap-manual .field-label{ font-size:12px; font-weight:600; line-height:normal; letter-spacing:0; text-transform:uppercase; color:var(--text-secondary); }
+  .ap-manual .add-actions{ margin-top:calc(var(--space-xl) - var(--space-lg)); }
+  #doc-actions, #ap-review .add-actions{ gap:var(--space-xs); }
+  #add-panel .field-with-prefix .field-prefix{ left:var(--space-md); width:23px; height:24px; display:flex; align-items:center; justify-content:center; }
+  #add-panel .field-with-prefix .field-prefix svg{ width:20px; height:20px; display:block; color:var(--ink); }
+  /* Labels sit 8 above their field in the panel (Cost-tracker 174:15081). "Month and year" is a 200px Dropdown. */
+  #add-panel .field label{ margin-bottom:var(--space-sm); line-height:17px; }
+  #add-panel .field-period .ds-dd, #add-panel .ap-period .ds-dd{ width:200px; max-width:100%; }
+  #add-panel .field input{ height:48px; padding:0 var(--space-md); font-size:14px; letter-spacing:-0.14px; }
+  #add-panel .field input::placeholder{ color:var(--ink-2); opacity:1; }
+  /* Dropdowns in the panel match the 48px inputs beside them (Figma's Medium is 40). */
+  #add-panel .ds-dd--md .ds-dd-trigger{ height:48px; }
+  #add-panel .add-grid .span-2{ grid-column:1 / -1; }
+  #add-panel .field-with-prefix input{ padding-left:47px; }
+  .add-actions .add-status{ line-height:17px; }
+
+  .rv-table{ display:flex; flex-direction:column; gap:var(--space-sm); }
+  .rv-head, .rv-row{ display:flex; align-items:center; gap:var(--space-md); }
+  .rv-head{ font-size:12px; font-weight:600; letter-spacing:-0.12px; line-height:17px; color:var(--ink-muted); text-transform:uppercase; }
+  .rv-rows{ display:flex; flex-direction:column; gap:var(--space-xs); }
+  .rv-row{ height:32px; }
+  .c-date{ width:40px; flex-shrink:0; }
+  .c-desc{ flex:1 1 0; min-width:0; }
+  .c-type, .c-cat{ width:120px; flex-shrink:0; min-width:0; }
+  .c-amt{ width:84px; flex-shrink:0; display:flex; justify-content:flex-end; }
+  .c-rm{ width:24px; flex-shrink:0; }
+  .rv-date{ font-size:12px; font-weight:500; line-height:17px; color:var(--ink-2); white-space:nowrap; }
+  .rv-date.bad{ color:var(--critical); }
+  .rv-link{ display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left; }
+  .rv-row:hover .rv-link:not(.bad), .rv-link:not(.bad):focus-visible{ color:var(--link-hover); text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; }
+  .rv-link.bad{ color:var(--critical); }
+  /* A "?" chip marks a category the reader was not sure about (a word would squeeze the 120px Category column). Label chip recipe, square. */
+  .c-cat.has-guess{ display:flex; align-items:center; gap:var(--space-xs); }
+  .c-cat.has-guess .rv-link{ flex:1 1 auto; min-width:0; }
+  .rv-guess{
+    flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; padding:0;
+    font-size:10px; font-weight:600; line-height:11.6px; text-transform:uppercase; letter-spacing:-0.1px;
+    border-radius:var(--radius-ty); background:var(--surface-secondary); color:var(--text-secondary); cursor:default;
+  }
+  .rv-row:hover .rv-link.bad{ text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; }
+  .rv-amt{ display:inline-flex; align-items:center; gap:var(--space-xs); background:none; border:none; padding:0; height:20px; cursor:pointer; color:var(--ink); font-family:var(--font-mono); font-size:12px; font-weight:500; letter-spacing:-0.48px; font-variant-numeric:tabular-nums; }
+  .rv-amt svg{ width:12px; height:12px; display:block; flex-shrink:0; }
+  .rv-amt.bad{ color:var(--critical); }
+  .rv-row:hover .rv-amt{ text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; }
+  .rv-input{
+    width:100%; height:32px; padding:0 var(--space-sm); font-family:inherit; font-size:12px; font-weight:400; line-height:17px; color:var(--ink);
+    background:var(--surface); border:1px solid var(--border-card); border-radius:var(--radius-sm); outline:none; transition:border-color .12s ease, box-shadow .12s ease;
+  }
+  .rv-input:hover{ border-color:var(--state-border-hover); }
+  .rv-input:focus-visible{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .rv-select .ds-dd.is-empty .ds-dd-trigger{ color:var(--critical); }
+  .rv-row .bd-input{ height:32px; gap:var(--space-xs); width:100%; }
+  .rv-row .bd-input input{ width:100%; }
+  .rv-rm{ opacity:0; color:var(--critical); transition:opacity .12s ease, background-color .12s ease; }
+  .rv-row:hover .rv-rm, .rv-row.is-editing .rv-rm, .rv-rm:focus-visible{ opacity:1; }
+  @media (hover:none){ .rv-rm{ opacity:1; } }
+  .rv-empty{ font-size:14px; font-weight:500; color:var(--ink-2); padding:var(--space-md) 0; }
+  .rv-note{ font-size:12px; font-weight:500; line-height:17px; color:var(--critical); }
+
+  /* ---- Starting-budget panel (added Sept 16, 2026, v2.16): same
+     right-side drawer shell as Add entry, with its own dynamically-built
+     content -- a section per type/group, items grouped under a category
+     sub-heading for expenses (matching the group/category/item hierarchy
+     used everywhere else in the app). ---- */
+  .budget-panel .add-panel-content{ gap:var(--space-md); }
+  /* v2.17 (Sept 17, 2026): the starting-budget panel now matches Figma's
+     "Year budget" wizard (nodes 106:7556 etc.) -- Type/Sub-type Segments
+     filter which section is visible, each row's figure reads as an
+     Action-link-style mono pill instead of a boxed input, a ⋮ "Round
+     button" opens a Remove popover per row, and a "+ New {X}" Action link
+     seeds a brand-new item. All six type/group sections are still built
+     and kept in the DOM at once (only visibility toggles) so switching
+     tabs never discards an edit made in another section -- Create year
+     still saves every section's rows in one pass, same as before. */
+  /* Figma "Entries": New-item link, then category groups split by dividers, 16 apart; a group's title sits 8 above its rows and rows touch. */
+  .budget-type-section{ display:flex; flex-direction:column; gap:var(--space-md); }
+  .budget-type-section[hidden]{ display:none; }
+  .card[hidden]{ display:none !important; }
+  .budget-add-link{ align-self:flex-start; }
+  .budget-divider{ margin:0; }
+  .budget-cat-title{ font-size:12px; font-weight:600; line-height:17px; letter-spacing:-0.12px; color:var(--ink); margin:0 0 calc(-1 * var(--space-sm)); }
+  .budget-row{ display:flex; align-items:center; gap:var(--space-xs); height:24px; }
+  .budget-row + .budget-row{ margin-top:calc(-1 * var(--space-md)); }
+  .budget-row .br-name{ flex:1 1 auto; font-size:12px; font-weight:500; line-height:17px; color:var(--ink-2); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .budget-row .br-amt-link{ flex:0 0 auto; }
+  /* Reads as an Action-link pill (indigo mono text, no visible box) until
+     hovered/focused, when it gains the border/highlight a real editable
+     field needs -- Figma's static mockup shows only the link state, but an
+     always-visible plain number input (the app's pre-existing pattern for
+     this panel) would have been a functional regression, so this keeps the
+     value genuinely click-to-edit without swapping DOM nodes on focus. */
+  .budget-row .br-input{
+    width:86px; text-align:right; font-family:var(--font-mono); font-size:12px; font-weight:500; letter-spacing:-0.48px;
+    color:var(--accent); background:transparent; border:1px solid transparent; border-radius:var(--radius-full); padding:2px var(--space-sm); height:20px;
+    transition: border-color .12s ease, background-color .12s ease, box-shadow .12s ease;
+  }
+  .budget-row .br-input:hover{ border-color:var(--border-card); }
+  .budget-row .br-input:focus-visible{ outline:none; border-color:var(--accent); background:var(--surface); box-shadow:0 0 0 3px var(--accent-soft); }
+  .budget-row .br-tag{ flex:0 0 auto; color:var(--accent); font-size:10px; cursor:default; }
+  .round-btn.tiny{ width:24px; height:24px; }
+  .round-btn.tiny svg{ width:12px; height:12px; }
+  .br-menu{
+    position:absolute; z-index:60; background:var(--surface); border-radius:var(--radius-sm); padding:var(--space-sm);
+    box-shadow:0 0 8px rgba(22,21,15,.08); display:flex; flex-direction:column;
+  }
+  .br-menu-remove{
+    display:inline-flex; align-items:center; gap:var(--space-xs); height:24px; padding:0 var(--space-sm); border-radius:var(--radius-full);
+    background:none; border:none; cursor:pointer; color:var(--critical); font-family:inherit; font-weight:600; font-size:12px; letter-spacing:-0.12px;
+  }
+  .br-menu-remove:hover{ background:var(--state-surface2-hover); }
+  .br-menu-remove svg{ width:12px; height:12px; }
+  /* "Add expense" pill (Figma 119:12764): 4/8/4/16 padding, 16 between the fields and the two round buttons,
+     fields are Input/Dropdown Size=Small (32 high, 12px), confirm = Round button Tiny Primary, cancel = Tiny Secondary. */
+  .budget-add-row{
+    display:flex; align-items:center; gap:var(--space-md); padding:var(--space-xs) var(--space-sm) var(--space-xs) var(--space-md);
+    border:1px solid var(--divider); border-radius:var(--radius-full); background:var(--surface);
+  }
+  .budget-add-fields{ display:flex; align-items:center; gap:var(--space-sm); flex:1 1 auto; min-width:0; }
+  .budget-add-label{ font-size:12px; font-weight:600; line-height:17px; letter-spacing:-0.12px; color:var(--ink); white-space:nowrap; }
+  .budget-add-input{
+    font-size:12px; font-family:inherit; line-height:17px; border:1px solid var(--border-card); border-radius:var(--radius-sm); padding:0 var(--space-sm);
+    background:var(--surface); color:var(--ink); height:32px;
+  }
+  .budget-add-input:focus-visible{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .budget-add-cat{ width:120px; flex:0 0 auto; }
+  .budget-add-name{ flex:1 1 auto; min-width:0; }
+  .budget-add-amt{ width:80px; flex:0 0 auto; height:32px; }
+  .budget-add-amt .field-prefix{ left:var(--space-sm); font-size:12px; }
+  .budget-add-amt input{ padding-left:22px; height:32px; font-family:var(--font-mono); font-weight:500; letter-spacing:-0.48px; text-align:right; width:100%; }
+  .budget-add-actions{ display:flex; gap:var(--space-xs); flex-shrink:0; }
+  .round-btn.tiny.primary{ background:var(--action-default); color:var(--text-white); }
+  .round-btn.tiny.primary:hover{ background:var(--state-ink-hover); }
+  .round-btn.tiny.primary:active{ background:var(--state-ink-press); }
+  .round-btn.tiny.secondary{ border:1px solid var(--border-card); }
+  #budget-status.err{ display:block; margin-top:var(--space-sm); }
+  #budget-panel-hint{ line-height:1.5; }
+  .budget-empty{ font-size:12px; color:var(--ink-muted); }
+
+  footer.note{ margin-top:var(--space-xl); font-size:12px; font-weight:400; color:var(--ink-muted); line-height:1.7; border-top:1px solid var(--border); padding-top:var(--space-lg); }
+  footer.note code{ background:var(--surface-2); padding:1px 5px; border-radius:var(--radius-ty); }
+
+  @media (max-width:960px){
+    .row1{ grid-template-columns:1fr; }
+    .actions-row{ flex-wrap:wrap; }
+  }

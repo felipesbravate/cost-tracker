@@ -16,7 +16,10 @@
     "scan": "node scripts/scan-secrets.mjs",
     "postinstall": "node scripts/vendor-pdfjs.mjs",
     "backup": "node --env-file=.env.local scripts/backup.mjs",
-    "restore": "node --env-file=.env.local scripts/restore.mjs"
+    "restore": "node --env-file=.env.local scripts/restore.mjs",
+    "visual": "python3 tests/visual/capture.py",
+    "visual:compare": "python3 tests/visual/compare.py tests/visual/reference",
+    "parity": "python3 tests/ui/parity.py"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
