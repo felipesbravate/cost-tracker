@@ -37,6 +37,9 @@ export function supabaseStores(sb) {
       },
       async get(/** @type {string} */ u, /** @type {string} */ c, /** @type {string} */ i) { return ok(await sb.from('documents').select('*').eq('user_id', u).eq('collection', c).eq('doc_id', i).maybeSingle()); },
       async put(/** @type {any} */ row) { ok(await sb.from('documents').upsert(row, { onConflict: 'user_id,collection,doc_id' })); },
+      async putMany(/** @type {any[]} */ rows) {
+        for (let i = 0; i < rows.length; i += 250) ok(await sb.from('documents').upsert(rows.slice(i, i + 250), { onConflict: 'user_id,collection,doc_id' }));
+      },
       async remove(/** @type {string} */ u, /** @type {string} */ c, /** @type {string} */ i) { ok(await sb.from('documents').delete().eq('user_id', u).eq('collection', c).eq('doc_id', i)); },
       async removeAll(/** @type {string} */ u) { ok(await sb.from('documents').delete().eq('user_id', u)); },
     },

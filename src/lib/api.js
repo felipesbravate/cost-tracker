@@ -5,8 +5,28 @@
 // deps : { vault, profiles, usage, ai, admins, appOrigin, limiter, dailyReadCap }
 import { effectiveStatus, passesCsrf, safeError } from './security.js';
 import { VaultError } from './vault.js';
+import { validateImportBatch } from './import-commit.js';
 
 const json = (/** @type {number} */ status, /** @type {any} */ body) => ({ status, body });
+
+// Profiles are read on every API call; keep each one for a minute per server instance (one DB trip
+// saved per request). Status changes made here invalidate it at once; changes made elsewhere
+// (another instance, the dashboard) apply within PROFILE_TTL_MS.
+const PROFILE_TTL_MS = 60_000;
+/** @type {WeakMap<object, Map<string, {p:any, at:number}>>} */
+const profileCaches = new WeakMap();
+function profileCache(/** @type {any} */ deps) {
+  let m = profileCaches.get(deps);
+  if (!m) { m = new Map(); profileCaches.set(deps, m); }
+  return m;
+}
+async function cachedProfile(/** @type {any} */ deps, /** @type {string} */ id) {
+  const c = profileCache(deps), hit = c.get(id);
+  if (hit && Date.now() - hit.at < PROFILE_TTL_MS) return hit.p;
+  const p = await deps.profiles.get(id);
+  if (p) c.set(id, { p, at: Date.now() });
+  return p;
+}
 
 /**
  * ProfileStore: { get(userId), upsert({user_id,email,status}), list(), setStatus(userId,status) }
@@ -20,7 +40,7 @@ export async function handle(req, deps) {
   try {
     if (!passesCsrf(req, deps.appOrigin)) return json(403, { error: { code: 'forbidden', message: 'Cross-site request refused' } });
     if (!req.user) return json(401, { error: { code: 'unauthenticated', message: 'Sign in first' } });
-    let profile = await deps.profiles.get(user.id);
+    let profile = await cachedProfile(deps, user.id);
     if (!profile) {
       profile = { user_id: user.id, email: user.email, status: 'pending' };
       await deps.profiles.upsert(profile);
@@ -66,10 +86,25 @@ export async function handle(req, deps) {
       return json(200, { text });
     }
 
+    // ---- initial-data import: bulk save of rows the user reviewed (parsing happens in the browser) ----
+    if (method === 'POST' && path === '/api/import/commit') {
+      if (!deps.limiter.take(`import:${user.id}`)) return json(429, { error: { code: 'rate_limited', message: 'Too many requests, slow down' } });
+      const v = validateImportBatch(req.body);
+      if (!v.ok) return json(400, { error: { code: 'bad_input', message: v.error }, rows: v.rows || [] });
+      // Years the rows need but the user does not have yet are created first (EUR, like "+ Add year").
+      const have = new Set((await deps.vault.list(user.id, 'years')).map((d) => String(d.data.year)));
+      const newYears = [...new Set(v.docs.map((d) => d.year))].filter((y) => !have.has(y)).sort();
+      const createdAt = new Date().toISOString();
+      if (newYears.length) await deps.vault.addMany(user.id, 'years', newYears.map((year) => ({ year, currency: 'EUR', createdAt, source: 'import' })));
+      const ids = await deps.vault.addMany(user.id, 'entries', v.docs);
+      return json(201, { saved: ids.length, yearsCreated: newYears });
+    }
+
     // ---- account erase (crypto-shredding) ----
     if (method === 'DELETE' && path === '/api/me') {
       await deps.vault.eraseUser(user.id);
       await deps.profiles.setStatus(user.id, 'blocked');
+      profileCache(deps).delete(user.id);
       return json(200, { erased: true });
     }
 
@@ -83,6 +118,7 @@ export async function handle(req, deps) {
       const a = path.match(/^\/api\/admin\/users\/([A-Za-z0-9-]+)\/(approve|block)$/);
       if (method === 'POST' && a) {
         await deps.profiles.setStatus(a[1], a[2] === 'approve' ? 'approved' : 'blocked');
+        profileCache(deps).delete(a[1]);
         return json(200, { id: a[1], status: a[2] === 'approve' ? 'approved' : 'blocked' });
       }
     }

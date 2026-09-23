@@ -91,6 +91,25 @@ export class Vault {
     return { id };
   }
 
+  /**
+   * Create many documents in one storage round trip (used by the import). All or nothing on validation.
+   * @param {string} userId @param {string} collection @param {any[]} list @returns {Promise<string[]>} ids
+   */
+  async addMany(userId, collection, list) {
+    assertRef(collection, 'x');
+    const dek = await this.dekFor(userId);
+    const now = new Date().toISOString();
+    const rows = list.map((data) => {
+      if (data === null || typeof data !== 'object' || Array.isArray(data)) throw new VaultError('bad_doc', 'Document must be an object');
+      if (Buffer.byteLength(JSON.stringify(data)) > MAX_DOC_BYTES) throw new VaultError('too_large', 'Document too large');
+      const id = randomUUID().replace(/-/g, '').slice(0, 20);
+      return { user_id: userId, collection, doc_id: id, payload: encryptJson(dek, data, docAad(userId, collection, id)), updated_at: now };
+    });
+    if (this.docs.putMany) await this.docs.putMany(rows);
+    else for (const r of rows) await this.docs.put(r);
+    return rows.map((r) => r.doc_id);
+  }
+
   /** Create or replace. */
   async set(userId, collection, id, data) {
     assertRef(collection, id);
@@ -147,6 +166,7 @@ export function memoryStores() {
       async list(u, c) { return [...docMap.values()].filter((r) => r.user_id === u && r.collection === c); },
       async get(u, c, i) { return docMap.get(k(u, c, i)) || null; },
       async put(row) { docMap.set(k(row.user_id, row.collection, row.doc_id), row); },
+      async putMany(rows) { for (const row of rows) docMap.set(k(row.user_id, row.collection, row.doc_id), row); },
       async remove(u, c, i) { docMap.delete(k(u, c, i)); },
       async removeAll(u) { for (const [key, r] of docMap) if (r.user_id === u) docMap.delete(key); },
     },

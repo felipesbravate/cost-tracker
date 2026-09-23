@@ -124,3 +124,37 @@ test('form CSRF: works when the browser sends Origin: null but Sec-Fetch-Site: s
   assert.equal(passesFormCsrf({ method: 'POST', headers: { origin: 'null' } }, ORIGIN), false);
   assert.equal(passesFormCsrf({ method: 'GET', headers: { 'sec-fetch-site': 'same-origin' } }, ORIGIN), false);
 });
+
+test('import commit: validates every row, creates missing years, saves in bulk, per-user', async () => {
+  const { call } = setup();
+  const good = { date: '2024-03-14', type: 'expense', group: 'Variable', category: 'Food', item: 'Supermarket', description: 'Mercadona', amount: 12.345, extra: 'dropped' };
+  const inc = { date: '2025-01-31', type: 'income', group: 'X', category: 'Y', item: 'Salary', description: 'Nomina', amount: 2000 };
+  await call('POST', '/api/db/years', boss, { year: '2025', currency: 'EUR' });
+  const bad = await call('POST', '/api/import/commit', boss, { entries: [good, { ...good, date: '2024-02-30' }, { ...good, amount: -1, type: 'expense', group: 'Nope' }] });
+  assert.equal(bad.status, 400);
+  assert.deepEqual(bad.body.rows, [{ index: 1, problems: ['date'] }, { index: 2, problems: ['category', 'amount'] }]);
+  assert.equal((await call('GET', '/api/db/entries', boss)).body.docs.length, 0, 'nothing saved when any row is invalid');
+  const ok = await call('POST', '/api/import/commit', boss, { entries: [good, inc] });
+  assert.equal(ok.status, 201);
+  assert.deepEqual(ok.body, { saved: 2, yearsCreated: ['2024'] });
+  const docs = (await call('GET', '/api/db/entries', boss)).body.docs.map((d) => d.data);
+  const g = docs.find((d) => d.item === 'Supermarket');
+  assert.deepEqual([g.year, g.monthIndex, g.amount, g.source, g.extra], ['2024', 2, 12.35, 'import', undefined]);
+  const i = docs.find((d) => d.item === 'Salary');
+  assert.deepEqual([i.group, i.category], [null, null]);
+  assert.deepEqual((await call('GET', '/api/db/years', boss)).body.docs.map((d) => d.data.year).sort(), ['2024', '2025']);
+  assert.equal((await call('POST', '/api/import/commit', boss, { entries: [] })).status, 400);
+  assert.equal((await call('POST', '/api/import/commit', boss, { entries: Array(501).fill(good) })).status, 400);
+  assert.equal((await call('POST', '/api/import/commit', ann, { entries: [good] })).status, 403, 'pending users cannot import');
+});
+
+test('profile status is cached per request burst but approvals apply at once', async () => {
+  const { call, deps } = setup();
+  let reads = 0; const get = deps.profiles.get; deps.profiles.get = async (id) => { reads++; return get(id); };
+  await call('GET', '/api/me', ann);
+  await call('GET', '/api/me', ann); await call('GET', '/api/me', ann);
+  assert.ok(reads <= 2, `profile read ${reads} times`);
+  assert.equal((await call('GET', '/api/db/entries', ann)).status, 403);
+  assert.equal((await call('POST', '/api/admin/users/u-ann/approve', boss)).status, 200);
+  assert.equal((await call('GET', '/api/db/entries', ann)).status, 200, 'approval is visible immediately');
+});
