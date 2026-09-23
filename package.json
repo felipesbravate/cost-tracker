@@ -14,7 +14,9 @@
     "import": "node --env-file=.env.local scripts/import-data.mjs",
     "rewrap": "node --env-file=.env.local scripts/rewrap.mjs",
     "scan": "node scripts/scan-secrets.mjs",
-    "postinstall": "node scripts/vendor-pdfjs.mjs"
+    "postinstall": "node scripts/vendor-pdfjs.mjs",
+    "backup": "node --env-file=.env.local scripts/backup.mjs",
+    "restore": "node --env-file=.env.local scripts/restore.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

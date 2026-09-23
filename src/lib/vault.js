@@ -29,7 +29,7 @@ export class VaultError extends Error {
 
 // AAD binds a ciphertext to (user, collection, doc id). A row copied to another user, collection
 // or id (by a DB admin, a bug, or an attacker with write access) fails authentication.
-const docAad = (/** @type {string} */ u, /** @type {string} */ c, /** @type {string} */ id) => `doc|${u}|${c}|${id}`;
+export const docAad = (/** @type {string} */ u, /** @type {string} */ c, /** @type {string} */ id) => `doc|${u}|${c}|${id}`;
 
 const MAX_DOC_BYTES = 32 * 1024;
 
