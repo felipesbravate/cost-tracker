@@ -1,0 +1,458 @@
+[
+ {
+  "viewport": "desktop",
+  "state": "01-dashboard",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "02-tab-income",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "03-tab-invest",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "04-tab-variable",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "05-tab-additional",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "06-tab-extra",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "07-month-past",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "08-month-projected",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "09-year-2025-dec",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "10-year-sek",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "11-trend-tooltip",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "12-entries-tooltip",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "13-counter-hover",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "14-estimate-tooltip",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "15-year-add",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "16-year-add-currency",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "17-year-hover",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "18-year-delete-hover",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "19-month-hover",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "20-button-hover",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "21-panel",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "22-panel-income",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "23-panel-invest",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "24-panel-filled",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "25-panel-category-menu",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "26-panel-period-menu",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "27-panel-error",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "28-panel-files",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "29-review",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "30-review-editing",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "31-review-bad-date",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "33-budget",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "34-budget-income",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "35-budget-variable",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "36-budget-row-menu",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "37-budget-editing",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "38-admin-dialog",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "39-toast",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "01-dashboard",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "02-tab-income",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "03-tab-invest",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "04-tab-variable",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "05-tab-additional",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "06-tab-extra",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "07-month-past",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "08-month-projected",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "09-year-2025-dec",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "10-year-sek",
+  "kind": "page",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "11-trend-tooltip",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "12-entries-tooltip",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "13-counter-hover",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "14-estimate-tooltip",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "15-year-add",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "16-year-add-currency",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "17-year-hover",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "18-year-delete-hover",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "19-month-hover",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "20-button-hover",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "21-panel",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "22-panel-income",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "23-panel-invest",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "24-panel-filled",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "25-panel-category-menu",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "26-panel-period-menu",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "27-panel-error",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "28-panel-files",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "29-review",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "30-review-editing",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "31-review-bad-date",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "33-budget",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "34-budget-income",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "35-budget-variable",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "36-budget-row-menu",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "37-budget-editing",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "38-admin-dialog",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "39-toast",
+  "kind": "view",
+  "errors": []
+ }
+]
