@@ -4,7 +4,10 @@
 (function () {
   'use strict';
   var HEADERS = { 'content-type': 'application/json', 'x-requested-with': 'costs-tracker' };
-  var POLL_MS = 30000;
+  // Data only changes through this page (one person per account), so no timed polling: reload on
+  // return to the tab, at most once a minute, and after this page's own writes.
+  var REFRESH_ON_FOCUS_MS = 60000;
+  var lastRefresh = {};
 
   function fail(status, body) {
     var e = (body && body.error) || {};
@@ -41,6 +44,7 @@
   async function refresh(name) {
     var subs = listeners[name] || [];
     if (!subs.length) return;
+    lastRefresh[name] = Date.now();
     try {
       var r = await api('GET', '/api/db/' + encodeURIComponent(name));
       cache[name] = r.docs;
@@ -49,8 +53,10 @@
       subs.slice().forEach(function (s) { if (s.err) try { s.err(e); } catch (x) { console.error(x); } });
     }
   }
-  setInterval(function () { if (document.visibilityState === 'visible') Object.keys(listeners).forEach(refresh); }, POLL_MS);
-  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') Object.keys(listeners).forEach(refresh); });
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'visible') return;
+    Object.keys(listeners).forEach(function (n) { if (Date.now() - (lastRefresh[n] || 0) > REFRESH_ON_FOCUS_MS) refresh(n); });
+  });
 
   var db = {
     collection: function (name) {
