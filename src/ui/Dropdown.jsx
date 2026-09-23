@@ -12,8 +12,8 @@ import { chevronDown } from './icons.js';
 // anything reading `#id.value` keep working; setting it from outside and dispatching 'change' also works.
 // The trigger gets id `${id}-trigger`: point the field's <label htmlFor> at it.
 // onChange(value) fires when the value changes; onChoose(value) fires on every pick, even the same value.
-// emptyOption: keep a "no choice" option (the placeholder) in the hidden select; off for pickers that always have a value.
-export function Dropdown({ id, value, onChange, onChoose, options, placeholder = 'Select', size = 'sm', disabled, ariaLabel, className, emptyOption = true }) {
+// selectProps: extra attributes for the hidden select (e.g. data-f). emptyOption: keep a "no choice" option (the placeholder) in the hidden select; off for pickers that always have a value.
+export function Dropdown({ id, value, onChange, onChoose, options, placeholder = 'Select', size = 'sm', disabled, ariaLabel, className, emptyOption = true, selectProps }) {
   const blocks = toBlocks(options);
   const flat = blocks.flatMap((b) => b.opts);
   const chosen = flat.find((o) => String(o.value) === String(value ?? ''));
@@ -113,7 +113,7 @@ export function Dropdown({ id, value, onChange, onChoose, options, placeholder =
   const cls = ['ds-dd', 'ds-dd--' + size, !chosen && 'is-empty', disabled && 'is-disabled', open && 'open', className].filter(Boolean).join(' ');
   return (
     <div ref={wrapRef} className={cls}>
-      <select id={id} data-dd={size} tabIndex={-1} aria-hidden="true" aria-label={ariaLabel} value={chosen ? chosen.value : ''} disabled={disabled}
+      <select id={id} data-dd={size} tabIndex={-1} aria-hidden="true" aria-label={ariaLabel} value={chosen ? chosen.value : ''} disabled={disabled} {...selectProps}
         onChange={(e) => onChange && onChange(e.target.value)}>
         {emptyOption && <option value="">{placeholder}</option>}
         {blocks.map((b, bi) => b.label

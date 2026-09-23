@@ -27,7 +27,7 @@ SNAP = """(el) => { const walk = (n) => {
   const attrs = {};
   const floating = n.id === 'note-tip' || n.classList.contains('ds-dd-menu');
   for (const a of n.attributes) {
-    if (a.name === 'selected' || a.name === 'data-id' || a.name === 'data-base' || a.name === 'data-ovid' || (floating && a.name === 'style')) continue;
+    if (a.name === 'selected' || a.name === 'data-icon' || a.name === 'data-id' || a.name === 'data-base' || a.name === 'data-ovid' || (floating && a.name === 'style')) continue;
     if (a.name === 'class') attrs.class = [...n.classList].sort().join(' ');
     else if (a.name === 'style') { const s = []; for (let i = 0; i < n.style.length; i++) { const p = n.style[i]; s.push(p + ':' + n.style.getPropertyValue(p).replace(/\\s+/g, ' ').trim()); } attrs.style = s.sort().join('; '); }
     else attrs[a.name] = a.value;

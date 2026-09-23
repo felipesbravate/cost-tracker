@@ -182,7 +182,7 @@ async def main():
             check('upload dropzone enabled', not await pg.evaluate("document.getElementById('dropzone').classList.contains('is-off')"))
             await pg.set_input_files('#file-input', [os.path.join(FIX, 'statement.csv')]); await pg.wait_for_timeout(300)
             di = await pg.evaluate("""() => { const cs = e => getComputedStyle(e), r = e => e.getBoundingClientRect(), it = document.querySelector('.doc-item'), b = it.querySelector('.doc-remove'), sv = b.querySelector('svg');
-                return { icon: it.querySelector('.doc-ic path').getAttribute('d') === window.ICON_LIB.document.d, ic: [r(it.querySelector('.doc-ic svg')).width, r(it.querySelector('.doc-ic svg')).height],
+                return { icon: (it.querySelector('.doc-ic svg').dataset.icon === 'document' || (!!window.ICON_LIB && it.querySelector('.doc-ic path').getAttribute('d') === window.ICON_LIB.document.d)), ic: [r(it.querySelector('.doc-ic svg')).width, r(it.querySelector('.doc-ic svg')).height],
                          btn: [r(b).width, r(b).height], svg: [r(sv).width, r(sv).height], vb: sv.getAttribute('viewBox'), color: cs(b).color, radius: cs(b).borderRadius, meta: it.querySelector('.doc-meta').textContent }; }""")
             check('file list: a CSV shows the Document icon (20px); delete = 24px round button with the 12px X in status/fail (174:15198)',
                   di['icon'] and di['ic'] == [20, 20] and di['btn'] == [24, 24] and di['svg'] == [12, 12] and di['vb'] == '0 0 12 12' and di['color'] == 'rgb(213, 57, 63)' and di['radius'] == '999px' and di['meta'].endswith('Ready'), di)
@@ -311,7 +311,7 @@ async def main():
             # 4. photo reading sends an image
             await open_panel(pg)
             await pg.set_input_files('#file-input', [os.path.join(FIX, 'receipt.png')]); await pg.wait_for_timeout(500)
-            check('file list: a photo shows the Image icon', await pg.evaluate("document.querySelector('.doc-item .doc-ic path').getAttribute('d') === window.ICON_LIB.image.d"))
+            check('file list: a photo shows the Image icon', await pg.evaluate("document.querySelector('.doc-item .doc-ic svg').dataset.icon === 'image' || (!!window.ICON_LIB && document.querySelector('.doc-item .doc-ic path').getAttribute('d') === window.ICON_LIB.image.d)"))
             await pg.click('#doc-add'); await pg.wait_for_selector('#ap-review:not([hidden])', timeout=8000)
             check('photo: image sent to the reader', state()['aiCalls'][-1]['images'] == 1, state()['aiCalls'][-1])
             # review table: Type and Category are the same dropdown, and the row stays open while the menu is used

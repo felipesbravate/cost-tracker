@@ -4,7 +4,8 @@ export function Icon({ icon, size, ...rest }) {
   if (!icon) return null;
   const own = size && icon.sizes && icon.sizes[size];
   const ic = own ? { ...icon, ...own } : icon;
-  const common = { viewBox: ic.viewBox, xmlns: 'http://www.w3.org/2000/svg', 'aria-hidden': 'true', ...rest };
+  // data-icon names the glyph, so tests and tools can tell which icon is drawn without comparing paths.
+  const common = { viewBox: ic.viewBox, xmlns: 'http://www.w3.org/2000/svg', 'aria-hidden': 'true', 'data-icon': icon.name, ...rest };
   if (ic.type === 'dots') {
     return <svg {...common}>{ic.circles.map((c, i) => <circle key={i} cx={c.cx} cy={c.cy} r={c.r} fill="currentColor" />)}</svg>;
   }

@@ -30,9 +30,20 @@ const cookieUser = (h) => { const m = /(?:^|; )mock_user=([^;]+)/.exec(h.cookie 
 const readBody = (req) => new Promise((res, rej) => { const c = []; let n = 0; req.on('data', (d) => { n += d.length; if (n > 12e6) { rej(new Error('too big')); req.destroy(); } else c.push(d); }); req.on('end', () => res(Buffer.concat(c).toString('utf8'))); req.on('error', rej); });
 const send = (res, status, body, headers = {}) => { res.writeHead(status, { ...securityHeaders(), ...headers }); res.end(body); };
 
+// UI_ORIGIN (a running `next dev`/`next start`): serve the React tracker (/v2 there) at / instead of the legacy
+// page, so the same e2e and screenshot scripts run against both. The API, sign-in and data stay here.
+const UI_ORIGIN = process.env.UI_ORIGIN || '';
+async function proxy(req, res, target) {
+  const body = ['GET', 'HEAD'].includes(req.method) ? undefined : await readBody(req);
+  const r = await fetch(UI_ORIGIN + target, { method: req.method, headers: { cookie: req.headers.cookie || '', accept: req.headers.accept || '*/*', 'accept-encoding': 'identity' }, body, redirect: 'manual' });
+  const headers = {}; r.headers.forEach((v, k) => { if (!['content-encoding', 'content-length', 'transfer-encoding', 'connection'].includes(k)) headers[k] = v; });
+  res.writeHead(r.status, headers); res.end(Buffer.from(await r.arrayBuffer()));
+}
+
 export const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, ORIGIN); const path = url.pathname; const user = cookieUser(req.headers);
+    if (UI_ORIGIN && (path.startsWith('/_next/') || path.startsWith('/__nextjs'))) return proxy(req, res, req.url);
     if (path.startsWith('/api/')) {
       let body; const raw = ['POST', 'PUT', 'PATCH'].includes(req.method) ? await readBody(req) : '';
       if (raw) { try { body = JSON.parse(raw); } catch { return send(res, 400, '{"error":{"code":"bad_input","message":"Invalid JSON"}}', { 'content-type': 'application/json' }); } }
@@ -49,6 +60,7 @@ export const server = createServer(async (req, res) => {
       const access = await pageAccess(user, deps);
       if (access === 'login') return send(res, 303, '', { location: '/login' });
       if (access !== 'ok') return send(res, 303, '', { location: '/pending' });
+      if (UI_ORIGIN) return proxy(req, res, '/v2' + url.search);
       const nonce = newNonce();
       return send(res, 200, renderTracker(nonce), { 'content-type': 'text/html; charset=utf-8', ...securityHeaders(trackerCsp(nonce)) });
     }
