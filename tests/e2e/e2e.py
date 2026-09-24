@@ -201,6 +201,7 @@ async def main():
             # best-guess category: a reply without "sure" is marked, the status line says so, and Submit is not blocked
             check('reader prompt asks for certainty', '"certainty"' in state()['aiCalls'][-1]['prompt'])
             check('review: an unsure category carries a Guess (?) chip', await pg.locator('#rv-rows .rv-guess').count() == 1 and await pg.get_attribute('#rv-rows .rv-guess', 'aria-label') == 'Guess')
+            check('review: the guess note starts with the Question icon', await pg.locator('#rv-status .rv-guess svg[data-icon=question-filled]').count() == 1)
             check('review: status counts the guess and Submit stays enabled', (await pg.inner_text('#rv-status')).startswith('1 category is a guess') and not await pg.is_disabled('#rv-submit'), await pg.inner_text('#rv-status'))
             g = await pg.evaluate("""() => { const c = document.querySelector('#rv-rows .rv-guess'), l = document.querySelector('#rv-rows .c-cat .rv-link'), svg = c.querySelector('svg');
                 return { icon: svg && svg.dataset.icon, color: getComputedStyle(c).color, w: c.getBoundingClientRect().width, within: c.getBoundingClientRect().right <= c.closest('.c-cat').getBoundingClientRect().right + 0.5 && l.getBoundingClientRect().right <= c.getBoundingClientRect().left }; }""")

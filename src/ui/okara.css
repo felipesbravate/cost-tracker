@@ -984,6 +984,8 @@
   /* Guess marker: the Question (filled) icon, 20px frame, surface/tertiary. */
   .rv-guess{ flex-shrink:0; display:inline-flex; width:20px; height:20px; color:var(--surface-tertiary); cursor:default; }
   .rv-guess svg{ width:20px; height:20px; display:block; }
+  /* The review note about guesses starts with the same marker. */
+  #rv-status.has-guess{ display:inline-flex; align-items:center; gap:var(--space-xs); }
   .rv-row:hover .rv-link.bad{ text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; }
   .rv-amt{ display:inline-flex; align-items:center; gap:var(--space-xs); background:none; border:none; padding:0; height:20px; cursor:pointer; color:var(--ink); font-family:var(--font-mono); font-size:12px; font-weight:500; letter-spacing:-0.48px; font-variant-numeric:tabular-nums; }
   .rv-amt svg{ width:12px; height:12px; display:block; flex-shrink:0; }

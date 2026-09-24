@@ -337,7 +337,7 @@ function Review({ review, setReview, model, reader, onCancel, save, onDone }) {
     const parts = [];
     if (guesses) parts.push(`${guesses} ${guesses === 1 ? 'category is a guess' : 'categories are guesses'}. Check ${guesses === 1 ? 'it' : 'them'} before you submit.`);
     if (away) parts.push(`${away} ${away === 1 ? 'entry is' : 'entries are'} dated in another month and will count toward ${periodLabel(period)}.`);
-    st = { err: false, text: parts.join(' ') };
+    st = { err: false, text: parts.join(' '), guess: guesses > 0 };
   }
 
   const submit = async () => {
@@ -397,7 +397,7 @@ function Review({ review, setReview, model, reader, onCancel, save, onDone }) {
       <div className="add-actions">
         <Button id="rv-submit" disabled={!rows.length || bad > 0 || submitting} onClick={submit}>{submitting ? 'Submitting…' : 'Submit'}</Button>
         <Button variant="tertiary" id="rv-cancel" onClick={onCancel}>Cancel</Button>
-        <span className={'add-status' + (st && st.err ? ' err' : '')} id="rv-status" role="status">{st ? st.text : ''}</span>
+        <span className={'add-status' + (st && st.err ? ' err' : '') + (st && st.guess ? ' has-guess' : '')} id="rv-status" role="status">{st && st.guess ? <span className="rv-guess" aria-hidden="true"><Icon icon={questionFilled} /></span> : null}{st ? st.text : ''}</span>
       </div>
     </div>
   );
