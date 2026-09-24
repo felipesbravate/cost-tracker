@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, RoundButton } from './Button.jsx';
 import { Icon } from './Icon.jsx';
 import { bell, chevronDown } from './icons.js';
@@ -40,19 +40,34 @@ export function MenuList({ items, bare, className, ...rest }) {
   );
 }
 
-// user (DS 221:1048): chevron + avatar. Active: a card with the first name and the menu (Account, Admin, Sign out).
+// Keeps a popover mounted for its closing animation: 'open' | 'closing' | null.
+function usePresence(open, ms = 200) {
+  const [phase, setPhase] = useState(open ? 'open' : null);
+  useEffect(() => {
+    if (open) { setPhase('open'); return undefined; }
+    setPhase((p) => (p ? 'closing' : null));
+    const t = setTimeout(() => setPhase(null), ms);
+    return () => clearTimeout(t);
+  }, [open, ms]);
+  return phase;
+}
+
+// user (DS 221:1048): chevron + avatar (Hover: the pill fills action/secondary-hover). Active: the pill grows into a
+// card with the first name (text/accent), the chevron turned up, and the menu (Account, Admin, Sign out). Clicking the
+// card's top row, the avatar, outside it or Escape closes it; it shrinks back into the pill.
 export function UserMenu({ name, open, onToggle, onClose, items }) {
   const ref = useRef(null);
+  const phase = usePresence(open);
   useDismiss(open, ref, onClose);
   return (
-    <div className={cx('ds-user', open && 'is-open')} ref={ref}>
+    <div className={cx('ds-user', phase && 'is-open')} ref={ref}>
       <button type="button" className="ds-user-trigger" id="user-menu-btn" aria-haspopup="menu" aria-expanded={open ? 'true' : 'false'} aria-label="Account menu" onClick={onToggle}>
         <span className="ds-user-info"><Icon icon={chevronDown} /><Avatar name={name} /></span>
       </button>
-      {open && (
-        <div className="ds-user-card" id="user-menu">
+      {phase && (
+        <div className={cx('ds-user-card', phase === 'closing' && 'is-closing')} id="user-menu">
           <button type="button" className="ds-user-info" aria-label="Close account menu" onClick={onClose}>
-            <Icon icon={chevronDown} /><span className="ds-user-name">{name}</span><Avatar name={name} />
+            <Icon icon={chevronDown} className="ds-user-chevron" /><span className="ds-user-name">{name}</span><Avatar name={name} />
           </button>
           <MenuList bare items={items} />
         </div>

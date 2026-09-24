@@ -176,6 +176,17 @@ async def main():
                 tab.remove(); return o; }""")
             check('Year tab delete = Micro round button: 14px, dark, 10px X, at x 41 / y -4 of a 48 x 32 tab (DS 53:801)', yd['size'] == [14, 14] and yd['bg'] == 'rgb(22, 21, 15)' and yd['r'] == '999px' and yd['svg'] == ['10px', '10px'] and abs(yd['dx'] - 41) < 0.6 and abs(yd['dy'] + 4) < 0.6, yd)
 
+            # 2c. Sept 24 adjustments: sub-types only under Expenses; every item of the year listed, 0,00 when empty
+            await pg.keyboard.press('Escape'); await pg.mouse.click(5, 5)
+            await pg.click('#breakdown-top-seg button[data-v=Income]'); await pg.wait_for_timeout(200)
+            check('Tracker: Income shows no sub-types', not await pg.is_visible('#breakdown-group-seg'))
+            await pg.click('#breakdown-top-seg button[data-v=Investments]'); await pg.wait_for_timeout(200)
+            check('Tracker: Savings/Investments shows no sub-types', not await pg.is_visible('#breakdown-group-seg'))
+            await pg.click('#breakdown-top-seg button[data-v=Expenses]'); await pg.wait_for_timeout(200)
+            check('Tracker: Expenses shows the sub-types', await pg.is_visible('#breakdown-group-seg'))
+            zeros = await pg.evaluate("[...document.querySelectorAll('#itemslist .bd-row')].filter(r => /(^|\\s)0,00$/.test(r.querySelector('.n').textContent.trim())).length")
+            check('Tracker: items without entries are listed at 0,00', zeros > 0, zeros)
+
             # 3. CSV reading via the server-side reader
             await open_panel(pg)
             check('upload dropzone enabled', not await pg.evaluate("document.getElementById('dropzone').classList.contains('is-off')"))
@@ -403,6 +414,16 @@ async def main():
             for _ in range(4):
                 rr = await admin_ctx.request.post(BASE + '/api/read-document', data={'prompt': 'x'}, headers={'origin': BASE, 'x-requested-with': 'costs-tracker'}); codes.append(rr.status)
             check('daily read cap enforced', codes == [200, 200, 429, 429], codes)
+
+            # 7b. removing an entry from the Entries tooltip confirms with a toast
+            r = await admin_ctx.request.post(BASE + '/api/db/entries', headers=hdr, data={
+                'year': ym[0], 'monthIndex': ym[1], 'type': 'income', 'group': None, 'category': None, 'item': 'Toast test', 'description': 'Toast test', 'amount': 5, 'date': ym[0] + '-%02d-01' % (ym[1] + 1)})
+            await pg.reload(); await pg.wait_for_selector('#user-nav'); await pg.wait_for_timeout(700)
+            await pg.click('#breakdown-top-seg button[data-v=Income]'); await pg.wait_for_timeout(200)
+            await pg.locator('.meter-row', has_text='Toast test').locator('.note-count').click(); await pg.wait_for_timeout(200)
+            await pg.locator('#note-tip .tip-item', has_text='Toast test').locator('.tip-del').click()
+            await pg.wait_for_selector('#ds-toast.visible', timeout=4000)
+            check('removing an entry shows a toast', 'removed' in await pg.inner_text('#ds-toast'), await pg.inner_text('#ds-toast'))
 
             # 8. erase my data, then sign out
             await ann.click('#user-menu-btn'); await ann.click('#menu-account'); await ann.wait_for_selector('#account-dialog[open]')

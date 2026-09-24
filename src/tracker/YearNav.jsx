@@ -3,6 +3,10 @@ import { useEffect, useRef, useState } from 'react';
 import { Button, Dropdown, MonthSelector, RoundButton, YearAddButton } from '../ui/index.js';
 import { plus, x } from '../ui/icons.js';
 import { Icon } from '../ui/Icon.jsx';
+import { currentYearLabel } from './model.js';
+
+// A year before the current one is history: it can't be deleted from here.
+const isPastYear = (label) => { const n = parseInt(label, 10); return !isNaN(n) && n < parseInt(currentYearLabel(), 10); };
 
 // Year tabs (newest first) with "+ Add year", and the month row (Nav tabs 59:850, Month selector 4:171).
 export function YearNav({ model, yearIdx, monthIdx, onYear, onMonth, onAddYear, onDeleteYear, canSave, onAddingChange }) {
@@ -37,7 +41,7 @@ export function YearNav({ model, yearIdx, monthIdx, onYear, onMonth, onAddYear, 
                 return (
                   <div className="year-tab" key={yr.year}>
                     <button className="year-btn" role="tab" aria-pressed={i === yearIdx ? 'true' : 'false'} onClick={() => onYear(i)}>{yr.year}</button>
-                    {yr.isExtra && yr.dbId && i === yearIdx && (
+                    {yr.isExtra && yr.dbId && i === yearIdx && !isPastYear(yr.year) && (
                       <button type="button" className="year-del-btn" aria-label={'Delete ' + yr.year} onClick={(e) => { e.stopPropagation(); setConfirm(yr.year); }}>
                         <Icon icon={x} size={10} />
                       </button>

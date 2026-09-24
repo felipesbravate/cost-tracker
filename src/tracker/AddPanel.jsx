@@ -102,10 +102,23 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
   const fileRef = useRef(null);
   const [over, setOver] = useState(false);
 
+  // Reading progress: the reader gets no progress from the server, so each file advances on an estimate of how long
+  // Claude takes for it (a photo ~10s, a text chunk ~5s), easing towards 95%; a file that finishes jumps to 100%,
+  // and the bar fills before the review opens.
+  const [readStart, setReadStart] = useState(null);
+  const [finishing, setFinishing] = useState(false);
+  const [, tick] = useReducer((n) => n + 1, 0);
+  useEffect(() => {
+    if (!reader.analyzing) { setReadStart(null); return undefined; }
+    setReadStart(Date.now());
+    const t = setInterval(tick, 120);
+    return () => clearInterval(t);
+  }, [reader.analyzing]);
   const analyze = async () => {
     setDocStatus(null);
     const res = await reader.analyze(model);
     if (!res || res.aborted) return;
+    if (res.rows.length) { setFinishing(true); await new Promise((r) => setTimeout(r, 350)); setFinishing(false); }
     if (res.rows.length) {
       const ks = res.rows.map((r) => periodKeyOfDate(r.date)).filter((k) => k && model.periodExists(k)).sort();
       const p = ks.length ? ks[ks.length - 1] : model.defaultPeriodKey(yearIdx, monthIdx);
@@ -119,7 +132,14 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
   const reviewFiles = review ? new Set(review.rows.map((r) => r.fileId)).size : 0;
   // Files reading (Cost-tracker 229:18563): the drop area becomes a progress box; the rest of the panel fades.
   const readingDocs = reader.docs.filter((d) => ['reading', 'done', 'empty'].includes(d.status) || (d.status === 'error' && d.wasRead));
-  const readProgress = readingDocs.length ? readingDocs.filter((d) => d.status !== 'reading').length / readingDocs.length : 0;
+  const elapsed = readStart ? Date.now() - readStart : 0;
+  const docProgress = (d) => {
+    if (d.status !== 'reading') return 1;
+    const tau = d.kind === 'image' || (d.images && d.images.length) ? 10000 : 5000 * Math.max(1, (d.chunks || []).length);
+    return 0.95 * (1 - Math.exp(-elapsed / tau));
+  };
+  const readProgress = finishing ? 1 : (readingDocs.length ? readingDocs.reduce((a, d) => a + docProgress(d), 0) / readingDocs.length : 0);
+  const showReading = reader.analyzing || finishing;
   const anyPrep = reader.docs.some((d) => d.status === 'preparing');
   const anyReady = reader.docs.some((d) => d.status === 'ready');
 
@@ -127,7 +147,7 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
     <>
       <div className={'add-panel-backdrop' + (open ? ' open' : '')} id="add-panel-backdrop" onClick={onClose} />
       <div ref={panelRef} className={'add-panel' + (open ? ' open' : '')} id="add-panel" role="dialog" aria-modal="true" aria-labelledby="add-panel-title">
-        <div className={'ap-header' + (reader.analyzing ? ' is-faded' : '')}>
+        <div className={'ap-header' + (showReading ? ' is-faded' : '')}>
           <PanelHeader closeId="entry-close-btn" titleId="add-panel-title" onClose={onClose}
             title={review ? `Review ${review.rows.length} ${review.rows.length === 1 ? 'entry' : 'entries'} from ${reviewFiles} ${reviewFiles === 1 ? 'file' : 'files'}` : 'Add an entry'}
             hint={review ? "Check your entries. Change anything that's wrong, or remove what doesn't belong." : 'Upload receipts or statements or enter the information by hand.'} />
@@ -137,16 +157,16 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
           <section className="ap-section" id="ap-upload">
             <h3 className="ap-section-title">Upload documents</h3>
             <div className="ap-block">
-              {reader.analyzing && (
+              {showReading && (
                 <div className="dz-reading" id="dz-reading" role="status">
                   <div className="dz-reading-info">
                     <div className="dz-reading-title">{`Reading ${readingDocs.length} ${readingDocs.length === 1 ? 'file' : 'files'}`}</div>
                     <div className="dz-hint">It may take a few seconds.</div>
                   </div>
-                  <ProgressBar value={Math.max(0.08, readProgress)} className="dz-progress" />
+                  <ProgressBar value={Math.max(0.04, readProgress)} className="dz-progress" />
                 </div>
               )}
-              <div hidden={reader.analyzing} className={'dropzone' + (enabled ? '' : ' is-off') + (over ? ' is-over' : '')} id="dropzone"
+              <div hidden={showReading} className={'dropzone' + (enabled ? '' : ' is-off') + (over ? ' is-over' : '')} id="dropzone"
                 tabIndex={enabled ? 0 : -1} role="button" aria-label="Upload documents" aria-disabled={enabled ? 'false' : 'true'}
                 onClick={() => { if (!reader.analyzing && enabled) fileRef.current.click(); }}
                 onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !reader.analyzing && enabled) { e.preventDefault(); fileRef.current.click(); } }}
@@ -162,7 +182,7 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
               </div>
               <input ref={fileRef} type="file" id="file-input" multiple hidden accept={reader.ready ? reader.accept() : undefined}
                 onChange={(e) => { setDocStatus(null); reader.add(e.target.files); e.target.value = ''; }} />
-              <div className="doc-list" id="doc-list" hidden={reader.analyzing}>
+              <div className="doc-list" id="doc-list" hidden={showReading}>
                 {reader.docs.map((d) => {
                   const bad = d.status === 'error' || d.status === 'empty';
                   return (
@@ -176,7 +196,7 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
                   );
                 })}
               </div>
-              <div className="add-actions" id="doc-actions" hidden={reader.docs.length === 0 || reader.analyzing}>
+              <div className="add-actions" id="doc-actions" hidden={reader.docs.length === 0 || showReading}>
                 <Button id="doc-add" disabled={reader.analyzing || anyPrep || !anyReady} onClick={analyze}>Add files</Button>
                 <Button variant="tertiary" id="doc-cancel" onClick={() => { if (!reader.cancel()) setDocStatus(null); }}>Cancel</Button>
                 <span className={'add-status' + (docStatus && docStatus.err ? ' err' : '')} id="doc-status" role="status">{docStatus ? docStatus.text : ''}</span>
@@ -184,9 +204,9 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
             </div>
           </section>
 
-          <Divider id="ap-divider" className={'ds-divider' + (reader.analyzing ? ' is-faded' : '')} />
+          <Divider id="ap-divider" className={'ds-divider' + (showReading ? ' is-faded' : '')} />
 
-          <section className={'ap-section ap-manual' + (reader.analyzing ? ' is-faded' : '')} id="ap-manual">
+          <section className={'ap-section ap-manual' + (showReading ? ' is-faded' : '')} id="ap-manual">
             <h3 className="ap-section-title">Enter manually</h3>
             <FieldGroup label="Type" className="ap-type">
               <Segments id="entry-type-seg" value={entryType} onChange={(v) => { setEntryType(v); setCat(''); setItem(''); }}

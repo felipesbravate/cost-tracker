@@ -155,13 +155,26 @@ export default function TrackerApp() {
   };
 
   const tipActions = {
-    deleteEntry: (id) => { db.doc('entries/' + id).delete().catch(() => {}); setTip(null); },
+    deleteEntry: async (id) => {
+      setTip(null);
+      const e = modelRef.current.ENTRIES.find((x) => x.id === id);
+      try { await db.doc('entries/' + id).delete(); showToast(e && e.description ? `"${e.description}" removed.` : 'Entry removed.', 'success'); }
+      catch { showToast('Could not remove the entry.', 'fail'); }
+    },
     deleteBaseValue: async (row) => {
       if (row.override) return;
-      await db.collection('overrides').add({ year: row.yearLabel, monthIndex: row.mi, type: row.type, group: row.group, category: row.category, item: row.item, createdAt: new Date().toISOString() }).catch(() => {});
       setTip(null);
+      try {
+        await db.collection('overrides').add({ year: row.yearLabel, monthIndex: row.mi, type: row.type, group: row.group, category: row.category, item: row.item, createdAt: new Date().toISOString() });
+        showToast(`${row.item} removed from ${MONTH_ABBR[row.mi]} ${row.yearLabel}.`, 'success');
+      } catch { showToast(`Could not remove ${row.item}.`, 'fail'); }
     },
-    restoreOverride: async (id) => { if (!id) return; await db.doc('overrides/' + id).delete().catch(() => {}); setTip(null); },
+    restoreOverride: async (id) => {
+      if (!id) return;
+      setTip(null);
+      try { await db.doc('overrides/' + id).delete(); showToast('Value restored.', 'success'); }
+      catch { showToast('Could not restore the value.', 'fail'); }
+    },
   };
 
   // ---- years ----

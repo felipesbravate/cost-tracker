@@ -341,25 +341,34 @@ export function createModel({ data: DATA, entries: ENTRIES, overrides: OVERRIDES
       type, group: group || null, yearLabel: y.year, mi,
     };
   }
+  // The Tracker's rows: every item of the year's categories for this type (0,00 when nothing is recorded), plus any
+  // item the month has figures for.
+  const zeroRow = (type, group, category, item, y, mi) => ({
+    item, category: category || null, amount: 0, entries: [], importedCells: [], noteEntries: [], isEstimate: false, deleted: false, override: null,
+    baseAmount: 0, estimateSamples: 0, estimateSource: null, type, group: group || null, yearLabel: y.year, mi, empty: true,
+  });
   function buildBreakdown(y, mi, type) {
     const yi = DATA.indexOf(y);
+    const TX = taxonomyForYear(y.year);
     if (type === 'Income' || type === 'Investments') {
       const t = type === 'Income' ? 'income' : 'investment';
-      const rows = listItemsForMonth(yi, mi, t, null).map((r) => itemRowFor(yi, mi, t, null, r, y))
-        .filter((r) => Math.abs(r.amount) > 0.004 || r.entries.length || r.noteEntries.length || r.deleted);
+      const rows = listItemsForMonth(yi, mi, t, null).map((r) => itemRowFor(yi, mi, t, null, r, y));
+      ((t === 'income' ? TX.incomes : TX.investments) || []).forEach((item) => { if (!rows.some((r) => r.item === item)) rows.push(zeroRow(t, null, null, item, y, mi)); });
       return { flat: true, rows };
     }
     const catMap = new Map();
+    const catOf = (name) => { if (!catMap.has(name)) catMap.set(name, { category: name, amount: 0, items: [] }); return catMap.get(name); };
     listItemsForMonth(yi, mi, 'expense', type).forEach((r) => {
       const row = itemRowFor(yi, mi, 'expense', type, r, y);
-      const catName = row.category || 'Other';
-      if (!catMap.has(catName)) catMap.set(catName, { category: catName, amount: 0, items: [] });
-      const cat = catMap.get(catName);
+      const cat = catOf(row.category || 'Other');
       cat.amount += row.amount;
       cat.items.push(row);
     });
-    const rows = [...catMap.values()].filter((c) => Math.abs(c.amount) > 0.004 || c.items.some((i) => i.entries.length || i.noteEntries.length || i.deleted));
-    return { flat: false, rows };
+    Object.entries((TX.expenses || {})[type] || {}).forEach(([category, items]) => {
+      const cat = catOf(category);
+      items.forEach((item) => { if (!cat.items.some((i) => i.item === item)) cat.items.push(zeroRow('expense', type, category, item, y, mi)); });
+    });
+    return { flat: false, rows: [...catMap.values()] };
   }
 
   // Annual totals for the year-over-year chart.
