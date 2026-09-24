@@ -1,17 +1,18 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { Button, Dropdown, MonthSelector, RoundButton, YearAddButton } from '../ui/index.js';
-import { x } from '../ui/icons.js';
+import { plus, x } from '../ui/icons.js';
 import { Icon } from '../ui/Icon.jsx';
 
 // Year tabs (newest first) with "+ Add year", and the month row (Nav tabs 59:850, Month selector 4:171).
-export function YearNav({ model, yearIdx, monthIdx, onYear, onMonth, onAddYear, onDeleteYear, canSave }) {
+export function YearNav({ model, yearIdx, monthIdx, onYear, onMonth, onAddYear, onDeleteYear, canSave, onAddingChange }) {
   const { DATA } = model;
   const y = DATA[yearIdx];
   const [adding, setAdding] = useState(false);
   const [confirm, setConfirm] = useState(null); // label of the year asking "Delete?"
   // Any data change redraws the tabs, which drops an open "Delete?" (as on the legacy page).
   useEffect(() => { setConfirm(null); }, [model]);
+  useEffect(() => { if (onAddingChange) onAddingChange(adding); }, [adding, onAddingChange]);
 
   return (
     <div className="actions-wrap">
@@ -77,17 +78,17 @@ function AddYearPill({ open, onClose, onSubmit, model, canSave }) {
   };
   return (
     <div className={'year-add-pill' + (open ? ' open' : '')} id="year-add-panel" role="dialog" aria-label="Add a year">
-      <RoundButton icon={x} id="year-add-cancel" label="Close" onClick={onClose} />
+      <RoundButton icon={x} id="year-add-cancel" label="Close" active onClick={onClose} />
       <div className="year-add-pill-inputs">
         <div className="year-add-pill-field">
-          <input ref={input} type="text" id="year-add-input" placeholder="2027" inputMode="numeric" aria-label="Year" value={label} onChange={(e) => setLabel(e.target.value)} />
+          <input ref={input} type="text" id="year-add-input" placeholder="Year" inputMode="numeric" aria-label="Year" value={label} onChange={(e) => setLabel(e.target.value)} />
         </div>
         <div className="year-add-pill-currency">
           <Dropdown id="year-add-currency" ariaLabel="Currency" size="sm" value={currency} onChange={setCurrency} emptyOption={false}
             options={[{ value: 'EUR', label: 'EUR' }, { value: 'SEK', label: 'SEK' }]} />
         </div>
       </div>
-      <button className="btn-pill" id="year-add-submit" onClick={submit}>Add year</button>
+      <Button size="small" icon={plus} id="year-add-submit" onClick={submit}>Add</Button>
       <span className={'add-status' + (status && status.err ? ' err' : '')} id="year-add-status">{status ? status.text : ''}</span>
     </div>
   );

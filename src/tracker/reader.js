@@ -251,7 +251,7 @@ export class DocReader {
     const targets = this.docs.filter((d) => d.status === 'ready');
     if (!targets.length || this.analyzing || !this.sampleFn) return null;
     this.analyzing = true; const ctl = new AbortController(); this.ctl = ctl;
-    targets.forEach((d) => { d.status = 'reading'; d.rows = []; });
+    targets.forEach((d) => { d.status = 'reading'; d.rows = []; d.wasRead = true; });
     this.changed();
     let fatal = null; const queue = targets.slice();
     const toArr = (out) => (Array.isArray(out) ? out : (out && Array.isArray(out.entries) ? out.entries : []));

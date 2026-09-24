@@ -95,7 +95,7 @@ async def seed(ctx):
 
 # ---------- helpers ----------
 async def fresh(pg):
-    await pg.goto(BASE + '/'); await pg.wait_for_selector('.ct-shell'); await pg.wait_for_timeout(900)
+    await pg.goto(BASE + '/'); await pg.wait_for_selector('#user-nav'); await pg.wait_for_timeout(900)
     await pg.add_style_tag(content=CALM)
     await pg.evaluate("document.fonts.ready"); await pg.mouse.move(0, 0)
 
@@ -179,12 +179,18 @@ async def budget(pg):
 async def s_budget(pg): await budget(pg)
 async def s_budget_income(pg): await budget(pg); await pg.click('#budget-type-seg button[data-v=income]'); await settle(pg)
 async def s_budget_variable(pg): await budget(pg); await pg.click('#budget-group-seg button[data-v=Variable]'); await settle(pg)
-async def s_budget_menu(pg):
-    await budget(pg); await pg.locator('#budget-sections .budget-type-section:not([hidden]) .br-more').first.click(); await settle(pg)
+async def s_budget_hover(pg):
+    await budget(pg); await pg.locator('#budget-sections .budget-type-section:not([hidden]) .br-amount').first.hover(); await settle(pg)
 async def s_budget_edit(pg):
-    await budget(pg); await pg.locator('#budget-sections .budget-type-section:not([hidden]) .br-input').first.focus(); await settle(pg)
+    await budget(pg); await pg.locator('#budget-sections .budget-type-section:not([hidden]) .br-amount').first.click(); await settle(pg)
 
-async def s_admin(pg): await pg.click('text=Approve users'); await pg.wait_for_selector('dialog.ct-dialog[open]'); await settle(pg)
+async def s_admin(pg): await pg.click('#user-menu-btn'); await pg.click('#menu-admin'); await pg.wait_for_selector('dialog.ct-dialog[open]'); await settle(pg)
+async def s_user_menu(pg): await pg.click('#user-menu-btn'); await pg.wait_for_selector('#user-menu'); await settle(pg)
+async def s_notif(pg): await pg.click('#notif-btn'); await pg.wait_for_selector('#notif-panel'); await settle(pg)
+async def s_tracker_menu(pg): await pg.click('#tracker-menu-btn'); await pg.wait_for_selector('#tracker-menu'); await settle(pg)
+async def s_month_budget(pg):
+    await month(pg, 10); await pg.click('#tracker-menu-btn'); await pg.click('#adjust-budget')
+    await pg.wait_for_selector('#month-budget-panel.open'); await settle(pg)
 
 STATES = [
     ('01-dashboard', 'page', s_dash), ('02-tab-income', 'page', s_income), ('03-tab-invest', 'page', s_invest),
@@ -199,7 +205,9 @@ STATES = [
     ('27-panel-error', 'view', s_panel_error), ('28-panel-files', 'view', s_panel_files), ('29-review', 'view', s_review),
     ('30-review-editing', 'view', s_review_edit), ('31-review-bad-date', 'view', s_review_bad_date), 
     ('33-budget', 'view', s_budget), ('34-budget-income', 'view', s_budget_income), ('35-budget-variable', 'view', s_budget_variable),
-    ('36-budget-row-menu', 'view', s_budget_menu), ('37-budget-editing', 'view', s_budget_edit), ('38-admin-dialog', 'view', s_admin),
+    ('36-budget-amount-hover', 'view', s_budget_hover), ('37-budget-editing', 'view', s_budget_edit), ('38-admin-dialog', 'view', s_admin),
+    ('40-user-menu', 'view', s_user_menu), ('41-notifications', 'view', s_notif), ('42-tracker-menu', 'view', s_tracker_menu),
+    ('43-month-budget', 'view', s_month_budget),
     ('39-toast', 'view', s_toast),  # writes an entry: keep last
 ]
 
@@ -220,7 +228,7 @@ async def main():
             try:
                 seed_ctx = await b.new_context(); await seed_ctx.add_init_script(FROZEN); await route_fonts(seed_ctx)
                 pg = await seed_ctx.new_page(); await pg.goto(BASE + '/login'); await pg.fill('input[name=email]', 'admin@example.com'); await pg.click('button')
-                await pg.wait_for_selector('.ct-shell'); await seed(seed_ctx)
+                await pg.wait_for_selector('#user-nav'); await seed(seed_ctx)
                 storage = await seed_ctx.storage_state(); await seed_ctx.close()
                 os.makedirs(os.path.join(OUT, vp), exist_ok=True)
                 for name, kind, fn in STATES:

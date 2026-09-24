@@ -1,13 +1,15 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Icon } from './Icon.jsx';
-import { checkmark } from './icons.js';
+import { checkmark, negativeFilled } from './icons.js';
 
-// Toast (DS 173:6658): Success / Fail / Neutral, bottom-centre, 24px up. Every type draws the checkmark, as in the DS.
-export function Toast({ type = 'success', visible, children }) {
+// Toast (DS 173:6658): Success (Checkmark) / Fail (Negative, filled) / Neutral (no icon), bottom-right, 24px in.
+// `action` is an optional trailing control (the year-delete Undo); the DS Toast itself has none.
+export function Toast({ type = 'success', visible, id = 'ds-toast', action, children }) {
+  const icon = type === 'fail' ? negativeFilled : type === 'neutral' ? null : checkmark;
   return (
-    <div id="ds-toast" className={`ds-toast ${type}${visible ? ' visible' : ''}`}>
-      <span className="ds-toast-icon"><Icon icon={checkmark} /></span><span>{children}</span>
+    <div id={id} className={`ds-toast ${type}${visible ? ' visible' : ''}`} role="status">
+      {icon && <span className="ds-toast-icon"><Icon icon={icon} /></span>}<span>{children}</span>{action}
     </div>
   );
 }

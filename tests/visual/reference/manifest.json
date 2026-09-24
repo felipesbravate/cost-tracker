@@ -205,7 +205,7 @@
  },
  {
   "viewport": "desktop",
-  "state": "36-budget-row-menu",
+  "state": "36-budget-amount-hover",
   "kind": "view",
   "errors": []
  },
@@ -218,6 +218,30 @@
  {
   "viewport": "desktop",
   "state": "38-admin-dialog",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "40-user-menu",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "41-notifications",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "42-tracker-menu",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "desktop",
+  "state": "43-month-budget",
   "kind": "view",
   "errors": []
  },
@@ -433,7 +457,7 @@
  },
  {
   "viewport": "mobile",
-  "state": "36-budget-row-menu",
+  "state": "36-budget-amount-hover",
   "kind": "view",
   "errors": []
  },
@@ -446,6 +470,30 @@
  {
   "viewport": "mobile",
   "state": "38-admin-dialog",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "40-user-menu",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "41-notifications",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "42-tracker-menu",
+  "kind": "view",
+  "errors": []
+ },
+ {
+  "viewport": "mobile",
+  "state": "43-month-budget",
   "kind": "view",
   "errors": []
  },

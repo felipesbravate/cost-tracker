@@ -1,0 +1,95 @@
+'use client';
+import { useEffect, useRef } from 'react';
+import { Button, RoundButton } from './Button.jsx';
+import { Icon } from './Icon.jsx';
+import { bell, chevronDown } from './icons.js';
+
+const cx = (...c) => c.filter(Boolean).join(' ');
+
+// Closes a popover on a click outside `ref` or on Escape.
+export function useDismiss(open, ref, onClose) {
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    const t = setTimeout(() => document.addEventListener('click', onDoc), 0);
+    document.addEventListener('keydown', onKey);
+    return () => { clearTimeout(t); document.removeEventListener('click', onDoc); document.removeEventListener('keydown', onKey); };
+  }, [open, ref, onClose]);
+}
+
+// avatar (DS 221:1044), Style=Text: 40px surface/accent circle with the initial.
+export function Avatar({ name, className }) {
+  const initial = (name || '?').trim().charAt(0).toUpperCase() || '?';
+  return <span className={cx('ds-avatar', className)} aria-hidden="true">{initial}</span>;
+}
+
+// Menu of actions (Dropdown-list 182:6851, Type=Simple, made of dropdown-items 183:6858 with an optional left icon).
+// items: [{ key, label, icon, onSelect, id }]. `bare` drops the list's own card (the user menu draws its own).
+export function MenuList({ items, bare, className, ...rest }) {
+  return (
+    <div className={cx(bare ? 'ds-menu-items' : 'ds-dd-menu ds-menu', className)} role="menu" {...rest}>
+      <div className="ds-dd-items">
+        {items.map((it) => (
+          <button key={it.key || it.label} id={it.id} type="button" role="menuitem" className={cx('ds-dd-item', it.icon && 'has-icon')} onClick={it.onSelect}>
+            {it.icon && <Icon icon={it.icon} />}<span>{it.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// user (DS 221:1048): chevron + avatar. Active: a card with the first name and the menu (Account, Admin, Sign out).
+export function UserMenu({ name, open, onToggle, onClose, items }) {
+  const ref = useRef(null);
+  useDismiss(open, ref, onClose);
+  return (
+    <div className={cx('ds-user', open && 'is-open')} ref={ref}>
+      <button type="button" className="ds-user-trigger" id="user-menu-btn" aria-haspopup="menu" aria-expanded={open ? 'true' : 'false'} aria-label="Account menu" onClick={onToggle}>
+        <span className="ds-user-info"><Icon icon={chevronDown} /><Avatar name={name} /></span>
+      </button>
+      {open && (
+        <div className="ds-user-card" id="user-menu">
+          <button type="button" className="ds-user-info" aria-label="Close account menu" onClick={onClose}>
+            <Icon icon={chevronDown} /><span className="ds-user-name">{name}</span><Avatar name={name} />
+          </button>
+          <MenuList bare items={items} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// notification-item (DS 228:469): date · time in text/accent, the text, and an optional Tiny Secondary action.
+export function NotificationItem({ date, time, children, action }) {
+  return (
+    <div className="ds-notif-item">
+      <div className="ds-notif-when"><span>{date}</span><span className="ds-notif-dot" aria-hidden="true" /><span>{time}</span></div>
+      <div className="ds-notif-content">
+        <div className="ds-notif-text">{children}</div>
+        {action && <Button variant="secondary" size="tiny" onClick={action.onClick} disabled={action.disabled}>{action.label}</Button>}
+      </div>
+    </div>
+  );
+}
+
+// Notification (DS 228:455): bell (Round button, Small, Tertiary) with a red-orange dot when something is new.
+// Active: the bell turns Active and the list opens below it, right-aligned.
+export function Notification({ open, onToggle, onClose, unread, children }) {
+  const ref = useRef(null);
+  useDismiss(open, ref, onClose);
+  return (
+    <div className={cx('ds-notif', open && 'is-open')} ref={ref}>
+      <RoundButton icon={bell} size="small" active={open} id="notif-btn" label={unread ? 'Notifications (new)' : 'Notifications'}
+        aria-haspopup="dialog" aria-expanded={open ? 'true' : 'false'} onClick={onToggle} />
+      {unread && <span className="ds-notif-badge" aria-hidden="true" />}
+      {open && <div className="ds-notif-panel" id="notif-panel" role="dialog" aria-label="Notifications">{children}</div>}
+    </div>
+  );
+}
+
+// User nav (DS 230:618): the notification bell, then the user.
+export function UserNav({ children }) {
+  return <div className="ds-user-nav" id="user-nav"><div className="ds-user-nav-actions">{children[0]}</div>{children[1]}</div>;
+}

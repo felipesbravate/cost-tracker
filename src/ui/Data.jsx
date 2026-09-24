@@ -15,12 +15,13 @@ export function Card({ title, hint, hintId, className, children, ...rest }) {
 export const Divider = (props) => <hr className="ds-divider" {...props} />;
 
 // KPI card (DS 28:68): dot + uppercase label, the Value, an optional mono details line.
-export function KpiCard({ label, dotColor, value, currency, detail }) {
+// `indicator` (Show indicator): a 12px arrow icon before the details, in surface/tertiary.
+export function KpiCard({ label, dotColor, value, currency, detail, indicator }) {
   return (
     <div className="mini-kpi">
       <div className="label"><span className="dot" style={{ background: dotColor }} />{label}</div>
       <div className="value"><Money value={value} currency={currency} /></div>
-      {detail && <div className="detail">{detail}</div>}
+      {detail && <div className="detail">{indicator && <Icon icon={indicator} size={12} />}<span>{detail}</span></div>}
     </div>
   );
 }
@@ -59,6 +60,16 @@ export function BreakdownRow({ name, amount, currency, state, counter }) {
     <div className={'bd-row' + (state === 'estimate' ? ' is-estimate' : state === 'removed' ? ' is-removed' : '')}>
       <span className="bd-item-name">{name}{counter}</span>
       <span className="n">{state === 'estimate' ? '≈' : ''}<Money value={amount} currency={currency} /></span>
+    </div>
+  );
+}
+
+// progress-bar (DS 238:676): 8px surface/secondary track, a green gradient fill. `value` 0..1.
+export function ProgressBar({ value, className, ...rest }) {
+  const pct = Math.max(0, Math.min(1, value || 0)) * 100;
+  return (
+    <div className={['ds-progress', className].filter(Boolean).join(' ')} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)} {...rest}>
+      <div className="ds-progress-fill" style={{ width: pct.toFixed(1) + '%' }} />
     </div>
   );
 }

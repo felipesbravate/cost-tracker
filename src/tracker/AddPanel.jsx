@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
-import { ActionLink, Button, Divider, Dropdown, Field, FieldGroup, PanelHeader, RoundButton, Segments } from '../ui/index.js';
+import { ActionLink, Button, Divider, Dropdown, Field, FieldGroup, PanelHeader, ProgressBar, RoundButton, Segments } from '../ui/index.js';
 import { Icon } from '../ui/Icon.jsx';
-import { documentIcon, euro, image, upload, x } from '../ui/icons.js';
+import { chevronDown, documentIcon, euro, image, upload, x } from '../ui/icons.js';
 import { sample } from './api.js';
 import { DocReader, docIconName, docMeta } from './reader.js';
 import { EXP_GROUPS, TYPE_OPTS, fmtDateEU, fmtNum, parseAmount, periodKeyOfDate, periodLabel, periodMismatch, todayISO, typeKeyOf, yearLabelOfDate } from './model.js';
@@ -74,7 +74,7 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
     setStatus(null);
     const err = (m) => setStatus({ err: true, text: m });
     const description = desc.trim();
-    const amt = parseFloat(amount);
+    const amt = Math.round(parseAmount(amount) * 100) / 100;
     const date = (dateRef.current && dateRef.current.value) || todayISO();
     if (!description) return err('Add a description.');
     if (isExp && !catVal) return err('Pick a category.');
@@ -116,6 +116,10 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
   const closeReview = () => { setReview(null); reader.clear(); setDocStatus(null); };
 
   const enabled = reader.ready && !!reader.sampleFn;
+  const reviewFiles = review ? new Set(review.rows.map((r) => r.fileId)).size : 0;
+  // Files reading (Cost-tracker 229:18563): the drop area becomes a progress box; the rest of the panel fades.
+  const readingDocs = reader.docs.filter((d) => ['reading', 'done', 'empty'].includes(d.status) || (d.status === 'error' && d.wasRead));
+  const readProgress = readingDocs.length ? readingDocs.filter((d) => d.status !== 'reading').length / readingDocs.length : 0;
   const anyPrep = reader.docs.some((d) => d.status === 'preparing');
   const anyReady = reader.docs.some((d) => d.status === 'ready');
 
@@ -123,22 +127,34 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
     <>
       <div className={'add-panel-backdrop' + (open ? ' open' : '')} id="add-panel-backdrop" onClick={onClose} />
       <div ref={panelRef} className={'add-panel' + (open ? ' open' : '')} id="add-panel" role="dialog" aria-modal="true" aria-labelledby="add-panel-title">
-        <PanelHeader closeId="entry-close-btn" titleId="add-panel-title" title="Add an entry" hint="Upload receipts or statements or enter the information by hand." onClose={onClose} />
+        <div className={'ap-header' + (reader.analyzing ? ' is-faded' : '')}>
+          <PanelHeader closeId="entry-close-btn" titleId="add-panel-title" onClose={onClose}
+            title={review ? `Review ${review.rows.length} ${review.rows.length === 1 ? 'entry' : 'entries'} from ${reviewFiles} ${reviewFiles === 1 ? 'file' : 'files'}` : 'Add an entry'}
+            hint={review ? "Check your entries. Change anything that's wrong, or remove what doesn't belong." : 'Upload receipts or statements or enter the information by hand.'} />
+        </div>
 
         <div className="ap-main" id="ap-main" hidden={!!review}>
           <section className="ap-section" id="ap-upload">
             <h3 className="ap-section-title">Upload documents</h3>
             <div className="ap-block">
-              <div className={'dropzone' + (enabled ? '' : ' is-off') + (reader.analyzing ? ' is-busy' : '') + (over ? ' is-over' : '')} id="dropzone"
+              {reader.analyzing && (
+                <div className="dz-reading" id="dz-reading" role="status">
+                  <div className="dz-reading-info">
+                    <div className="dz-reading-title">{`Reading ${readingDocs.length} ${readingDocs.length === 1 ? 'file' : 'files'}`}</div>
+                    <div className="dz-hint">It may take a few seconds.</div>
+                  </div>
+                  <ProgressBar value={Math.max(0.08, readProgress)} className="dz-progress" />
+                </div>
+              )}
+              <div hidden={reader.analyzing} className={'dropzone' + (enabled ? '' : ' is-off') + (over ? ' is-over' : '')} id="dropzone"
                 tabIndex={enabled ? 0 : -1} role="button" aria-label="Upload documents" aria-disabled={enabled ? 'false' : 'true'}
                 onClick={() => { if (!reader.analyzing && enabled) fileRef.current.click(); }}
                 onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !reader.analyzing && enabled) { e.preventDefault(); fileRef.current.click(); } }}
                 onDragOver={(e) => { e.preventDefault(); setOver(true); }} onDragLeave={() => setOver(false)}
                 onDrop={(e) => { e.preventDefault(); setOver(false); setDocStatus(null); reader.add(e.dataTransfer && e.dataTransfer.files); }}>
-                <Icon icon={upload} />
                 <div className="dz-text">
-                  <div className="dz-line"><span className="ds-action-link">Click to upload</span><span>or drag and drop your file here</span></div>
-                  <div className="dz-hint" id="dz-hint">{!reader.ready ? 'PDF, CSV or TXT. Add as many as you like.' : reader.imgCaps() ? 'JPG, PNG, PDF, CSV or TXT. Add as many as you like.' : 'PDF, CSV or TXT. Add as many as you like.'}</div>
+                  <div className="dz-line"><span className="ds-action-link medium"><Icon icon={upload} />Click to upload</span><span>or drag and drop your file here</span></div>
+                  <div className="dz-hint" id="dz-hint">{reader.ready && reader.imgCaps() ? 'JPG, PNG, PDF or CSV. Add as many as you like.' : 'PDF or CSV. Add as many as you like.'}</div>
                 </div>
               </div>
               <div className="dz-off-note" id="dz-off-note" role="status" hidden={!(reader.offReason || reader.imagesNote)}>
@@ -146,7 +162,7 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
               </div>
               <input ref={fileRef} type="file" id="file-input" multiple hidden accept={reader.ready ? reader.accept() : undefined}
                 onChange={(e) => { setDocStatus(null); reader.add(e.target.files); e.target.value = ''; }} />
-              <div className="doc-list" id="doc-list">
+              <div className="doc-list" id="doc-list" hidden={reader.analyzing}>
                 {reader.docs.map((d) => {
                   const bad = d.status === 'error' || d.status === 'empty';
                   return (
@@ -160,17 +176,17 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
                   );
                 })}
               </div>
-              <div className="add-actions" id="doc-actions" hidden={reader.docs.length === 0}>
-                <Button id="doc-add" disabled={reader.analyzing || anyPrep || !anyReady} onClick={analyze}>{reader.analyzing ? 'Reading…' : 'Add'}</Button>
+              <div className="add-actions" id="doc-actions" hidden={reader.docs.length === 0 || reader.analyzing}>
+                <Button id="doc-add" disabled={reader.analyzing || anyPrep || !anyReady} onClick={analyze}>Add files</Button>
                 <Button variant="tertiary" id="doc-cancel" onClick={() => { if (!reader.cancel()) setDocStatus(null); }}>Cancel</Button>
                 <span className={'add-status' + (docStatus && docStatus.err ? ' err' : '')} id="doc-status" role="status">{docStatus ? docStatus.text : ''}</span>
               </div>
             </div>
           </section>
 
-          <Divider id="ap-divider" />
+          <Divider id="ap-divider" className={'ds-divider' + (reader.analyzing ? ' is-faded' : '')} />
 
-          <section className="ap-section ap-manual" id="ap-manual">
+          <section className={'ap-section ap-manual' + (reader.analyzing ? ' is-faded' : '')} id="ap-manual">
             <h3 className="ap-section-title">Enter manually</h3>
             <FieldGroup label="Type" className="ap-type">
               <Segments id="entry-type-seg" value={entryType} onChange={(v) => { setEntryType(v); setCat(''); setItem(''); }}
@@ -194,12 +210,19 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
                 <Dropdown id="entry-item" size="md" value={itemVal} options={simpleOpts(pool)} disabled={isExp && !catVal} onChange={(v) => setItem(v)} />
               </Field>
               <Field label="Date" htmlFor="entry-date">
-                <input ref={dateRef} id="entry-date" type="date" defaultValue={todayISO()} min={bounds.min} max={bounds.max} />
+                {/* Drawn as the Dropdown (DS 71:1096) the design uses for Date: dd/mm/yyyy and a chevron; the native picker opens on click. */}
+                <div className="date-dd">
+                  <input ref={dateRef} id="entry-date" type="date" defaultValue={todayISO()} min={bounds.min} max={bounds.max}
+                    onClick={(e) => { try { e.currentTarget.showPicker(); } catch { /* older browsers open it themselves */ } }} />
+                  <span className="date-dd-label" aria-hidden="true">{fmtDateEU(dateVal) || 'dd/mm/yyyy'}</span>
+                  <Icon icon={chevronDown} className="date-dd-chevron" />
+                </div>
               </Field>
               <Field label="Amount" htmlFor="entry-amount">
                 <div className="field-with-prefix">
                   <span className="field-prefix"><Icon icon={euro} /></span>
-                  <input id="entry-amount" type="number" step="0.01" min="0" placeholder="0.00" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
+                  <input id="entry-amount" type="text" placeholder="0,00" inputMode="decimal" autoComplete="off" value={amount} onChange={(e) => setAmount(e.target.value)}
+                    onBlur={(e) => { if (e.target.value.trim()) setAmount(fmtNum(parseAmount(e.target.value))); }} />
                 </div>
               </Field>
             </div>
@@ -274,7 +297,6 @@ function Review({ review, setReview, model, reader, onCancel, save, onDone }) {
 
   if (!review) return <div className="ap-section" id="ap-review" hidden />;
 
-  const files = new Set(rows.map((r) => r.fileId)).size;
   const failed = reader.docs.filter((d) => d.status === 'error' || d.status === 'empty').length;
   const issues = rows.map((r) => rowIssues(r, period));
   const bad = issues.filter((i) => i.length).length;
@@ -326,10 +348,6 @@ function Review({ review, setReview, model, reader, onCancel, save, onDone }) {
 
   return (
     <div className="ap-section" id="ap-review">
-      <div className="ap-title-block">
-        <h3 className="ap-section-title" id="rv-title">{`Review ${rows.length} ${rows.length === 1 ? 'entry' : 'entries'} from ${files} ${files === 1 ? 'file' : 'files'}`}</h3>
-        <div className="ap-section-sub">Check your entries. Change anything that's wrong, or remove what doesn't belong.</div>
-      </div>
       <Field className="ap-period" id="rv-period-field" label="Month and year" htmlFor="rv-period-trigger" hidden={rows.length === 0}>
         <Dropdown id="rv-period" size="md" emptyOption={false} value={period} options={model.periodOptions()}
           onChange={(v) => setReview((rv) => fitRows({ ...rv, period: v, editing: null, snap: null, status: null }, model))} />

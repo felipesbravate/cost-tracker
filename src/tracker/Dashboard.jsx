@@ -1,7 +1,7 @@
 'use client';
-import { useLayoutEffect, useRef, useState } from 'react';
-import { ActionLink, Button, EntriesTooltip, EntryCounter, ExpenseCard, KpiCard, Label, Meter, BreakdownRow, Segments, TooltipEntryItem, fmtMoney, fmtMoneyShort } from '../ui/index.js';
-import { arrowStraightDown, arrowStraightUp, minus, plus, reload } from '../ui/icons.js';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { ActionLink, Button, MenuList, RoundButton, useDismiss, EntriesTooltip, EntryCounter, ExpenseCard, KpiCard, Label, Meter, BreakdownRow, Segments, TooltipEntryItem, fmtMoney, fmtMoneyShort } from '../ui/index.js';
+import { actions as actionsIcon, arrowStraightDown, arrowStraightUp, edit, minus, plus, reload } from '../ui/icons.js';
 import { EXP_GROUPS, GROUP_COLOR, MONTH_ABBR } from './model.js';
 
 const tok = (name) => (typeof document === 'undefined' ? '' : getComputedStyle(document.documentElement).getPropertyValue(name).trim());
@@ -77,11 +77,10 @@ const TOP_TABS = [{ value: 'Income', label: 'Income' }, { value: 'Investments', 
 const GROUP_TABS = ['Fixed', 'Variable', 'Additional', 'Extra'].map((g) => ({ value: g, label: g }));
 const topTabFor = (type) => ((type === 'Income' || type === 'Investments') ? type : 'Expenses');
 
-export function TrackerCard({ model, y, monthIdx, breakdownType, breakdownGroup, onTab, onAdd, addOpen, tip, setTip, actions }) {
+export function TrackerCard({ model, y, monthIdx, breakdownType, breakdownGroup, onTab, onAdd, addOpen, tip, setTip, actions, onAdjustBudget }) {
   const cur = y.currency;
   const bd = model.buildBreakdown(y, monthIdx, breakdownType);
   const eligible = model.isFutureMonth(y, monthIdx);
-  const label = breakdownType === 'Investments' ? 'Savings / Investments' : breakdownType === 'Income' ? 'Income' : breakdownType + ' expenses';
   const topTab = topTabFor(breakdownType);
   const color = GROUP_COLOR[breakdownType];
   const rows = bd.rows.slice().sort((a, b) => b.amount - a.amount);
@@ -105,8 +104,11 @@ export function TrackerCard({ model, y, monthIdx, breakdownType, breakdownGroup,
   return (
     <div className="card breakdown-card">
       <div className="bd-header">
-        <h2>Tracker</h2>
-        <div className="hint" id="cat-hint">{`${label} - ${y.months[monthIdx]} ${y.year}${eligible ? ' · projected' : ''}`}</div>
+        <div className="bd-title">
+          <h2>Tracker</h2>
+          <div className="hint" id="cat-hint">{`${y.months[monthIdx]} ${y.year}${eligible ? ' · projected' : ''}`}</div>
+        </div>
+        {onAdjustBudget && model.canAdjustMonthBudget(y, monthIdx) && <TrackerMenu onAdjustBudget={onAdjustBudget} />}
       </div>
       <div className="bd-content">
         <div className="bd-controllers">
@@ -137,6 +139,20 @@ export function TrackerCard({ model, y, monthIdx, breakdownType, breakdownGroup,
         </div>
       </div>
       <ItemTip tip={tip} actions={actions} />
+    </div>
+  );
+}
+// The Tracker's Actions (Round button, Medium, Tertiary; Active while open) and its menu (Dropdown-list, Simple),
+// right-aligned 8px under the button (Cost-tracker 2:2).
+function TrackerMenu({ onAdjustBudget }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const close = useCallback(() => setOpen(false), []);
+  useDismiss(open, ref, close);
+  return (
+    <div className="bd-menu" ref={ref}>
+      <RoundButton icon={actionsIcon} id="tracker-menu-btn" label="Tracker actions" active={open} aria-haspopup="menu" aria-expanded={open ? 'true' : 'false'} onClick={() => setOpen((o) => !o)} />
+      {open && <MenuList id="tracker-menu" items={[{ key: 'budget', id: 'adjust-budget', label: "Adjust month's budget", icon: edit, onSelect: () => { setOpen(false); onAdjustBudget(); } }]} />}
     </div>
   );
 }
@@ -291,7 +307,7 @@ export function YearOverYear({ model, onYear }) {
   return (
     <>
       <h2 className="yoy-heading">Year over year</h2>
-      <div className="hint" style={{ marginBottom: 'var(--space-md)' }}>Annual totals, shown separately by currency, so different currencies are never summed together.</div>
+      <div className="hint yoy-sub" style={{ marginBottom: 'var(--space-md)' }}>Annual totals, shown separately by currency, so different currencies are never summed together.</div>
       <div className="yoy">
         <YoYCard model={model} cur="SEK" onYear={onYear} />
         <YoYCard model={model} cur="EUR" onYear={onYear} />

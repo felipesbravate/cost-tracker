@@ -29,3 +29,20 @@ test('no page source loads a third-party script host', () => {
     assert.ok(!/<script[^>]+src="https?:/.test(src) && !/cdnjs|jsdelivr|unpkg/.test(src), f);
   }
 });
+
+// "Adjust month's budget": a month's own budget replaces the starting budget for that month only.
+test('month budget replaces the starting budget for its month', async () => {
+  const { createModel, yearsFromDocs } = await import('../src/tracker/model.js');
+  const years = [{ id: 'y', year: '2031', currency: 'EUR' }];
+  const budgets = [
+    { id: 'a', year: '2031', type: 'expense', group: 'Fixed', category: 'Home', item: 'Rent', amount: 800 },
+    { id: 'b', year: '2031', type: 'expense', group: 'Fixed', category: 'Home', item: 'Alarm', amount: 30 },
+    { id: 'c', year: '2031', monthIndex: 2, type: 'expense', group: 'Fixed', category: 'Home', item: 'Rent', amount: 950 },
+  ];
+  const m = createModel({ data: yearsFromDocs(years), entries: [], overrides: [], budgets, budgetDefaults: [] });
+  const y = m.DATA.find((d) => d.year === '2031');
+  assert.equal(m.computeMonth(y, 1).byGroup.Fixed, 830);
+  assert.equal(m.computeMonth(y, 2).byGroup.Fixed, 950); // Alarm left out of March's own budget
+  assert.deepEqual(m.monthBudgetRows(y, 2).map((r) => [r.item, r.amount]), [['Rent', 950]]);
+  assert.ok(m.canAdjustMonthBudget(y, 0));
+});

@@ -179,9 +179,18 @@ export function createModel({ data: DATA, entries: ENTRIES, overrides: OVERRIDES
   }
 
   // ---- starting budgets ----
-  const findBudget = (yearLabel, type, group, category, itemName) => BUDGETS.find((b) => b.year === yearLabel && b.type === type && (type !== 'expense' || b.group === group) && (b.category || null) === (category || null) && b.item === itemName);
+  // Budgets: a year's starting budget (no monthIndex) and "Adjust month's budget" edits (monthIndex set). When a month has
+  // its own budget, that set replaces the starting budget for the month.
+  const isMonthBudget = (b) => b.monthIndex !== undefined && b.monthIndex !== null;
+  const hasMonthBudget = (yearLabel, mi) => mi != null && BUDGETS.some((b) => b.year === yearLabel && b.monthIndex === mi);
+  const budgetsFor = (yearLabel, mi) => (hasMonthBudget(yearLabel, mi)
+    ? BUDGETS.filter((b) => b.year === yearLabel && b.monthIndex === mi)
+    : BUDGETS.filter((b) => b.year === yearLabel && !isMonthBudget(b)));
+  // A month's budget counts where figures are planned: any month of a year added here, future months of the others.
+  const budgetApplies = (y, mi) => y.isExtra || (hasMonthBudget(y.year, mi) && isFutureMonth(y, mi));
+  const findBudget = (yearLabel, type, group, category, itemName, mi) => budgetsFor(yearLabel, mi).find((b) => b.type === type && (type !== 'expense' || b.group === group) && (b.category || null) === (category || null) && b.item === itemName);
   const findBudgetDefault = (type, group, category, itemName) => BUDGET_DEFAULTS.find((b) => b.type === type && (type !== 'expense' || b.group === group) && (b.category || null) === (category || null) && b.item === itemName);
-  const budgetItemsFor = (yearLabel, type, group) => BUDGETS.filter((b) => b.year === yearLabel && b.type === type && (type !== 'expense' || b.group === group)).map((b) => ({ item: b.item, category: b.category || null }));
+  const budgetItemsFor = (yearLabel, type, group, mi) => budgetsFor(yearLabel, mi).filter((b) => b.type === type && (type !== 'expense' || b.group === group)).map((b) => ({ item: b.item, category: b.category || null }));
   // Every item with a real value in any of the last monthWindow real months (catches seasonal items).
   function widerRosterFor(yi, mi, type, group, monthWindow) {
     const seen = new Map();
@@ -220,6 +229,21 @@ export function createModel({ data: DATA, entries: ENTRIES, overrides: OVERRIDES
     }).filter((s) => s.items.length);
   }
 
+  // "Adjust month's budget" is offered where a month's figures are planned rather than recorded.
+  function canAdjustMonthBudget(y, mi) { return !!y && (y.isExtra || isFutureMonth(y, mi)); }
+  // Rows of the month-budget panel: every item of the month with the figure it shows now.
+  function monthBudgetRows(y, mi) {
+    const yi = DATA.indexOf(y);
+    const out = [];
+    [['income', null], ['investment', null], ...EXP_GROUPS.map((g) => ['expense', g])].forEach(([type, group]) => {
+      listItemsForMonth(yi, mi, type, group).forEach((r) => {
+        const e = effectiveItem(yi, mi, type, group, r.category, r.item, r.fromRoster);
+        if (e.deleted) return;
+        out.push({ type, group, category: r.category || null, item: r.item, amount: Math.round(e.amount * 100) / 100 });
+      });
+    });
+    return out;
+  }
   // Item roster for (yi, mi): starting-budget items of a stored year, the rolling roster for an empty future
   // month, and any item the user has logged an entry for.
   function listItemsForMonth(yi, mi, type, group) {
@@ -227,9 +251,9 @@ export function createModel({ data: DATA, entries: ENTRIES, overrides: OVERRIDES
     const list = listOf(y, type, group);
     const seen = new Map();
     list.forEach((it) => seen.set((it.category || '') + '␟' + it.item, { item: it.item, category: it.category || null, fromRoster: false }));
-    const budgetItems = y.isExtra ? budgetItemsFor(y.year, type, group) : [];
+    const budgetItems = budgetApplies(y, mi) ? budgetItemsFor(y.year, type, group, mi) : [];
     budgetItems.forEach((b) => { const k = (b.category || '') + '␟' + b.item; if (!seen.has(k)) seen.set(k, { item: b.item, category: b.category || null, fromRoster: false }); });
-    if (!list.length && !budgetItems.length && isFutureMonth(y, mi)) {
+    if (!list.length && !budgetItems.length && isFutureMonth(y, mi) && !hasMonthBudget(y.year, mi)) {
       rosterFor(yi, mi, type, group).forEach((r) => { const k = (r.category || '') + '␟' + r.item; if (!seen.has(k)) seen.set(k, { item: r.item, category: r.category || null, fromRoster: true }); });
     }
     entriesFor(y.year, mi).forEach((e) => {
@@ -249,7 +273,7 @@ export function createModel({ data: DATA, entries: ENTRIES, overrides: OVERRIDES
     const ov = findOverride(y.year, mi, type, group, category, itemName);
     const deleted = !!ov;
     const future = isFutureMonth(y, mi);
-    const budget = y.isExtra ? findBudget(y.year, type, group, category, itemName) : null;
+    const budget = budgetApplies(y, mi) ? findBudget(y.year, type, group, category, itemName, mi) : null;
     const isGuess = future || !!budget;
     const sheetVal = deleted ? 0 : (budget ? budget.amount : realSheetValue(y, mi, type, group, category, itemName));
     if (manual.length) {
@@ -430,7 +454,7 @@ export function createModel({ data: DATA, entries: ENTRIES, overrides: OVERRIDES
   }
 
   return {
-    DATA, ENTRIES, OVERRIDES, BUDGETS, BUDGET_DEFAULTS,
+    DATA, ENTRIES, OVERRIDES, BUDGETS, BUDGET_DEFAULTS, canAdjustMonthBudget, monthBudgetRows,
     entriesFor, entriesForYear, currentYearMonthIndex, monthHasData, isFutureMonth, defaultMonth,
     computeMonth, buildBreakdown, buildBudgetSuggestions, yearIncome, yearExpense,
     taxonomyForYear, catOptions, typeOptsForYear,

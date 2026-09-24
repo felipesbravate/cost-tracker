@@ -1,47 +1,194 @@
 {
-  "_note": "Snapshot of the Costly Design System Variables (Figma file 7glNMA9d7iVJFf2CvyrzAb), read Sept 21, 2026 and re-read Sept 22, 2026 (added surface/tertiary; status/warning is now #a87704). The Primitives collection is deliberately not mirrored (Felipe will add primitives later). Re-read Figma and update this file first, then the :root block in src/legacy/tracker.template.html.",
-  "Color": {
-    "surface/primary": "#ffffff",
-    "surface/secondary": "#efeee5",
-    "text/primary": "#16150f",
-    "text/secondary": "#7b786d",
-    "text/muted": "#aaa698",
-    "border/default": "#cbcac5",
-    "action/default": "#16150f",
-    "action/hover": "#32312c",
-    "action/press": "#1f1e19",
-    "action/secondey": "#ffffff",
-    "action/accent": "#4f46e5",
-    "action/accent-interaction": "#372ecd",
-    "action/recessed-hover": "#e4e3da",
-    "action/recessed-press": "#deddd4",
-    "action/disable": "#aaa698",
-    "action/destructive": "#d5393f",
-    "link/default": "#4f46e5",
-    "link/hover": "#372ecd",
-    "link/Press": "#1f17a7",
-    "data/purple": "#4b0fa5",
+  "_note": "Snapshot of the Okara Design System Variables (Figma file 7glNMA9d7iVJFf2CvyrzAb), read Sept 24, 2026. Values are hex or numbers; {\"alias\": name} points at a variable in Primitives. To update: re-read Figma, write this file, run `node scripts/sync-tokens.mjs` (rewrites the token block in src/ui/okara.css), then `npm test`.",
+  "Primitives": {
+    "neutral/page": "#eef5f4",
+    "neutral/surface": "#ffffff",
+    "neutral/surface-secondary": "#efeee5",
+    "neutral/ink": "#16150f",
+    "neutral/ink-2": "#7b786d",
+    "neutral/ink-muted": "#928e80",
+    "neutral/border": "#16150f",
+    "brand/indigo": "#4f46e5",
+    "brand/indigo-800": "#1f17a7",
+    "brand/indigo-900": "#080095",
+    "brand/indigo-950": "#06006c",
+    "brand/indigo-mid": "#756dff",
+    "brand/indigo-light": "#908af6",
+    "brand/indigo-pale": "#f5f5ff",
+    "brand/mint": "#13d075",
+    "brand/mint-deep": "#00904b",
+    "data/green": "#17a768",
+    "data/lime": "#cdd936",
+    "data/red-orange": "#e2583a",
+    "data/red": "#d5393f",
+    "data/ochre": "#a89412",
+    "brand/mint-light": "#7be9b4",
+    "data/purple-vivid": "#4b0fa5",
+    "data/cyan": "#1dc0bb",
     "data/blue": "#2285bb",
-    "data/light-blue": "#1dc0bb",
     "data/pink": "#e3029f",
-    "data/lime": "#c4d400",
-    "border/hover": "#acaca1",
-    "border/focus": "#4f46e5",
-    "border/dark": "#16150f",
-    "text/white": "#ffffff",
-    "text/accent": "#4f46e5",
-    "surface/tertiary": "#7b786d",
-    "surface/body": "#f9f9f7",
-    "surface/accent": "#4f46e5",
-    "surface/accent-light": "#e8e7ff",
-    "surface/dark": "#16150f",
-    "surface/success": "#e3f4ec",
-    "surface/fail": "#ffc4c6",
-    "surface/warning": "#ffe9b7",
+    "status/green-deep": "#0a6d42",
+    "neutral/charcoal-800": "#32312c",
+    "neutral/charcoal-900": "#1f1e19",
+    "neutral/stone-100": "#e4e3da",
+    "status/red-deep": "#bd0007",
+    "neutral/stone-150": "#deddd4",
+    "neutral/stone-300": "#cbcac5",
+    "neutral/stone-325": "#cac9c0",
+    "neutral/stone-350": "#acaca1",
+    "status/ochre-deep": "#a87704",
     "data/orange": "#ffba3a",
-    "status/success": "#17a768",
-    "status/fail": "#d5393f",
-    "status/warning": "#a87704"
+    "status/green-pale": "#e3f4ec",
+    "neutral/stone-400": "#aaa698",
+    "status/red-pale": "#ffc4c6",
+    "status/yellow-pale": "#ffe9b7",
+    "neutral/off-white": "#f9f9f7"
+  },
+  "Color": {
+    "surface/primary": {
+      "alias": "neutral/surface"
+    },
+    "surface/secondary": {
+      "alias": "neutral/surface-secondary"
+    },
+    "text/primary": {
+      "alias": "neutral/ink"
+    },
+    "text/secondary": {
+      "alias": "neutral/ink-2"
+    },
+    "text/muted": {
+      "alias": "neutral/stone-400"
+    },
+    "border/default": {
+      "alias": "neutral/stone-300"
+    },
+    "action/primary": {
+      "alias": "neutral/ink"
+    },
+    "action/primary-hover": {
+      "alias": "neutral/charcoal-800"
+    },
+    "action/primary-press": {
+      "alias": "neutral/charcoal-900"
+    },
+    "action/secondary": {
+      "alias": "neutral/surface"
+    },
+    "action/secondary-hover": {
+      "alias": "neutral/stone-100"
+    },
+    "action/secondary-press": {
+      "alias": "neutral/stone-150"
+    },
+    "action/secondary-active": {
+      "alias": "neutral/stone-325"
+    },
+    "action/disable": {
+      "alias": "neutral/stone-400"
+    },
+    "action/accent": {
+      "alias": "brand/indigo"
+    },
+    "action/accent-hover": {
+      "alias": "brand/indigo-light"
+    },
+    "action/accent-press": {
+      "alias": "brand/indigo-800"
+    },
+    "action/accent-disable": {
+      "alias": "brand/indigo-mid"
+    },
+    "action/destructive": {
+      "alias": "data/red"
+    },
+    "link/default": {
+      "alias": "brand/indigo"
+    },
+    "link/hover": {
+      "alias": "brand/indigo-900"
+    },
+    "link/press": {
+      "alias": "brand/indigo-800"
+    },
+    "link/disable": {
+      "alias": "brand/indigo-mid"
+    },
+    "data/purple": {
+      "alias": "data/purple-vivid"
+    },
+    "data/blue": {
+      "alias": "data/blue"
+    },
+    "data/light-blue": {
+      "alias": "data/cyan"
+    },
+    "data/pink": {
+      "alias": "data/pink"
+    },
+    "data/lime": {
+      "alias": "data/lime"
+    },
+    "border/hover": {
+      "alias": "neutral/stone-350"
+    },
+    "border/focus": {
+      "alias": "brand/indigo"
+    },
+    "border/dark": {
+      "alias": "neutral/ink"
+    },
+    "text/white": {
+      "alias": "neutral/surface"
+    },
+    "text/accent": {
+      "alias": "brand/indigo"
+    },
+    "text/accent-light": {
+      "alias": "brand/indigo-mid"
+    },
+    "surface/tertiary": {
+      "alias": "neutral/ink-2"
+    },
+    "surface/body": {
+      "alias": "neutral/off-white"
+    },
+    "surface/accent": {
+      "alias": "brand/indigo"
+    },
+    "surface/accent-dark": {
+      "alias": "brand/indigo-900"
+    },
+    "surface/accent-deep": {
+      "alias": "brand/indigo-950"
+    },
+    "surface/accent-light": {
+      "alias": "brand/indigo-pale"
+    },
+    "surface/dark": {
+      "alias": "neutral/ink"
+    },
+    "surface/success": {
+      "alias": "status/green-pale"
+    },
+    "surface/fail": {
+      "alias": "status/red-pale"
+    },
+    "surface/warning": {
+      "alias": "status/yellow-pale"
+    },
+    "data/orange": {
+      "alias": "data/orange"
+    },
+    "status/success": {
+      "alias": "status/green-deep"
+    },
+    "status/fail": {
+      "alias": "data/red"
+    },
+    "status/warning": {
+      "alias": "status/ochre-deep"
+    }
   },
   "Spacing": {
     "space/xs": 4,
@@ -59,6 +206,7 @@
     "radius/full": 999
   },
   "Opacity": {
-    "opacity/disabled": 0.4
+    "opacity/disabled": 0.4,
+    "opacity/background": 24
   }
 }

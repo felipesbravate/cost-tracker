@@ -7,8 +7,9 @@ import { useState } from 'react';
 import {
   ActionLink, BreakdownRow, Button, Card, Divider, Dropdown, EntriesTooltip, EntryCounter, ExpenseCard, Field, FieldGroup,
   KpiCard, Label, Meter, MonthSelector, PanelHeader, RoundButton, Segments, Toast, TooltipEntryItem, YearAddButton, YearTab,
+  Avatar, MenuList, Notification, NotificationItem, ProgressBar, UserMenu, UserNav,
 } from '../index.js';
-import { arrowStraightDown, minus, plus, reload, x } from '../icons.js';
+import { actions, arrowStraightDown, arrowStraightUp, bell, edit, minus, plus, reload, signOut, upload, x } from '../icons.js';
 
 const TOP = [{ value: 'Income', label: 'Income' }, { value: 'Investments', label: 'Savings/Investments' }, { value: 'Expenses', label: 'Expenses' }];
 const GROUPS = ['Fixed', 'Variable', 'Additional', 'Extra'].map((g) => ({ value: g, label: g }));
@@ -170,4 +171,29 @@ export const CASES = [
       <FieldGroup label="Type">
         <Segments options={[{ value: 'income', label: 'Income' }, { value: 'investment', label: 'Savings/Investment' }, { value: 'expense', label: 'Expenses' }]} value={v} onChange={s} />
       </FieldGroup>)}</Controlled>) },
+  // ---- Sept 24 pull ----
+  { id: 'round-buttons', render: () => (
+    <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+      <RoundButton icon={plus} variant="primary" label="Primary" /><RoundButton icon={plus} variant="secondary" label="Secondary" />
+      <RoundButton icon={actions} label="Tertiary" /><RoundButton icon={actions} active label="Active" /><RoundButton icon={x} variant="secondary" active label="Secondary active" />
+      <RoundButton icon={bell} size="small" label="Small" /><RoundButton icon={x} size="tiny" label="Tiny" /><RoundButton icon={x} iconSize={10} size="micro" variant="primary" label="Micro" />
+      <RoundButton icon={plus} disabled label="Inactive" />
+    </div>) },
+  { id: 'action-link-medium', render: () => <ActionLink size="medium" icon={upload}>Click to upload</ActionLink> },
+  { id: 'kpi-indicator', render: () => <div style={{ width: 230 }}><KpiCard label="Savings/Investments" dotColor="var(--kpi-invest)" value={500} currency="EUR" detail="€40 vs last month" indicator={arrowStraightUp} /></div> },
+  { id: 'avatar', render: () => <Avatar name="Felipe" /> },
+  { id: 'menu-list', render: () => <div style={{ position: 'relative', height: 60 }}><MenuList items={[{ key: 'b', label: "Adjust month's budget", icon: edit }]} style={{ position: 'static' }} /></div> },
+  { id: 'user-nav', render: () => (
+    <Controlled initial={null}>{(v, s) => (
+      <div style={{ display: 'flex', justifyContent: 'flex-end', height: 260, width: 520 }}>
+        <UserNav>
+          <Notification unread open={v === 'n'} onToggle={() => s(v === 'n' ? null : 'n')} onClose={() => s(null)}>
+            <NotificationItem date="Sep 23" time="15:11" action={{ label: 'Approve', onClick: () => {} }}>ann@example.com is waiting for your approval.</NotificationItem>
+            <NotificationItem date="Sep 22" time="09:02">Your notification text is here.</NotificationItem>
+          </Notification>
+          <UserMenu name="Felipe" open={v === 'u'} onToggle={() => s(v === 'u' ? null : 'u')} onClose={() => s(null)}
+            items={[{ key: 'a', label: 'Account' }, { key: 'd', label: 'Admin' }, { key: 's', label: 'Sign out', icon: signOut }]} />
+        </UserNav>
+      </div>)}</Controlled>) },
+  { id: 'progress-bar', render: () => <div style={{ display: 'grid', gap: 16, width: 404 }}>{[0, 0.25, 0.5, 0.75, 1].map((p) => <ProgressBar key={p} value={p} />)}</div> },
 ];

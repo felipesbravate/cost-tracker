@@ -58,7 +58,7 @@ async def main():
 
             # 1. admin: page loads with an empty account and no script/CSP errors
             pg, errs = await login(admin_ctx, 'admin@example.com')
-            await pg.wait_for_selector('.ct-shell'); await pg.wait_for_timeout(700)
+            await pg.wait_for_selector('#user-nav'); await pg.wait_for_timeout(700)
             check('admin: tracker renders, no page or CSP errors', not errs, errs)
             check('admin: current year auto-created', await pg.locator('.year-btn').count() >= 1)
 
@@ -73,7 +73,7 @@ async def main():
             st = state()
             check('manual entry stored (1 entries row)', len([r for r in st['rows'] if r['collection'] == 'entries']) == 1)
             check('no plaintext in stored rows', 'ZZTOP' not in json.dumps(st['rows']) and '777' not in json.dumps(st['rows']))
-            await pg.reload(); await pg.wait_for_selector('.ct-shell'); await pg.wait_for_timeout(700)
+            await pg.reload(); await pg.wait_for_selector('#user-nav'); await pg.wait_for_timeout(700)
             body = await pg.inner_text('body')
             check('entry visible after reload (decrypted, totals updated)', '777,50' in body)
 
@@ -84,7 +84,7 @@ async def main():
                 'year': ym[0], 'monthIndex': ym[1], 'type': 'expense', 'group': 'Fixed', 'category': 'Habitation', 'item': 'Note test item',
                 'description': 'Imported', 'amount': 100, 'date': ym[0] + '-01-01', 'note': 'Alpha shop\nBeta shop (5/3)', 'realAmounts': [60, 40]})
             check('imported entry with note accepted', r.status in (200, 201), r.status)
-            await pg.reload(); await pg.wait_for_selector('.ct-shell'); await pg.wait_for_timeout(700)
+            await pg.reload(); await pg.wait_for_selector('#user-nav'); await pg.wait_for_timeout(700)
             row = pg.locator('.bd-row', has_text='Note test item').first
             check('note item row visible', await row.count() == 1)
             await row.locator('.note-count').click(); await pg.wait_for_timeout(200)
@@ -117,7 +117,7 @@ async def main():
             # 2c. years list: newest first, and a duplicated year label appears once
             for y in ('2031', '2029', '2030', '2030'):
                 await admin_ctx.request.post(BASE + '/api/db/years', headers=hdr, data={'year': y, 'currency': 'EUR', 'createdAt': '2026-01-01T00:00:00.000Z'})
-            await pg.reload(); await pg.wait_for_selector('.ct-shell'); await pg.wait_for_timeout(700)
+            await pg.reload(); await pg.wait_for_selector('#user-nav'); await pg.wait_for_timeout(700)
             labels = [t.strip() for t in await pg.locator('.year-btn').all_inner_texts()]
             check('years listed newest first (as designed), each label once', labels[:3] == ['2031', '2030', '2029'] and labels.count('2030') == 1, labels)
 
@@ -134,8 +134,8 @@ async def main():
             check('Segments sit on surface/secondary, tags are 4px Label chips', d['segBg'] == 'rgb(239, 238, 229)' and d['tag'] == ['4px', 'rgb(239, 238, 229)'], d)
             check('allocation bars are 48 wide, 16 apart', d['allocBar'] == '48px' and d['allocGap'] == '16px', d)
             check('month row is indented 56', d['monthsPad'] == '56px', d)
-            check('chart legend matches the lines: indigo, pink, lime', d['swatches'] == ['rgb(79, 70, 229)', 'rgb(227, 2, 159)', 'rgb(196, 212, 0)'], d)
-            check('data colours come from the Color variables (purple, light blue, orange, pink, lime)', d['tokens'] == ['#4b0fa5', '#1dc0bb', '#ffba3a', '#e3029f', '#c4d400'], d)
+            check('chart legend matches the lines: indigo, pink, lime', d['swatches'] == ['rgb(79, 70, 229)', 'rgb(227, 2, 159)', 'rgb(205, 217, 54)'], d)
+            check('data colours come from the Color variables (purple, light blue, orange, pink, lime)', d['tokens'] == ['#4b0fa5', '#1dc0bb', '#ffba3a', '#e3029f', '#cdd936'], d)
             check('money figures carry the Euro icon', d['euro'], d)
             mb = await pg.evaluate("() => { const b = document.querySelector('.month-btn'), c = getComputedStyle(b); return [c.fontSize, c.fontWeight, c.lineHeight, c.letterSpacing, c.height, c.paddingLeft, c.textTransform]; }")
             check('month selector: 12px / 600 / line height auto / tracking 0, 20px pill with 8px padding (DS node 4:171)', mb == ['12px', '600', 'normal', 'normal', '20px', '8px', 'uppercase'], mb)   # Chrome reports tracking 0 as "normal"
@@ -164,13 +164,12 @@ async def main():
                 for (const t of ['success', 'fail', 'neutral']){
                   const el = document.createElement('div'); el.className = 'ds-toast visible ' + t; el.innerHTML = '<span class="ds-toast-icon"><svg viewBox="0 0 12 12"></svg></span><span>Saved</span>'; host.appendChild(el);
                   const c = cs(el), i = cs(el.firstChild); const r = el.getBoundingClientRect();
-                  out[t] = { bg: c.backgroundColor, font: [c.fontSize, c.fontWeight, c.lineHeight, c.letterSpacing], gap: c.columnGap, h: r.height, r: c.borderRadius, pad: c.paddingLeft, bottom: innerHeight - r.bottom, mid: (r.left + r.right) / 2 - innerWidth / 2, icon: [i.width, i.height] };
+                  out[t] = { bg: c.backgroundColor, font: [c.fontSize, c.fontWeight, c.lineHeight, c.letterSpacing], gap: c.columnGap, h: r.height, r: c.borderRadius, pad: c.paddingLeft, bottom: innerHeight - r.bottom, right: innerWidth - r.right, icon: [i.width, i.height] };
                   el.remove(); }
                 return out; }""")
-            check('Toast: Success / Fail / Neutral fills, 14px SemiBold /15.2 -1%, 8px gap, 12px icon, 32 high, radius 8',
-                  [tv[k]['bg'] for k in ('success', 'fail', 'neutral')] == ['rgb(23, 167, 104)', 'rgb(213, 57, 63)', 'rgb(22, 21, 15)']
-                  and all(tv[k]['font'] == ['14px', '600', '15.2px', '-0.14px'] and tv[k]['gap'] == '8px' and tv[k]['h'] == 32 and tv[k]['r'] == '8px' and tv[k]['pad'] == '16px' and tv[k]['icon'] == ['12px', '12px'] for k in tv), tv)
-            check('Toast sits bottom-centre, 24px above the window edge', all(abs(tv[k]['bottom'] - 24) < 1 and abs(tv[k]['mid']) < 1 for k in tv), tv)
+            check('Toast (Sept 24): every type on surface/accent-deep, 14px SemiBold /15.2 -1%, 16px gap, 12px icon, 40 high, radius 8',
+                  all(tv[k]['bg'] == 'rgb(6, 0, 108)' and tv[k]['font'] == ['14px', '600', '15.2px', '-0.14px'] and tv[k]['gap'] == '16px' and tv[k]['h'] == 40 and tv[k]['r'] == '8px' and tv[k]['pad'] == '16px' and tv[k]['icon'] == ['12px', '12px'] for k in tv), tv)
+            check('Toast sits bottom-right, 24px from the window edges', all(abs(tv[k]['bottom'] - 24) < 1 and abs(tv[k]['right'] - 24) < 1 for k in tv), tv)
             yd = await pg.evaluate("""() => { const cs = e => getComputedStyle(e), tab = document.createElement('div'); tab.className = 'year-tab'; tab.style.cssText = 'position:relative;width:48px;height:32px;margin:40px';
                 tab.innerHTML = '<button class="year-btn">2031</button><button class="year-del-btn" aria-label="Delete"><svg viewBox="0 0 10 10"></svg></button>'; document.body.appendChild(tab);
                 const b = tab.querySelector('.year-del-btn'), c = cs(b), tr = tab.getBoundingClientRect(), br = b.getBoundingClientRect(), o = { size: [br.width, br.height], dx: br.left - tr.left, dy: br.top - tr.top, bg: c.backgroundColor, r: c.borderRadius, svg: [cs(b.firstChild).width, cs(b.firstChild).height] };
@@ -198,7 +197,7 @@ async def main():
             await pg.click('#rv-rows .rv-row .c-cat .rv-link'); await pg.wait_for_selector('#rv-rows .rv-row.is-editing')
             await pg.keyboard.press('Enter'); await pg.wait_for_selector('.ds-dd-menu')
             await pg.click('.ds-dd-menu .ds-dd-item:text-is("Groceries")'); await pg.wait_for_timeout(150)  # the proposed one: confirming it is enough
-            await pg.click('#rv-title'); await pg.wait_for_selector('#rv-rows .rv-row.is-editing', state='detached')
+            await pg.click('#add-panel-title'); await pg.wait_for_selector('#rv-rows .rv-row.is-editing', state='detached')
             check('review: choosing a category (even the proposed one) removes the Guess chip and the note', await pg.locator('#rv-rows .rv-guess').count() == 0 and (await pg.inner_text('#rv-status')).strip() == '', [await pg.locator('#rv-rows .rv-guess').count(), await pg.inner_text('#rv-status'), await pg.inner_text('#rv-rows')])
             # a reply that says "sure" is not marked
             await pg.click('#rv-cancel'); await open_panel(pg)
@@ -224,7 +223,7 @@ async def main():
             for y, tax in (('2027', {'incomes': ['Freela'], 'investments': [], 'expenses': {'Variable': {'Food': ['Supermarket']}}}),
                            ('2028', {'incomes': ['Salary'], 'investments': ['Trips'], 'expenses': {'Fixed': {'Habitation': ['Rent']}}})):
                 await admin_ctx.request.post(BASE + '/api/db/years', headers=hdr, data={'year': y, 'currency': 'EUR', 'createdAt': '2026-01-02T00:00:00.000Z', 'taxonomy': tax})
-            await pg.reload(); await pg.wait_for_selector('.ct-shell'); await pg.wait_for_timeout(700)
+            await pg.reload(); await pg.wait_for_selector('#user-nav'); await pg.wait_for_timeout(700)
             await open_panel(pg)
             async def set_date(v):
                 await pg.evaluate("v => { const i = document.getElementById('entry-date'); i.value = v; i.dispatchEvent(new Event('change', {bubbles:true})); }", v)
@@ -338,7 +337,7 @@ async def main():
                 await yc.add_init_script(fake(2035, 11, day))
                 yp = await yc.new_page(); yerrs = []
                 yp.on('pageerror', lambda e: yerrs.append(str(e)))
-                await yp.goto(BASE + '/'); await yp.wait_for_selector('.ct-shell'); await yp.wait_for_timeout(900)
+                await yp.goto(BASE + '/'); await yp.wait_for_selector('#user-nav'); await yp.wait_for_timeout(900)
                 await open_panel(yp)
                 mx = await yp.eval_on_selector('#entry-date', 'e => e.max')
                 if day == 20:
@@ -377,9 +376,15 @@ async def main():
             check('new user lands on the pending page', ann.url.endswith('/pending'))
             resp = await ann_ctx.request.get(BASE + '/api/db/entries'); check('pending user API -> 403', resp.status == 403)
             await pg.keyboard.press('Escape'); await pg.evaluate("(document.querySelector('#add-panel.open .add-panel-close, #add-panel.open [aria-label*=lose]')||{click(){}}).click()"); await pg.wait_for_timeout(300)
-            await pg.click('text=Approve users'); await pg.wait_for_selector('dialog.ct-dialog[open]')
-            await pg.locator('.ct-row', has_text='ann@example.com').get_by_text('Approve', exact=True).click(); await pg.wait_for_timeout(400)
-            await ann.goto(BASE + '/'); await ann.wait_for_selector('.ct-shell'); await ann.wait_for_timeout(700)
+            await pg.reload(); await pg.wait_for_selector('#user-nav'); await pg.wait_for_timeout(700)
+            check('admin: a pending account lights the notification dot', await pg.locator('#user-nav .ds-notif-badge').count() == 1)
+            await pg.click('#notif-btn'); await pg.wait_for_selector('#notif-panel')
+            item = pg.locator('#notif-panel .ds-notif-item', has_text='ann@example.com is waiting for your approval.')
+            check('admin: the notification names the account waiting for approval', await item.count() == 1, await pg.inner_text('#notif-panel'))
+            await item.get_by_text('Approve', exact=True).click(); await pg.wait_for_timeout(400)
+            check('approving from the notification clears it', await pg.locator('#user-nav .ds-notif-badge').count() == 0)
+            await pg.keyboard.press('Escape')
+            await ann.goto(BASE + '/'); await ann.wait_for_selector('#user-nav'); await ann.wait_for_timeout(700)
             abody = await ann.inner_text('body')
             check('approved user sees an empty account (isolation)', '777,50' not in abody and '23,40' not in abody)
             check('approved user: no errors', not aerrs, aerrs)
@@ -393,16 +398,18 @@ async def main():
             check('odd doc id stored and returned unchanged', [d['id'] for d in got['docs']] == [odd], got)
 
             # 7. daily cap (5): admin already used 3 reads
-            await pg.reload(); await pg.wait_for_selector('.ct-shell')
+            await pg.reload(); await pg.wait_for_selector('#user-nav')
             codes = []
             for _ in range(4):
                 rr = await admin_ctx.request.post(BASE + '/api/read-document', data={'prompt': 'x'}, headers={'origin': BASE, 'x-requested-with': 'costs-tracker'}); codes.append(rr.status)
             check('daily read cap enforced', codes == [200, 200, 429, 429], codes)
 
             # 8. erase my data, then sign out
+            await ann.click('#user-menu-btn'); await ann.click('#menu-account'); await ann.wait_for_selector('#account-dialog[open]')
+            check('greets the user by the first part of the email', (await ann.inner_text('.app-title')).strip() == 'Hey, Ann')
             await ann.click('text=Delete all my data'); await ann.click('text=Click again to permanently delete'); await ann.wait_for_url('**/login', timeout=5000)
             check('erase: key and rows removed for that user', len(state()['keys']) == 1)
-            await pg.click('text=Sign out'); await pg.wait_for_url('**/login', timeout=5000)
+            await pg.click('#user-menu-btn'); await pg.click('#menu-signout'); await pg.wait_for_url('**/login', timeout=5000)
             check('sign-out returns to login', True)
             await b.close()
     finally:

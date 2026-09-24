@@ -2,9 +2,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import '../ui/okara.css';
 import '../ui/shell.css';
-import { useToast } from '../ui/index.js';
+import { Button, Toast, useToast } from '../ui/index.js';
 import { db, getMe } from './api.js';
-import { AccountBar } from './AccountBar.jsx';
+import { AccountNav, firstNameOf } from './AccountBar.jsx';
 import { AddPanel } from './AddPanel.jsx';
 import { BudgetPanel } from './BudgetPanel.jsx';
 import { ExpenseStrip, HeroLeft, TrackerCard, TrendChart, YearOverYear } from './Dashboard.jsx';
@@ -33,6 +33,8 @@ export default function TrackerApp() {
   const [tip, setTip] = useState(null);
   const [addPanel, setAddPanel] = useState({ open: false, preset: { type: 'expense', group: 'Fixed' } });
   const [pendingYear, setPendingYear] = useState(null);
+  const [monthBudget, setMonthBudget] = useState(null); // { yearIdx, monthIdx } while "Adjust month's budget" is open
+  const [addingYear, setAddingYear] = useState(false);
   const [yearToast, setYearToast] = useState(null); // { message, undo }
   const [toastEl, showToast] = useToast();
   const yearToastTimer = useRef(null);
@@ -211,6 +213,26 @@ export default function TrackerApp() {
     }
   };
 
+  // "Adjust month's budget": one budget doc per item for that month (monthIndex set); it wins over the starting budget.
+  const saveMonthBudget = async (rows) => {
+    const { yearIdx: yi, monthIdx: mi } = monthBudget;
+    const m = modelRef.current, yr = m.DATA[yi];
+    const label = yr.year;
+    const old = m.BUDGETS.filter((b) => b.year === label && b.monthIndex === mi);
+    try {
+      await Promise.all(old.map((b) => db.doc('budgets/' + b.id).delete().catch(() => {})));
+      for (const r of rows) {
+        const amount = Math.round(parseAmount(r.value) * 100) / 100;
+        await db.collection('budgets').add({ year: label, monthIndex: mi, type: r.type, group: r.group || null, category: r.category || null, item: r.item, amount, createdAt: new Date().toISOString() });
+      }
+      setMonthBudget(null);
+      showToast(`${MONTH_ABBR[mi]} ${label} budget saved.`, 'success');
+    } catch (err) {
+      showToast(`Could not save the ${MONTH_ABBR[mi]} ${label} budget.`, 'fail');
+      throw err;
+    }
+  };
+
   const y = model.DATA[view.yearIdx] || model.DATA[model.DATA.length - 1];
   const yearIdx = model.DATA.indexOf(y);
   const monthIdx = view.monthIdx;
@@ -221,27 +243,25 @@ export default function TrackerApp() {
   if (!me) return null;
   return (
     <>
-      <AccountBar me={me} />
-      <div className="wrap">
+      <div className={'wrap' + (addingYear ? ' is-adding-year' : '')}>
         <header className="top">
-          <h1 className="app-title">Cost tracker</h1>
-          <div className="app-sub">Income, spending, savings &amp; investments — browsable by year and month</div>
+          <h1 className="app-title">{`Hey, ${firstNameOf(me.email)}`}</h1>
+          <div className="app-sub">Ready to see where you stand today? Track your spending, investments, and savings for the month.</div>
+          <AccountNav me={me} />
         </header>
-        <YearNav model={model} yearIdx={yearIdx} monthIdx={monthIdx} onYear={selectYear} onMonth={selectMonth} canSave
+        <YearNav model={model} yearIdx={yearIdx} monthIdx={monthIdx} onYear={selectYear} onMonth={selectMonth} canSave onAddingChange={setAddingYear}
           onAddYear={(label, currency) => setPendingYear({ label, currency })} onDeleteYear={deleteYear} />
         <AddPanel open={addPanel.open} preset={addPanel.preset} model={model} yearIdx={yearIdx} monthIdx={monthIdx}
           onClose={() => setAddPanel((p) => ({ ...p, open: false }))} save={save} />
         <BudgetPanel pending={pendingYear} model={model} onClose={() => setPendingYear(null)} onCreate={createYear} />
+        <BudgetPanel month={monthBudget} model={model} onClose={() => setMonthBudget(null)} onSave={saveMonthBudget} />
         <div className="row1">
           <HeroLeft model={model} y={y} monthIdx={monthIdx} />
           <div className="hero-right">
             <TrackerCard model={model} y={y} monthIdx={monthIdx} breakdownType={bd.type} breakdownGroup={bd.group} tip={tip} setTip={setTip} actions={tipActions}
-              addOpen={addPanel.open}
+              addOpen={addPanel.open} onAdjustBudget={() => setMonthBudget({ yearIdx, monthIdx })}
               onTab={(type, group) => setBd((b) => ({ type, group: group || b.group }))}
               onAdd={() => setAddPanel({ open: true, preset: { type: topTab === 'Income' ? 'income' : topTab === 'Investments' ? 'investment' : 'expense', group: bd.group } })} />
-            <div id="year-toast" className={'year-toast' + (yearToast ? ' visible' : '')} role="status">
-              {yearToast && <><span>{yearToast.message}</span><button type="button" onClick={yearToast.undo}>Undo</button></>}
-            </div>
             <ExpenseStrip model={model} y={y} monthIdx={monthIdx} />
             <TrendChart model={model} y={y} monthIdx={monthIdx} onMonth={selectMonth} />
           </div>
@@ -250,6 +270,8 @@ export default function TrackerApp() {
         <footer className="note" id="app-footer">Costs Tracker. Your entries are encrypted before they are stored. Documents you upload are read once to extract entries and are never saved.</footer>
       </div>
       {toastEl}
+      <Toast id="year-toast" type="neutral" visible={!!yearToast}
+        action={yearToast ? <Button size="tiny" variant="secondary" className="toast-undo" onClick={yearToast.undo}>Undo</Button> : null}>{yearToast ? yearToast.message : ''}</Toast>
     </>
   );
 }
