@@ -13,4 +13,6 @@ export { Toast, useToast } from './Toast.jsx';
 export { Dropdown } from './Dropdown.jsx';
 export { Field, FieldGroup } from './Field.jsx';
 export { PanelHeader } from './Panel.jsx';
+export { Modal, Illustration } from './Modal.jsx';
+export * as illustrations from './illustrations.js';
 export * from './format.js';

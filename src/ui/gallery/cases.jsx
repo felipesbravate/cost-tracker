@@ -7,7 +7,7 @@ import { useState } from 'react';
 import {
   ActionLink, BreakdownRow, Button, Card, Divider, Dropdown, EntriesTooltip, EntryCounter, ExpenseCard, Field, FieldGroup,
   KpiCard, Label, Meter, MonthSelector, PanelHeader, RoundButton, Segments, Toast, TooltipEntryItem, YearAddButton, YearTab,
-  Avatar, MenuList, Notification, NotificationItem, ProgressBar, UserMenu, UserNav,
+  Avatar, MenuList, Notification, NotificationItem, ProgressBar, UserMenu, UserNav, Modal, illustrations,
 } from '../index.js';
 import { actions, arrowStraightDown, arrowStraightUp, bell, edit, minus, plus, reload, signOut, upload, x } from '../icons.js';
 
@@ -196,4 +196,11 @@ export const CASES = [
         </UserNav>
       </div>)}</Controlled>) },
   { id: 'progress-bar', render: () => <div style={{ display: 'grid', gap: 16, width: 404 }}>{[0, 0.25, 0.5, 0.75, 1].map((p) => <ProgressBar key={p} value={p} />)}</div> },
+  { id: 'modal', render: () => (
+    <Controlled initial={false}>{(v, s) => (
+      <div>
+        <Button variant="secondary" id="g-modal-open" onClick={() => s(true)}>Open modal</Button>
+        <Modal id="g-modal" open={v} onClose={() => s(false)} illustration={illustrations.hashtag} title="Title" description="Description"
+          secondary={{ label: 'Button label', onClick: () => s(false) }} primary={{ label: 'Button label', onClick: () => s(false) }} />
+      </div>)}</Controlled>) },
 ];

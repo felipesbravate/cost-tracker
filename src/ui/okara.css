@@ -1161,3 +1161,27 @@
   /* progress-bar (238:676): 8px surface/secondary track; the fill is a left-to-right gradient #76c8a4 → data/green (unbound in Figma). */
   .ds-progress{ height:8px; border-radius:var(--radius-full); background:var(--surface-secondary); overflow:hidden; }
   .ds-progress-fill{ height:100%; border-radius:var(--radius-full); background:linear-gradient(90deg, #76c8a4 0%, var(--primitive-data-green) 100%); transition:width .3s ease; }
+
+  /* Modal (DS 273:632): 540 wide, surface/primary, radius/md, shadow 0 0 8 ink@8%, padding 16/16/24/16, sections 40 apart.
+     Header: the close Round button (Small, Tertiary) on the right. Content: 0 24 padding, 8 gap; the title block is the
+     64px illustration 16 above the title (Heading/Large, 20 SemiBold /120%, text/primary); the description is Body/Medium/Medium
+     (14 Medium /15.2 -1%, text/secondary); all centred. Actions: Secondary + Primary, Medium, 240 wide, 16 apart, centred.
+     The backdrop and the fade are the side panels' (ink @32%, 200ms); the design has no overlay of its own. */
+  .ds-modal{
+    width:540px; max-width:calc(100vw - 32px); box-sizing:border-box; margin:auto; border:none; color:var(--text-primary);
+    padding:var(--space-md) var(--space-md) var(--space-lg); border-radius:var(--radius-md); background:var(--surface-primary);
+    box-shadow:0 0 8px color-mix(in srgb, var(--text-primary) 8%, transparent);
+    flex-direction:column; gap:var(--space-xl);
+  }
+  .ds-modal[open]{ display:flex; animation:ds-modal-in .2s cubic-bezier(.2,0,0,1); }
+  .ds-modal::backdrop{ background:rgba(22,21,15,.32); animation:ds-fade-in .2s cubic-bezier(.2,0,0,1); }
+  @keyframes ds-modal-in{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+  .ds-modal-header{ display:flex; justify-content:flex-end; align-items:center; gap:var(--space-sm); }
+  .ds-modal-content{ display:flex; flex-direction:column; align-items:center; gap:var(--space-sm); padding:0 var(--space-lg); text-align:center; }
+  .ds-modal-title-block{ display:flex; flex-direction:column; align-items:center; gap:var(--space-md); width:100%; }
+  .ds-illustration{ display:block; flex-shrink:0; color:var(--surface-dark); }
+  .ds-modal-title{ margin:0; font-size:20px; font-weight:600; line-height:1.2; letter-spacing:0; color:var(--text-primary); }
+  .ds-modal-description{ margin:0; font-size:14px; font-weight:500; line-height:15.2px; letter-spacing:-0.14px; color:var(--text-secondary); }
+  .ds-modal-actions{ display:flex; justify-content:center; align-items:center; gap:var(--space-md); }
+  .ds-modal-actions .btn-pill{ width:240px; min-width:0; flex:0 1 240px; justify-content:center; }
+  @media (prefers-reduced-motion: reduce){ .ds-modal[open], .ds-modal::backdrop{ animation:none; } }
