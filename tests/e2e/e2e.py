@@ -91,6 +91,11 @@ async def main():
             tip = await pg.inner_text('#note-tip')
             check('note tip: base line + both sub-lines with real amounts', 'From your spreadsheet' in tip and 'Alpha shop' in tip and 'Beta shop' in tip and '60,00' in tip and '40,00' in tip and 'Imported' not in tip, tip)
             check('note tip: badge counts the 2 note lines', (await row.locator('.note-count').inner_text()).strip() == '2')
+            before = await pg.evaluate("(() => { const r = document.getElementById('note-tip').getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top)]; })()")
+            await row.locator('.note-count').click(); await pg.wait_for_timeout(30)
+            during = await pg.evaluate("(() => { const t = document.getElementById('note-tip'), r = t.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), getComputedStyle(t).position]; })()")
+            check('closing the entries tooltip fades it out where it was (no jump into the page)', during[:2] == before and during[2] == 'fixed', [before, during])
+            await row.locator('.note-count').click(); await pg.wait_for_timeout(200)
             # Entry counter (Pressed) and Entries tooltip against the design system (nodes 146:5252, 144:4426)
             t = await pg.evaluate("""() => { const cs = e => getComputedStyle(e), r = e => e.getBoundingClientRect(), q = (a, s) => a.querySelector(s);
                 const b = document.querySelector('.note-count.is-open'), tip = document.getElementById('note-tip'), it = q(tip, '.tip-item'), name = q(it, '.tip-name'), date = q(tip, '.tip-item .tip-date'),
