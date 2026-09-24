@@ -9,7 +9,7 @@ export function Toast({ type = 'success', visible, id = 'ds-toast', action, chil
   const icon = type === 'fail' ? negativeFilled : type === 'neutral' ? null : checkmark;
   return (
     <div id={id} className={`ds-toast ${type}${visible ? ' visible' : ''}`} role="status">
-      {icon && <span className="ds-toast-icon"><Icon icon={icon} /></span>}<span>{children}</span>{action}
+      {icon && <span className="ds-toast-icon"><Icon icon={icon} size={12} /></span>}<span>{children}</span>{action}
     </div>
   );
 }

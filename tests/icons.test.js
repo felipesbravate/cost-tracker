@@ -47,3 +47,31 @@ test('every icon is exported once under its own name', () => {
   assert.equal(new Set(names).size, names.length);
   assert.ok(names.length >= 140);
 });
+
+// Icon sizes are the DS sizes (10 / 12 / 20), set on the Icon, never by CSS.
+test('every <Icon> in the app names its DS size, and CSS does not resize icons', async () => {
+  const { readdirSync, readFileSync, statSync } = await import('node:fs');
+  const { join } = await import('node:path');
+  const files = [];
+  const walk = (d) => readdirSync(d).forEach((f) => { const p = join(d, f); if (statSync(p).isDirectory()) walk(p); else if (p.endsWith('.jsx')) files.push(p); });
+  walk(new URL('../src', import.meta.url).pathname);
+  const missing = [];
+  for (const f of files) {
+    const src = readFileSync(f, 'utf8');
+    for (const m of src.matchAll(/<Icon\b[^>]*>/g)) if (!/\bsize=\{/.test(m[0])) missing.push(f.split('/src/')[1] + ': ' + m[0]);
+  }
+  assert.deepEqual(missing, []);
+  const css = readFileSync(new URL('../src/ui/okara.css', import.meta.url), 'utf8');
+  const sized = [...css.matchAll(/([^{}]*svg)\s*\{([^}]*)\}/g)].filter((m) => !/svg text|trend/.test(m[1]) && /(^|;|\s)(width|height)\s*:/.test(m[2])).map((m) => m[1].trim());
+  assert.deepEqual(sized, []);
+});
+
+test('Icon draws the Figma frames: 20 = 0 0 20 20, 12/10 = 1 1 18 18, redrawn X/Euro/Dollar on their own frame', async () => {
+  const { iconFrame } = await import('../src/ui/iconFrame.js');
+  assert.equal(iconFrame(icons.plus, 20).viewBox, '0 0 20 20');
+  assert.equal(iconFrame(icons.plus, 12).viewBox, '1 1 18 18');
+  assert.equal(iconFrame(icons.plus, 10).viewBox, '1 1 18 18');
+  assert.equal(iconFrame(icons.x, 12).viewBox, '0 0 12 12');
+  assert.equal(iconFrame(icons.euro, 10).viewBox, '0 0 10 10');
+  assert.equal(iconFrame(icons.plus, 16).px, 20);
+});

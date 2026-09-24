@@ -176,7 +176,7 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
                 onDragOver={(e) => { e.preventDefault(); setOver(true); }} onDragLeave={() => setOver(false)}
                 onDrop={(e) => { e.preventDefault(); setOver(false); setDocStatus(null); reader.add(e.dataTransfer && e.dataTransfer.files); }}>
                 <div className="dz-text">
-                  <div className="dz-line"><span className="ds-action-link medium"><Icon icon={upload} />Click to upload</span><span>or drag and drop your file here</span></div>
+                  <div className="dz-line"><span className="ds-action-link medium"><Icon icon={upload} size={12} />Click to upload</span><span>or drag and drop your file here</span></div>
                   <div className="dz-hint" id="dz-hint">{reader.ready && reader.imgCaps() ? 'JPG, PNG, PDF or CSV. Add as many as you like.' : 'PDF or CSV. Add as many as you like.'}</div>
                 </div>
               </div>
@@ -190,11 +190,11 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
                   const bad = d.status === 'error' || d.status === 'empty';
                   return (
                     <div className="doc-item" key={d.id}>
-                      <span className="doc-ic"><Icon icon={docIconName(d) === 'image' ? image : documentIcon} /></span>
+                      <span className="doc-ic"><Icon icon={docIconName(d) === 'image' ? image : documentIcon} size={20} /></span>
                       <div className="doc-info"><div className="doc-name" title={d.name}>{d.name}</div><div className={'doc-meta' + (bad ? ' err' : '')}>{docMeta(d)}</div></div>
                       {d.status === 'preparing' ? <span className="doc-pct">{d.pct}%</span>
                         : d.status === 'reading' ? null
-                        : <RoundButton icon={x} iconSize={12} className="doc-remove" label={'Remove ' + d.name} onClick={() => { setDocStatus(null); reader.remove(d.id); }} />}
+                        : <RoundButton icon={x} size="tiny" className="doc-remove" label={'Remove ' + d.name} onClick={() => { setDocStatus(null); reader.remove(d.id); }} />}
                     </div>
                   );
                 })}
@@ -238,12 +238,12 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
                   <input ref={dateRef} id="entry-date" type="date" defaultValue={todayISO()} min={bounds.min} max={bounds.max}
                     onClick={(e) => { try { e.currentTarget.showPicker(); } catch { /* older browsers open it themselves */ } }} />
                   <span className="date-dd-label" aria-hidden="true">{fmtDateEU(dateVal) || 'dd/mm/yyyy'}</span>
-                  <Icon icon={chevronDown} className="date-dd-chevron" />
+                  <Icon icon={chevronDown} size={12} className="date-dd-chevron" />
                 </div>
               </Field>
               <Field label="Amount" htmlFor="entry-amount">
                 <div className="field-with-prefix">
-                  <span className="field-prefix"><Icon icon={euro} /></span>
+                  <span className="field-prefix"><Icon icon={euro} size={20} /></span>
                   <input id="entry-amount" type="text" placeholder="0,00" inputMode="decimal" autoComplete="off" value={amount} onChange={(e) => setAmount(e.target.value)}
                     onBlur={(e) => { if (e.target.value.trim()) setAmount(fmtNum(parseAmount(e.target.value))); }} />
                 </div>
@@ -397,7 +397,7 @@ function Review({ review, setReview, model, reader, onCancel, save, onDone }) {
       <div className="add-actions">
         <Button id="rv-submit" disabled={!rows.length || bad > 0 || submitting} onClick={submit}>{submitting ? 'Submitting…' : 'Submit'}</Button>
         <Button variant="tertiary" id="rv-cancel" onClick={onCancel}>Cancel</Button>
-        <span className={'add-status' + (st && st.err ? ' err' : '') + (st && st.guess ? ' has-guess' : '')} id="rv-status" role="status">{st && st.guess ? <span className="rv-guess" aria-hidden="true"><Icon icon={questionFilled} /></span> : null}{st ? st.text : ''}</span>
+        <span className={'add-status' + (st && st.err ? ' err' : '') + (st && st.guess ? ' has-guess' : '')} id="rv-status" role="status">{st && st.guess ? <span className="rv-guess" aria-hidden="true"><Icon icon={questionFilled} size={20} /></span> : null}{st ? st.text : ''}</span>
       </div>
     </div>
   );
@@ -419,7 +419,7 @@ function ReviewRow({ r, iss, editing, period, yl, model, patchRow }) {
         <div className="c-type">{link('type', typeLabel, '', false)}</div>
         <div className={'c-cat' + (r.guess && catLabel ? ' has-guess' : '')}>
           {link('cat', catLabel, 'Select', has('cat'))}
-          {r.guess && catLabel ? <span className="rv-guess" role="img" aria-label="Guess" title="Guess: the reader was not sure about this category. Check it, or pick another."><Icon icon={questionFilled} /></span> : null}
+          {r.guess && catLabel ? <span className="rv-guess" role="img" aria-label="Guess" title="Guess: the reader was not sure about this category. Check it, or pick another."><Icon icon={questionFilled} size={20} /></span> : null}
         </div>
         <div className="c-amt">
           <button type="button" className={'rv-amt' + (has('amount') || has('flag') ? ' bad' : '')} data-edit={r.id} data-focus="amount" title={r.flag || ''}>

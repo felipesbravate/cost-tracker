@@ -134,7 +134,7 @@ function BudgetRow({ r, onValue, onRemove, onEditing }) {
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); done(e.currentTarget.value); } else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); onEditing(r.key, false); } }} /></label>
         : <span className="bd-value"><Icon icon={euro} size={12} className="bd-euro" />
             <button type="button" className="bd-amount br-amount" aria-label={`Monthly budget for ${r.item}: ${r.value}. Edit`} onClick={() => onEditing(r.key, true)}>{r.value}</button></span>}
-      {!r.editing && <RoundButton icon={x} iconSize={12} size="tiny" className="br-remove" label={`Remove ${r.item}`} onClick={() => onRemove(r.key)} />}
+      {!r.editing && <RoundButton icon={x} size="tiny" className="br-remove" label={`Remove ${r.item}`} onClick={() => onRemove(r.key)} />}
     </div>
   );
 }
@@ -165,8 +165,8 @@ function AddItemRow({ type, label, onAdd, onCancel }) {
         </div>
       </div>
       <div className="budget-add-actions">
-        <button type="button" className="round-btn tiny primary" aria-label="Add item" onClick={ok}><Icon icon={checkmark} /></button>
-        <button type="button" className="round-btn tiny secondary" aria-label="Cancel" onClick={onCancel}><Icon icon={x} /></button>
+        <button type="button" className="round-btn tiny primary" aria-label="Add item" onClick={ok}><Icon icon={checkmark} size={12} /></button>
+        <button type="button" className="round-btn tiny secondary" aria-label="Cancel" onClick={onCancel}><Icon icon={x} size={12} /></button>
       </div>
     </div>
   );

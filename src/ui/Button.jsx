@@ -7,18 +7,18 @@ const cx = (...c) => c.filter(Boolean).join(' ');
 export function Button({ variant = 'primary', size = 'medium', icon, className, children, type = 'button', ...rest }) {
   return (
     <button type={type} className={cx('btn-pill', variant === 'secondary' && 'ghost', variant === 'tertiary' && 'tertiary', size !== 'medium' && size, className)} {...rest}>
-      {icon && <Icon icon={icon} />}
+      {icon && <Icon icon={icon} size={size === 'tiny' ? 12 : 20} />}
       {icon ? <span>{children}</span> : children}
     </button>
   );
 }
 
 // Round button (DS 52:629). variant: tertiary (default) | secondary | primary. size: medium | small | tiny | micro.
-// `active` draws State=Active (a menu it opens is showing). `iconSize` picks a redrawn glyph (10 for Micro).
-export function RoundButton({ icon, iconSize, size, variant, active, className, label, type = 'button', ...rest }) {
+// `active` draws State=Active (a menu it opens is showing). Icon size follows the DS: Medium/Small 20, Tiny 12, Micro 10.
+export function RoundButton({ icon, size, variant, active, className, label, type = 'button', ...rest }) {
   return (
     <button type={type} className={cx('round-btn', variant && variant !== 'tertiary' && variant, size && size !== 'medium' && size, active && 'is-active', className)} aria-label={label} {...rest}>
-      <Icon icon={icon} size={iconSize} />
+      <Icon icon={icon} size={size === 'micro' ? 10 : size === 'tiny' ? 12 : 20} />
     </button>
   );
 }
@@ -27,7 +27,7 @@ export function RoundButton({ icon, iconSize, size, variant, active, className, 
 export function ActionLink({ icon, size, className, children, type = 'button', ...rest }) {
   return (
     <button type={type} className={cx('ds-action-link', size === 'medium' && 'medium', className)} {...rest}>
-      {icon && <Icon icon={icon} />}{children}
+      {icon && <Icon icon={icon} size={12} />}{children}
     </button>
   );
 }

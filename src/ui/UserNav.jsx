@@ -32,7 +32,7 @@ export function MenuList({ items, bare, className, ...rest }) {
       <div className="ds-dd-items">
         {items.map((it) => (
           <button key={it.key || it.label} id={it.id} type="button" role="menuitem" className={cx('ds-dd-item', it.icon && 'has-icon')} onClick={it.onSelect}>
-            {it.icon && <Icon icon={it.icon} />}<span>{it.label}</span>
+            {it.icon && <Icon icon={it.icon} size={12} />}<span>{it.label}</span>
           </button>
         ))}
       </div>
@@ -62,12 +62,12 @@ export function UserMenu({ name, open, onToggle, onClose, items }) {
   return (
     <div className={cx('ds-user', phase === 'open' && 'is-open', phase === 'closing' && 'is-closing')} ref={ref}>
       <button type="button" className="ds-user-trigger" id="user-menu-btn" aria-haspopup="menu" aria-expanded={open ? 'true' : 'false'} aria-label="Account menu" onClick={onToggle}>
-        <span className="ds-user-info"><Icon icon={chevronDown} /><Avatar name={name} /></span>
+        <span className="ds-user-info"><Icon icon={chevronDown} size={12} /><Avatar name={name} /></span>
       </button>
       {phase && (
         <div className={cx('ds-user-card', phase === 'closing' && 'is-closing')} id="user-menu">
           <button type="button" className="ds-user-info" aria-label="Close account menu" onClick={onClose}>
-            <Icon icon={chevronDown} className="ds-user-chevron" /><span className="ds-user-name">{name}</span><Avatar name={name} />
+            <Icon icon={chevronDown} size={12} className="ds-user-chevron" /><span className="ds-user-name">{name}</span><Avatar name={name} />
           </button>
           <MenuList bare items={items} />
         </div>

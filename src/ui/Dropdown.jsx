@@ -124,7 +124,7 @@ export function Dropdown({ id, value, onChange, onChoose, options, placeholder =
         aria-label={ariaLabel} title={chosen ? label : ''} disabled={disabled}
         onMouseDown={() => triggerRef.current && triggerRef.current.focus()} onClick={() => (open ? close() : openMenu())} onKeyDown={onKeyDown}>
         <span className="ds-dd-label">{label}</span>
-        <span style={{ display: 'inline-flex' }}><Icon icon={chevronDown} /></span>
+        <span style={{ display: 'inline-flex' }}><Icon icon={chevronDown} size={12} /></span>
       </button>
       {menu}
     </div>

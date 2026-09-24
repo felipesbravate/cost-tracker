@@ -118,7 +118,7 @@ export const CASES = [
     </div>) },
   { id: 'round-buttons', render: () => (
     <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-      <RoundButton icon={x} label="Close" /><RoundButton icon={x} iconSize={10} size="micro" label="Remove" />
+      <RoundButton icon={x} label="Close" /><RoundButton icon={x} size="micro" label="Remove" />
     </div>) },
   { id: 'month-states', render: () => (
     <div className="months" style={{ paddingLeft: 0 }}>
@@ -176,7 +176,7 @@ export const CASES = [
     <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
       <RoundButton icon={plus} variant="primary" label="Primary" /><RoundButton icon={plus} variant="secondary" label="Secondary" />
       <RoundButton icon={actions} label="Tertiary" /><RoundButton icon={actions} active label="Active" /><RoundButton icon={x} variant="secondary" active label="Secondary active" />
-      <RoundButton icon={bell} size="small" label="Small" /><RoundButton icon={x} size="tiny" label="Tiny" /><RoundButton icon={x} iconSize={10} size="micro" variant="primary" label="Micro" />
+      <RoundButton icon={bell} size="small" label="Small" /><RoundButton icon={x} size="tiny" label="Tiny" /><RoundButton icon={x} size="micro" variant="primary" label="Micro" />
       <RoundButton icon={plus} disabled label="Inactive" />
     </div>) },
   { id: 'action-link-medium', render: () => <ActionLink size="medium" icon={upload}>Click to upload</ActionLink> },

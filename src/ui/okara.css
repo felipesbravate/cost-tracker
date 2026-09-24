@@ -235,7 +235,7 @@
   .btn-pill.small{ height:32px; }
   .btn-pill.tiny{ height:24px; font-size:12px; line-height:17px; letter-spacing:-0.12px; padding:var(--space-xs) var(--space-sm); }
   /* Medium buttons carry a 20px icon (Button/Size=Medium with Plus). */
-  .btn-pill svg{ width:20px; height:20px; display:block; flex-shrink:0; }
+  .btn-pill svg{ display:block; flex-shrink:0; }
   /* "+Add entry" is the one Button instance node 2:2 actually shows at 16px/-0.16px
      tracking (SemiBold) rather than the 14px baseline — scoped to this button only,
      since the Add-year pill's and Add-entry panel's buttons are a separate Small-size
@@ -275,7 +275,7 @@
     display:inline-flex; align-items:center; gap:4px;
     transition:color .12s ease;
   }
-  .ds-action-link svg{ width:12px; height:12px; display:block; }
+  .ds-action-link svg{ display:block; }
   /* Size=Medium: Body/Medium/SemiBold, 14/15.2 -1%. */
   .ds-action-link.medium{ font-size:14px; line-height:15.2px; letter-spacing:-0.14px; }
   /* v2.18: Hover state also carries a 1px underline in link/hover (Action link, Size=Small, State=Hover, node 143:58676). */
@@ -325,7 +325,7 @@
      that was here before. */
   .year-add-btn:hover{ background:var(--state-surface2-hover); border-color:var(--state-border-hover); color:var(--ink); }
   .year-add-btn:active{ background:var(--state-surface2-press); border-color:var(--state-border-hover); color:var(--ink); }
-  .year-add-btn svg{ width:12px; height:12px; display:block; }
+  .year-add-btn svg{ display:block; }
   .year-tabs{ display:flex; flex:1 1 auto; align-items:center; gap:var(--space-md); overflow-x:auto;
     /* room for the delete button (top -4px, right -7px): a scroll container clips on every side */
     padding:4px 8px 0 0; margin:-4px -8px 0 0; }
@@ -368,7 +368,7 @@
   .year-tab:hover .year-del-btn, .year-del-btn:focus-visible{ opacity:1; pointer-events:auto; }
   .year-del-btn:hover{ background:var(--action-primary-hover); }
   .year-del-btn:active{ background:var(--action-primary-press); }
-  .year-del-btn svg{ width:10px; height:10px; display:block; }
+  .year-del-btn svg{ display:block; }
   .year-confirm{
     display:flex; align-items:center; gap:6px; height:32px; padding:0 6px; white-space:nowrap;
     font-size:11px; font-weight:500; color:var(--ink);
@@ -408,7 +408,7 @@
   }
   .ds-toast.visible{ opacity:1; transform:translateY(0); pointer-events:auto; }
   .ds-toast .ds-toast-icon{ flex-shrink:0; display:flex; width:12px; height:12px; color:var(--surface-primary); }
-  .ds-toast svg{ width:100%; height:100%; display:block; }
+  .ds-toast svg{ display:block; }
   .ds-toast > span:last-child{ overflow:hidden; text-overflow:ellipsis; }
   /* The year-delete undo uses the same Toast look (Neutral) plus a Tiny button; Figma's Toast has no button slot. */
   .ds-toast .toast-undo{ margin-left:auto; }
@@ -442,7 +442,7 @@
   .ds-dd--md .ds-dd-trigger{ height:40px; padding:0 var(--space-md); font-size:14px; line-height:15.2px; letter-spacing:-0.14px; }
   .ds-dd--tiny .ds-dd-trigger{ height:24px; font-size:10px; line-height:13px; }
   .ds-dd-label{ flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .ds-dd-trigger svg{ width:12px; height:12px; flex-shrink:0; color:var(--action-primary); transition:transform .12s ease; }
+  .ds-dd-trigger svg{ flex-shrink:0; color:var(--action-primary); transition:transform .12s ease; }
   .ds-dd.is-empty .ds-dd-trigger{ color:var(--text-secondary); }
   .ds-dd-trigger:hover{ border-color:var(--border-hover); }
   .ds-dd.open .ds-dd-trigger, .ds-dd-trigger:focus-visible{ border-color:var(--border-focus); }
@@ -467,7 +467,7 @@
   }
   /* dropdown-item (DS 183:6858) as a menu action: optional 12px left icon in action/primary, 4px gap. */
   .ds-dd-item.has-icon{ display:flex; align-items:center; gap:var(--space-xs); }
-  .ds-dd-item.has-icon svg{ width:12px; height:12px; flex-shrink:0; color:var(--action-primary); }
+  .ds-dd-item.has-icon svg{ flex-shrink:0; color:var(--action-primary); }
   .ds-dd-item:hover{ background:var(--surface-accent-light); }
   button.ds-dd-item{ border:none; background:transparent; font-family:inherit; text-align:left; width:100%; }
   button.ds-dd-item:hover, button.ds-dd-item:focus-visible{ background:var(--surface-accent-light); outline:none; }
@@ -492,7 +492,7 @@
     transition: background-color .12s ease;
   }
   .year-add-pill .round-btn:hover{ background:var(--state-surface2-hover); }
-  .year-add-pill .round-btn svg{ width:20px; height:20px; }
+  .year-add-pill .round-btn svg{ }
   .year-add-pill-inputs{ display:flex; align-items:center; gap:var(--space-sm); }
   .year-add-pill-field{
     position:relative; display:flex; align-items:center; height:32px; width:80px;
@@ -577,7 +577,7 @@
   /* Money with the DS Euro icon: 12px glyph + 4px gap + the figure (Value component). */
   .money{ display:inline-flex; align-items:center; justify-content:flex-end; gap:var(--space-xs); }
   .money-ic{ display:inline-flex; width:12px; height:12px; flex-shrink:0; color:var(--text-primary); }
-  .money-ic svg{ width:12px; height:12px; display:block; }
+  .money-ic svg{ display:block; }
 
   /* ---- Hero chart card — nested in .hero-right after Row2, sized to that
      column's width (822px), not the full page width ---- */
@@ -590,6 +590,8 @@
   .legend span{ display:inline-flex; align-items:center; gap:var(--space-sm); font-weight:500; }
   .swatch{ width:9px; height:9px; border-radius:var(--radius-ty); display:inline-block; }
 
+  /* Icons carry their DS size (10 / 12 / 20) as width/height attributes (Icon.jsx); CSS never resizes them. */
+  svg[data-icon]{ display:block; flex-shrink:0; }
   svg text{ font-family:"Plus Jakarta Sans",system-ui,sans-serif; }
   .axis-label{ fill:var(--ink-muted); font-size:12px; font-weight:500; }
   .gridline{ stroke:var(--border); stroke-width:1; }
@@ -619,7 +621,7 @@
   .ticker-item .ti-val{ font-family:var(--font-mono); font-size:var(--font-size-default); font-weight:500; font-variant-numeric:tabular-nums; letter-spacing:-0.56px; display:flex; }
   /* details row (DS 130:3844): 12px arrow icon + 8px + mono 12 Medium -4%, coloured by the direction. */
   .ticker-item .ti-delta{ display:flex; align-items:center; gap:var(--space-sm); font-family:var(--font-mono); font-size:12px; font-weight:500; line-height:normal; font-variant-numeric:tabular-nums; letter-spacing:-0.48px; margin-top:calc(var(--space-xs) - var(--space-sm)); }
-  .ticker-item .ti-delta svg{ width:12px; height:12px; display:block; flex-shrink:0; }
+  .ticker-item .ti-delta svg{ display:block; flex-shrink:0; }
   @media (max-width:1100px){ .ticker-strip{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
 
   /* ---- Year over year: full-width section below Row 1, ported from the
@@ -648,7 +650,7 @@
     border-radius:var(--radius-ty); background:var(--surface-secondary); color:var(--text-secondary);
   }
   .hc-delta{ text-transform:none; }
-  .hc-delta svg{ width:12px; height:12px; display:block; flex-shrink:0; }
+  .hc-delta svg{ display:block; flex-shrink:0; }
   .hc-delta.positive{ background:var(--surface-success); color:var(--status-success); }
   .hc-delta.negative{ background:var(--surface-fail); color:var(--status-fail); }
   .hc-delta.warning{ background:var(--surface-warning); color:var(--status-warning); }
@@ -664,7 +666,7 @@
   .bd-header h2{ margin:0; }
   .bd-header .hint{ margin-top:0; font-size:14px; font-weight:500; line-height:15.2px; letter-spacing:-0.14px; color:var(--text-secondary); }
   .bd-menu{ position:relative; flex-shrink:0; }
-  .bd-menu .round-btn svg{ width:20px; height:20px; }
+  .bd-menu .round-btn svg{ }
   .bd-menu .ds-menu{ top:48px; right:0; }
   .seg-tabs{ display:flex; gap:4px; flex-wrap:wrap; background:var(--surface-secondary); padding:4px; border-radius:var(--radius-sm); width:fit-content; }
   .seg-tabs button{
@@ -792,11 +794,11 @@
   .round-btn.primary:hover{ background:var(--action-primary-hover); }
   .round-btn.primary:active{ background:var(--action-primary-press); }
   .round-btn.primary:disabled{ background:var(--action-primary-press); }
-  .round-btn svg{ width:12px; height:12px; }
+  .round-btn svg{ }
   .round-btn.small{ width:32px; height:32px; }
   .round-btn.tiny{ width:24px; height:24px; }
   .round-btn.micro{ width:14px; height:14px; }
-  .round-btn.micro svg{ width:10px; height:10px; }
+  .round-btn.micro svg{ }
   .add-panel-title{ font-size:16px; font-weight:600; color:var(--ink); letter-spacing:-0.16px; width:100%; }
   .add-panel-hint{ font-size:12px; font-weight:400; color:var(--ink-muted); line-height:1.5; width:100%; }
   .add-panel-content{ display:flex; flex-direction:column; gap:var(--space-md); }
@@ -860,7 +862,7 @@
   .bd-action{ width:24px; height:24px; border-radius:var(--radius-full); border:none; background:transparent; color:var(--ink); padding:0; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; transition:background-color .12s ease; }
   .bd-action:hover{ background:var(--state-surface2-hover); }
   .bd-action:active{ background:var(--state-surface2-press); }
-  .bd-action svg{ width:12px; height:12px; display:block; }
+  .bd-action svg{ display:block; }
   .bd-row.is-editing{ padding-right:var(--space-lg); }
   .bd-input{
     display:inline-flex; align-items:center; gap:var(--space-sm); height:24px; padding:0 var(--space-sm); flex-shrink:0;
@@ -869,7 +871,7 @@
   }
   .bd-input:hover{ border-color:var(--state-border-hover); }
   .bd-input:focus-within{ border-color:var(--border-focus); }
-  .bd-input svg{ width:12px; height:12px; display:block; color:var(--ink); flex-shrink:0; }
+  .bd-input svg{ display:block; color:var(--ink); flex-shrink:0; }
   .bd-input input{
     border:none; outline:none; background:transparent; padding:0; width:64px; min-width:0;
     font-family:var(--font-mono); font-size:12px; font-weight:500; letter-spacing:-0.48px; text-align:right; color:var(--ink);
@@ -881,7 +883,7 @@
      manual), 142:58304 (review entries). ---- */
   .add-panel [hidden]{ display:none !important; }
   #add-panel{ gap:var(--space-xl); box-shadow:0 0 64px rgba(22,21,15,.24); }
-  .add-panel-header .round-btn svg{ width:20px; height:20px; }
+  .add-panel-header .round-btn svg{ }
   .add-panel-title{ font-size:24px; line-height:1.2; letter-spacing:-0.24px; }
   #add-panel .add-panel-hint{ font-size:14px; font-weight:500; line-height:15.2px; letter-spacing:-0.14px; color:var(--ink-2); margin-top:var(--space-xs); }
   /* Year-budget panels use the 12px Medium sub line (Figma 96:5670). */
@@ -906,7 +908,7 @@
   .dropzone.is-off{ opacity:var(--opacity-disabled); pointer-events:none; cursor:not-allowed; }
   .dz-off-note{ font-size:12px; font-weight:500; line-height:17px; color:var(--ink-2); }
   /* "Click to upload" is the Action link, Size=Medium, with its 12px Upload icon (Cost-tracker 229:18166). */
-  .dz-line .ds-action-link svg{ width:12px; height:12px; }
+  .dz-line .ds-action-link svg{ }
   /* Files reading (229:18563): 1px border/default box, padding 40/24, 16 gap: "Reading N files" (14 SemiBold) over the hint,
      then a 404px progress-bar. Header and "Enter manually" fade to opacity/background. */
   .dz-reading{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--space-md); height:160px; box-sizing:border-box; padding:0 var(--space-lg); border:1px solid var(--border-default); border-radius:var(--radius-sm); }
@@ -934,7 +936,7 @@
   .doc-list{ display:flex; flex-direction:column; gap:var(--space-md); }
   .doc-item{ display:flex; align-items:flex-start; gap:var(--space-sm); min-height:32px; }
   .doc-ic{ width:20px; height:20px; flex-shrink:0; color:var(--ink); }
-  .doc-ic svg{ width:20px; height:20px; display:block; }
+  .doc-ic svg{ display:block; }
   .doc-info{ flex:1 1 0; min-width:0; display:flex; flex-direction:column; justify-content:center; }
   .doc-name{ font-size:14px; font-weight:600; line-height:15.2px; letter-spacing:-0.14px; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .doc-meta{ font-size:12px; font-weight:500; line-height:17px; color:var(--ink-2); }
@@ -942,7 +944,7 @@
   .doc-pct{ font-size:14px; font-weight:600; line-height:15.2px; letter-spacing:-0.14px; color:var(--accent); font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap; }
   /* Delete button (Cost-tracker 174:15198): Tiny tertiary round button, 24px, with the 12px X in status/fail; Hover/Press come from .round-btn. */
   .round-btn.doc-remove{ width:24px; height:24px; color:var(--critical); }
-  #add-panel .round-btn.doc-remove svg{ width:12px; height:12px; }
+  #add-panel .round-btn.doc-remove svg{ }
 
   .ap-manual .field-group{ gap:var(--space-sm); }
   /* Figma 174:15081: every gap in the form is 8, the Type block and the form are 24 apart, the buttons sit 40 below. */
@@ -951,7 +953,7 @@
   .ap-manual .add-actions{ margin-top:calc(var(--space-xl) - var(--space-lg)); }
   #doc-actions, #ap-review .add-actions{ gap:var(--space-xs); }
   #add-panel .field-with-prefix .field-prefix{ left:var(--space-md); width:23px; height:24px; display:flex; align-items:center; justify-content:center; }
-  #add-panel .field-with-prefix .field-prefix svg{ width:20px; height:20px; display:block; color:var(--ink); }
+  #add-panel .field-with-prefix .field-prefix svg{ display:block; color:var(--ink); }
   /* Labels sit 8 above their field in the panel (Cost-tracker 174:15081). "Month and year" is a 200px Dropdown. */
   #add-panel .field label{ margin-bottom:var(--space-sm); line-height:17px; }
   #add-panel .field-period .ds-dd, #add-panel .ap-period .ds-dd{ width:200px; max-width:100%; }
@@ -983,12 +985,12 @@
   .c-cat.has-guess .rv-link{ flex:1 1 auto; min-width:0; }
   /* Guess marker: the Question (filled) icon, 20px frame, surface/tertiary. */
   .rv-guess{ flex-shrink:0; display:inline-flex; width:20px; height:20px; color:var(--surface-tertiary); cursor:default; }
-  .rv-guess svg{ width:20px; height:20px; display:block; }
+  .rv-guess svg{ display:block; }
   /* The review note about guesses starts with the same marker. */
   #rv-status.has-guess{ display:inline-flex; align-items:center; gap:var(--space-xs); }
   .rv-row:hover .rv-link.bad{ text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; }
   .rv-amt{ display:inline-flex; align-items:center; gap:var(--space-xs); background:none; border:none; padding:0; height:20px; cursor:pointer; color:var(--ink); font-family:var(--font-mono); font-size:12px; font-weight:500; letter-spacing:-0.48px; font-variant-numeric:tabular-nums; }
-  .rv-amt svg{ width:12px; height:12px; display:block; flex-shrink:0; }
+  .rv-amt svg{ display:block; flex-shrink:0; }
   .rv-amt.bad{ color:var(--critical); }
   .rv-row:hover .rv-amt{ text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; }
   .rv-input{
@@ -1073,7 +1075,7 @@
      ================================================================ */
   /* KPI card, Show indicator: 12px arrow + 8px + the details. */
   .mini-kpi .detail{ display:flex; align-items:center; gap:var(--space-sm); }
-  .mini-kpi .detail svg{ width:12px; height:12px; flex-shrink:0; color:var(--surface-tertiary); }
+  .mini-kpi .detail svg{ flex-shrink:0; color:var(--surface-tertiary); }
 
   /* avatar (221:1044), Style=Text: 40px surface/accent circle, 14px SemiBold /15.2 -1% white initial. */
   .ds-avatar{
@@ -1096,7 +1098,7 @@
     display:flex; align-items:center; gap:var(--space-sm); padding:0 0 0 var(--space-sm); border-radius:var(--radius-full);
     border:none; background:none; font-family:inherit; cursor:pointer; color:var(--surface-dark); transition:background-color .12s ease;
   }
-  .ds-user-info svg{ width:12px; height:12px; flex-shrink:0; }
+  .ds-user-info svg{ flex-shrink:0; }
   .ds-user-trigger:hover .ds-user-info{ background:var(--action-secondary-hover); }
   .ds-user-trigger:focus-visible{ outline:2px solid var(--border-focus); outline-offset:2px; }
   /* Active: the card takes the user's place (200 wide), so the bell moves left of it (User nav 248 wide in 2:2). */
@@ -1138,7 +1140,7 @@
   .ds-notif{ position:relative; width:32px; height:32px; }
   .ds-notif-badge{ position:absolute; top:0; right:0; width:8px; height:8px; border-radius:50%; background:var(--primitive-data-red-orange); pointer-events:none; }
   .ds-notif.is-open .round-btn{ box-shadow:0 0 8px color-mix(in srgb, var(--text-primary) 8%, transparent); }
-  .ds-notif .round-btn svg{ width:20px; height:20px; }
+  .ds-notif .round-btn svg{ }
   .ds-notif-panel{
     position:absolute; top:40px; right:0; z-index:65; width:320px; max-width:calc(100vw - 32px); box-sizing:border-box;
     display:flex; flex-direction:column; gap:var(--space-xs); padding:var(--space-sm);

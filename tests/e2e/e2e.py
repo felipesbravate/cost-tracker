@@ -162,7 +162,7 @@ async def main():
                   and n['delta']['bg'] in ('rgb(227, 244, 236)', 'rgb(255, 196, 198)') and ('since' in (n['delta']['label'] or '')), n['delta'])
             tv = await pg.evaluate("""() => { const cs = e => getComputedStyle(e), host = document.body, out = {};
                 for (const t of ['success', 'fail', 'neutral']){
-                  const el = document.createElement('div'); el.className = 'ds-toast visible ' + t; el.innerHTML = '<span class="ds-toast-icon"><svg viewBox="0 0 12 12"></svg></span><span>Saved</span>'; host.appendChild(el);
+                  const el = document.createElement('div'); el.className = 'ds-toast visible ' + t; el.innerHTML = '<span class="ds-toast-icon"><svg data-icon="checkmark" viewBox="0 0 12 12" width="12" height="12"></svg></span><span>Saved</span>'; host.appendChild(el);
                   const c = cs(el), i = cs(el.firstChild); const r = el.getBoundingClientRect();
                   out[t] = { bg: c.backgroundColor, font: [c.fontSize, c.fontWeight, c.lineHeight, c.letterSpacing], gap: c.columnGap, h: r.height, r: c.borderRadius, pad: c.paddingLeft, bottom: innerHeight - r.bottom, right: innerWidth - r.right, icon: [i.width, i.height] };
                   el.remove(); }
@@ -171,7 +171,7 @@ async def main():
                   all(tv[k]['bg'] == 'rgb(6, 0, 108)' and tv[k]['font'] == ['14px', '600', '15.2px', '-0.14px'] and tv[k]['gap'] == '16px' and tv[k]['h'] == 40 and tv[k]['r'] == '8px' and tv[k]['pad'] == '16px' and tv[k]['icon'] == ['12px', '12px'] for k in tv), tv)
             check('Toast sits bottom-right, 24px from the window edges', all(abs(tv[k]['bottom'] - 24) < 1 and abs(tv[k]['right'] - 24) < 1 for k in tv), tv)
             yd = await pg.evaluate("""() => { const cs = e => getComputedStyle(e), tab = document.createElement('div'); tab.className = 'year-tab'; tab.style.cssText = 'position:relative;width:48px;height:32px;margin:40px';
-                tab.innerHTML = '<button class="year-btn">2031</button><button class="year-del-btn" aria-label="Delete"><svg viewBox="0 0 10 10"></svg></button>'; document.body.appendChild(tab);
+                tab.innerHTML = '<button class="year-btn">2031</button><button class="year-del-btn" aria-label="Delete"><svg data-icon="x" viewBox="0 0 10 10" width="10" height="10"></svg></button>'; document.body.appendChild(tab);
                 const b = tab.querySelector('.year-del-btn'), c = cs(b), tr = tab.getBoundingClientRect(), br = b.getBoundingClientRect(), o = { size: [br.width, br.height], dx: br.left - tr.left, dy: br.top - tr.top, bg: c.backgroundColor, r: c.borderRadius, svg: [cs(b.firstChild).width, cs(b.firstChild).height] };
                 tab.remove(); return o; }""")
             check('Year tab delete = Micro round button: 14px, dark, 10px X, at x 41 / y -4 of a 48 x 32 tab (DS 53:801)', yd['size'] == [14, 14] and yd['bg'] == 'rgb(22, 21, 15)' and yd['r'] == '999px' and yd['svg'] == ['10px', '10px'] and abs(yd['dx'] - 41) < 0.6 and abs(yd['dy'] + 4) < 0.6, yd)

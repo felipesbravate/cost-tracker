@@ -3,7 +3,7 @@ import { plus, x } from './icons.js';
 
 // Round button (Secondary) that opens "Add a year" (Nav tabs 59:850).
 export function YearAddButton(props) {
-  return <button type="button" className="year-add-btn" title="Add a new year" aria-label="Add a new year" {...props}><Icon icon={plus} /></button>;
+  return <button type="button" className="year-add-btn" title="Add a new year" aria-label="Add a new year" {...props}><Icon icon={plus} size={20} /></button>;
 }
 
 // Tab (DS 53:801): one year. The selected, deletable year shows a Micro round button on hover.
