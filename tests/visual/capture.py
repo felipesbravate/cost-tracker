@@ -135,7 +135,7 @@ async def s_row_estimate_tip(pg):
     await tab(pg, 'Expenses', 'Fixed')
     c = pg.locator('.bd-row .note-count')
     if await c.count(): await c.first.click(); await settle(pg)
-async def s_year_add(pg): await pg.click('#year-add-toggle'); await pg.fill('#year-add-input', '2027'); await settle(pg)
+async def s_year_add(pg): await pg.click('#year-add-toggle'); await pg.evaluate("() => { const s = document.getElementById('year-add-year'); s.value = '2027'; s.dispatchEvent(new Event('change', {bubbles:true})); }"); await settle(pg)
 async def s_year_add_currency(pg):
     await pg.click('#year-add-toggle'); await pg.click('#year-add-currency-trigger'); await settle(pg)
 async def s_year_hover(pg): await pg.locator('.year-btn:text-is("2025")').hover(); await settle(pg)
@@ -174,7 +174,7 @@ async def s_toast(pg):
     await pg.wait_for_selector('#ds-toast.visible, .ds-toast.visible', timeout=4000); await settle(pg)
 
 async def budget(pg):
-    await pg.click('#year-add-toggle'); await pg.fill('#year-add-input', '2027'); await pg.click('#year-add-submit')
+    await pg.click('#year-add-toggle'); await pg.evaluate("() => { const s = document.getElementById('year-add-year'); s.value = '2027'; s.dispatchEvent(new Event('change', {bubbles:true})); }"); await pg.click('#year-add-submit')
     await pg.wait_for_selector('#budget-panel.open, #budget-panel[aria-hidden="false"], #budget-panel:not([hidden])', timeout=5000); await settle(pg)
 async def s_budget(pg): await budget(pg)
 async def s_budget_income(pg): await budget(pg); await pg.click('#budget-type-seg button[data-v=income]'); await settle(pg)

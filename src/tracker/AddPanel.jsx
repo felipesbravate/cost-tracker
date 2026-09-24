@@ -2,7 +2,7 @@
 import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import { ActionLink, Button, Divider, Dropdown, Field, FieldGroup, PanelHeader, ProgressBar, RoundButton, Segments } from '../ui/index.js';
 import { Icon } from '../ui/Icon.jsx';
-import { chevronDown, documentIcon, euro, image, upload, x } from '../ui/icons.js';
+import { chevronDown, documentIcon, euro, image, questionFilled, upload, x } from '../ui/icons.js';
 import { sample } from './api.js';
 import { DocReader, docIconName, docMeta } from './reader.js';
 import { EXP_GROUPS, TYPE_OPTS, fmtDateEU, fmtNum, parseAmount, periodKeyOfDate, periodLabel, periodMismatch, todayISO, typeKeyOf, yearLabelOfDate } from './model.js';
@@ -163,7 +163,10 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
                     <div className="dz-reading-title">{`Reading ${readingDocs.length} ${readingDocs.length === 1 ? 'file' : 'files'}`}</div>
                     <div className="dz-hint">It may take a few seconds.</div>
                   </div>
-                  <ProgressBar value={Math.max(0.04, readProgress)} className="dz-progress" />
+                  <div className="dz-progress-wrap">
+                    <ProgressBar value={Math.max(0.04, readProgress)} className="dz-progress" />
+                    <div className="dz-pct">{`${Math.round(readProgress * 100)}%`}</div>
+                  </div>
                 </div>
               )}
               <div hidden={showReading} className={'dropzone' + (enabled ? '' : ' is-off') + (over ? ' is-over' : '')} id="dropzone"
@@ -416,7 +419,7 @@ function ReviewRow({ r, iss, editing, period, yl, model, patchRow }) {
         <div className="c-type">{link('type', typeLabel, '', false)}</div>
         <div className={'c-cat' + (r.guess && catLabel ? ' has-guess' : '')}>
           {link('cat', catLabel, 'Select', has('cat'))}
-          {r.guess && catLabel ? <span className="rv-guess" role="img" aria-label="Guess" title="Guess: the reader was not sure about this category. Check it, or pick another.">?</span> : null}
+          {r.guess && catLabel ? <span className="rv-guess" role="img" aria-label="Guess" title="Guess: the reader was not sure about this category. Check it, or pick another."><Icon icon={questionFilled} /></span> : null}
         </div>
         <div className="c-amt">
           <button type="button" className={'rv-amt' + (has('amount') || has('flag') ? ' bad' : '')} data-edit={r.id} data-focus="amount" title={r.flag || ''}>

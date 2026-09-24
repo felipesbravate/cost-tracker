@@ -60,7 +60,7 @@ export function UserMenu({ name, open, onToggle, onClose, items }) {
   const phase = usePresence(open);
   useDismiss(open, ref, onClose);
   return (
-    <div className={cx('ds-user', phase && 'is-open')} ref={ref}>
+    <div className={cx('ds-user', phase === 'open' && 'is-open', phase === 'closing' && 'is-closing')} ref={ref}>
       <button type="button" className="ds-user-trigger" id="user-menu-btn" aria-haspopup="menu" aria-expanded={open ? 'true' : 'false'} aria-label="Account menu" onClick={onToggle}>
         <span className="ds-user-info"><Icon icon={chevronDown} /><Avatar name={name} /></span>
       </button>

@@ -71,11 +71,13 @@ function AddYearPill({ open, onClose, onSubmit, model, canSave }) {
   const [label, setLabel] = useState('');
   const [currency, setCurrency] = useState('EUR');
   const [status, setStatus] = useState(canSave ? null : { err: true, text: "This view can't save a new year (no database access)." });
-  const input = useRef(null);
-  useEffect(() => { if (open) { setLabel(''); setStatus(null); input.current?.focus(); } }, [open]);
+  // The years that can be added: this year and the next ten, minus the ones that exist.
+  const now = parseInt(currentYearLabel(), 10);
+  const yearOptions = Array.from({ length: 11 }, (_, k) => String(now + k)).filter((l) => !model.DATA.some((y) => y.year === l)).map((l) => ({ value: l, label: l }));
+  useEffect(() => { if (open) { setLabel(''); setStatus(null); } }, [open]);
   const submit = () => {
     const l = label.trim();
-    if (!l) return setStatus({ err: true, text: 'Enter a year.' });
+    if (!l) return setStatus({ err: true, text: 'Pick a year.' });
     if (model.DATA.some((y) => y.year === l)) return setStatus({ err: true, text: 'That year already exists.' });
     if (!canSave) return setStatus({ err: true, text: "Not connected — can't save a new year right now." });
     onSubmit(l, currency);
@@ -84,8 +86,8 @@ function AddYearPill({ open, onClose, onSubmit, model, canSave }) {
     <div className={'year-add-pill' + (open ? ' open' : '')} id="year-add-panel" role="dialog" aria-label="Add a year">
       <RoundButton icon={x} id="year-add-cancel" label="Close" active onClick={onClose} />
       <div className="year-add-pill-inputs">
-        <div className="year-add-pill-field">
-          <input ref={input} type="text" id="year-add-input" placeholder="Year" inputMode="numeric" aria-label="Year" value={label} onChange={(e) => setLabel(e.target.value)} />
+        <div className="year-add-pill-year">
+          <Dropdown id="year-add-year" ariaLabel="Year" size="sm" placeholder="Year" value={label} onChange={setLabel} options={yearOptions} />
         </div>
         <div className="year-add-pill-currency">
           <Dropdown id="year-add-currency" ariaLabel="Currency" size="sm" value={currency} onChange={setCurrency} emptyOption={false}

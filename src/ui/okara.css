@@ -504,8 +504,7 @@
     border:none; background:transparent; outline:none; font:inherit; font-size:12px; color:var(--ink);
     width:100%; padding:0; cursor:text;
   }
-  .year-add-pill-currency{ width:80px; }
-  #year-add-input{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+  .year-add-pill-currency, .year-add-pill-year{ width:80px; }
   .year-add-pill .btn-pill{ height:32px; padding:0 var(--space-md); }
   .year-add-pill-field input::placeholder{ color:var(--text-secondary); opacity:1; }
   .year-add-pill .add-status{ position:absolute; top:calc(100% + var(--space-xs)); left:0; white-space:nowrap; }
@@ -809,7 +808,7 @@
   /* Tracker card's Controllers row (Figma node 61:5499): Segments +
      Sub-segments stacked on the left, contextual "+Add {type}" button
      pinned to the right, bottom-aligned with the tab stack. */
-  .bd-controllers{ display:flex; align-items:center; justify-content:space-between; gap:var(--space-md); flex-wrap:wrap; }
+  .bd-controllers{ display:flex; align-items:flex-start; justify-content:space-between; gap:var(--space-md); flex-wrap:wrap; }
   .bd-tabs-stack{ display:flex; flex-direction:column; gap:var(--space-sm); }
   .add-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-md); }
   .field label{ display:block; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:-0.12px; color:var(--ink-muted); margin-bottom:var(--space-xs); }
@@ -895,7 +894,7 @@
   .ap-block{ display:flex; flex-direction:column; gap:var(--space-md); }
 
   .dropzone{
-    display:flex; flex-direction:column; align-items:center; gap:var(--space-md); padding:var(--space-lg);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--space-md); padding:var(--space-lg); height:160px; box-sizing:border-box;
     background:var(--page); border:1px dashed var(--border-card); border-radius:var(--radius-sm); cursor:pointer;
     transition:border-color .12s ease, background-color .12s ease;
   }
@@ -910,10 +909,12 @@
   .dz-line .ds-action-link svg{ width:12px; height:12px; }
   /* Files reading (229:18563): 1px border/default box, padding 40/24, 16 gap: "Reading N files" (14 SemiBold) over the hint,
      then a 404px progress-bar. Header and "Enter manually" fade to opacity/background. */
-  .dz-reading{ display:flex; flex-direction:column; align-items:center; gap:var(--space-md); padding:var(--space-xl) var(--space-lg); border:1px solid var(--border-default); border-radius:var(--radius-sm); }
+  .dz-reading{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--space-md); height:160px; box-sizing:border-box; padding:0 var(--space-lg); border:1px solid var(--border-default); border-radius:var(--radius-sm); }
+  .dz-progress-wrap{ display:flex; flex-direction:column; align-items:center; gap:var(--space-sm); width:404px; max-width:100%; }
+  .dz-pct{ font-size:14px; font-weight:500; line-height:15.2px; letter-spacing:-0.14px; color:var(--text-primary); font-variant-numeric:tabular-nums; }
   .dz-reading-info{ display:flex; flex-direction:column; align-items:center; gap:var(--space-xs); text-align:center; }
   .dz-reading-title{ font-size:14px; font-weight:600; line-height:15.2px; letter-spacing:-0.14px; color:var(--text-primary); }
-  .dz-progress{ width:404px; max-width:100%; }
+  .dz-progress{ width:100%; }
   .add-panel .is-faded{ opacity:var(--opacity-background); transition:opacity .18s ease; }
   .ap-manual.is-faded{ pointer-events:none; }
   /* Date, drawn as the Dropdown (Medium, 48 in the panel): dd/mm/yyyy + chevron over a transparent native date input. */
@@ -980,11 +981,9 @@
   /* A "?" chip marks a category the reader was not sure about (a word would squeeze the 120px Category column). Label chip recipe, square. */
   .c-cat.has-guess{ display:flex; align-items:center; gap:var(--space-xs); }
   .c-cat.has-guess .rv-link{ flex:1 1 auto; min-width:0; }
-  .rv-guess{
-    flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; padding:0;
-    font-size:10px; font-weight:600; line-height:11.6px; text-transform:uppercase; letter-spacing:-0.1px;
-    border-radius:var(--radius-ty); background:var(--surface-secondary); color:var(--text-secondary); cursor:default;
-  }
+  /* Guess marker: the Question (filled) icon, 20px frame, surface/tertiary. */
+  .rv-guess{ flex-shrink:0; display:inline-flex; width:20px; height:20px; color:var(--surface-tertiary); cursor:default; }
+  .rv-guess svg{ width:20px; height:20px; display:block; }
   .rv-row:hover .rv-link.bad{ text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; }
   .rv-amt{ display:inline-flex; align-items:center; gap:var(--space-xs); background:none; border:none; padding:0; height:20px; cursor:pointer; color:var(--ink); font-family:var(--font-mono); font-size:12px; font-weight:500; letter-spacing:-0.48px; font-variant-numeric:tabular-nums; }
   .rv-amt svg{ width:12px; height:12px; display:block; flex-shrink:0; }
@@ -1088,7 +1087,8 @@
   /* user (221:1048). Default: 4/0/4/4 padding round an Info row (8px left padding, chevron 12 + 8 + avatar).
      Hover: the Info row fills action/secondary-hover. Active: a surface/primary card, 200 wide, padding 4/4/8/4, gap 4,
      radius 16/24/16/16, shadow 0 0 8 ink@8%: Info row (chevron, first name in text/accent, avatar) over the menu. */
-  .ds-user{ position:relative; }
+  /* The user takes 72px closed and 200px open; the width moves with the card, so the bell slides instead of jumping. */
+  .ds-user{ position:relative; width:72px; height:48px; transition:width .2s cubic-bezier(.2,0,0,1); }
   .ds-user-trigger{ display:flex; padding:var(--space-xs) 0 var(--space-xs) var(--space-xs); border:none; background:none; cursor:pointer; border-radius:var(--radius-full); font-family:inherit; }
   .ds-user-info{
     display:flex; align-items:center; gap:var(--space-sm); padding:0 0 0 var(--space-sm); border-radius:var(--radius-full);
@@ -1098,8 +1098,11 @@
   .ds-user-trigger:hover .ds-user-info{ background:var(--action-secondary-hover); }
   .ds-user-trigger:focus-visible{ outline:2px solid var(--border-focus); outline-offset:2px; }
   /* Active: the card takes the user's place (200 wide), so the bell moves left of it (User nav 248 wide in 2:2). */
-  .ds-user.is-open{ width:200px; height:48px; }
-  .ds-user.is-open .ds-user-trigger{ visibility:hidden; }
+  .ds-user.is-open{ width:200px; }
+  .ds-user.is-closing{ transition-timing-function:cubic-bezier(.4,0,1,1); }
+  .ds-user.is-open .ds-user-trigger, .ds-user.is-closing .ds-user-trigger{ visibility:hidden; }
+  .ds-user-trigger{ position:absolute; top:0; right:0; }
+  @media (prefers-reduced-motion: reduce){ .ds-user{ transition:none; } }
   .ds-user-card{
     position:absolute; top:0; right:0; z-index:65; width:200px; box-sizing:border-box;
     display:flex; flex-direction:column; gap:var(--space-xs); padding:var(--space-xs) var(--space-xs) var(--space-sm) var(--space-xs);

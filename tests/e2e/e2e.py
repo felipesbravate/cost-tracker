@@ -202,9 +202,9 @@ async def main():
             check('reader prompt asks for certainty', '"certainty"' in state()['aiCalls'][-1]['prompt'])
             check('review: an unsure category carries a Guess (?) chip', await pg.locator('#rv-rows .rv-guess').count() == 1 and await pg.get_attribute('#rv-rows .rv-guess', 'aria-label') == 'Guess')
             check('review: status counts the guess and Submit stays enabled', (await pg.inner_text('#rv-status')).startswith('1 category is a guess') and not await pg.is_disabled('#rv-submit'), await pg.inner_text('#rv-status'))
-            g = await pg.evaluate("""() => { const cs = e => getComputedStyle(e), c = document.querySelector('#rv-rows .rv-guess'), l = document.querySelector('#rv-rows .c-cat .rv-link');
-                return { r: cs(c).borderRadius, bg: cs(c).backgroundColor, h: c.getBoundingClientRect().height, w: c.getBoundingClientRect().width, fs: [cs(c).fontSize, cs(c).fontWeight], within: c.getBoundingClientRect().right <= c.closest('.c-cat').getBoundingClientRect().right + 0.5 && l.getBoundingClientRect().right <= c.getBoundingClientRect().left }; }""")
-            check('Guess chip is the 4px Label chip, 20 high, and sits beside the category without overlap', g['r'] == '4px' and g['bg'] == 'rgb(239, 238, 229)' and g['h'] == 20 and g['w'] == 20 and g['fs'] == ['10px', '600'] and g['within'], g)
+            g = await pg.evaluate("""() => { const c = document.querySelector('#rv-rows .rv-guess'), l = document.querySelector('#rv-rows .c-cat .rv-link'), svg = c.querySelector('svg');
+                return { icon: svg && svg.dataset.icon, color: getComputedStyle(c).color, w: c.getBoundingClientRect().width, within: c.getBoundingClientRect().right <= c.closest('.c-cat').getBoundingClientRect().right + 0.5 && l.getBoundingClientRect().right <= c.getBoundingClientRect().left }; }""")
+            check('Guess marker is the Question (filled) icon, 20px, surface/tertiary, beside the category without overlap', g['icon'] == 'question-filled' and g['color'] == 'rgb(123, 120, 109)' and g['w'] == 20 and g['within'], g)
             await pg.click('#rv-rows .rv-row .c-cat .rv-link'); await pg.wait_for_selector('#rv-rows .rv-row.is-editing')
             await pg.keyboard.press('Enter'); await pg.wait_for_selector('.ds-dd-menu')
             await pg.click('.ds-dd-menu .ds-dd-item:text-is("Groceries")'); await pg.wait_for_timeout(150)  # the proposed one: confirming it is enough
