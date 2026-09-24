@@ -487,12 +487,12 @@
   }
   .year-add-pill.open{ opacity:1; transform:scale(1); pointer-events:auto; }
   .year-add-pill .round-btn{
-    width:40px; height:40px; border-radius:var(--radius-full); border:none; background:var(--action-secondary-press); color:var(--action-primary);
+    width:40px; height:40px; border-radius:var(--radius-full); border:none; background:var(--action-secondary-active); color:var(--action-primary);
     display:inline-flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; padding:0;
     transition: background-color .12s ease;
   }
-  .year-add-pill .round-btn:hover{ background:var(--state-surface2-hover); }
-  .year-add-pill .round-btn svg{ }
+  /* Round button, Tertiary, State=Active (Felipe, Sept 24: Active, not the DS component's Press). */
+  .year-add-pill .round-btn:hover, .year-add-pill .round-btn:active{ background:var(--action-secondary-active); }
   .year-add-pill-inputs{ display:flex; align-items:center; gap:var(--space-sm); }
   .year-add-pill-field{
     position:relative; display:flex; align-items:center; height:32px; width:80px;
