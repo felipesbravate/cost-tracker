@@ -25,11 +25,14 @@ test('the 10px X is the small drawing: a 6x6 glyph centred in its 10px frame', (
   assert.deepEqual([Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)], [2, 8, 2, 8]);
 });
 
-test('the 12px X (delete button, Cost-tracker 174:15198) is a 9x9 glyph centred in its 12px frame', () => {
+// Sept 24 X update (DS 85:2863): 20px glyph 10x10 at 5..15; 12px glyph 8x8 at 2..10.
+test('the 12px X is an 8x8 glyph centred in its 12px frame, the 20px X a 10x10 glyph (DS 85:2863)', () => {
   const nums = [...lib.x.sizes['12'].d.matchAll(/-?\d+(?:\.\d+)?/g)].map((m) => Number(m[0]));
   const xs = nums.filter((_, i) => i % 2 === 0), ys = nums.filter((_, i) => i % 2 === 1);
   const r = (v) => Math.round(v * 100) / 100;
-  assert.deepEqual([r(Math.min(...xs)), r(Math.max(...xs)), r(Math.min(...ys)), r(Math.max(...ys))], [1.53, 10.47, 1.53, 10.47]);
+  assert.deepEqual([r(Math.min(...xs)), r(Math.max(...xs)), r(Math.min(...ys)), r(Math.max(...ys))], [2, 10, 2, 10]);
+  const n20 = [...lib.x.d.matchAll(/-?\d+(?:\.\d+)?/g)].map((m) => Number(m[0]));
+  assert.deepEqual([Math.min(...n20), Math.max(...n20)], [5, 15]);
 });
 
 test('file-type icons: Document and Image are drawn on the exact 20px frame', () => {
