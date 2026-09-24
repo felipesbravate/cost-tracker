@@ -13,9 +13,6 @@ export function YearNav({ model, yearIdx, monthIdx, onYear, onMonth, onAddYear, 
   const { DATA } = model;
   const y = DATA[yearIdx];
   const [adding, setAdding] = useState(false);
-  const [confirm, setConfirm] = useState(null); // label of the year asking "Delete?"
-  // Any data change redraws the tabs, which drops an open "Delete?" (as on the legacy page).
-  useEffect(() => { setConfirm(null); }, [model]);
   useEffect(() => { if (onAddingChange) onAddingChange(adding); }, [adding, onAddingChange]);
 
   return (
@@ -27,22 +24,11 @@ export function YearNav({ model, yearIdx, monthIdx, onYear, onMonth, onAddYear, 
             <div className="year-tabs" id="years" role="tablist" aria-label="Year">
               {DATA.map((_, i) => i).reverse().map((i) => {
                 const yr = DATA[i];
-                if (confirm === yr.year) {
-                  return (
-                    <div className="year-tab" key={yr.year}>
-                      <div className="year-confirm">
-                        <span>{`Delete ${yr.year}?`}</span>
-                        <Button size="tiny" className="yc-yes" onClick={(e) => { e.stopPropagation(); onDeleteYear(yr); }}>Yes</Button>
-                        <Button size="tiny" variant="secondary" className="yc-cancel" onClick={(e) => { e.stopPropagation(); setConfirm(null); }}>Cancel</Button>
-                      </div>
-                    </div>
-                  );
-                }
                 return (
                   <div className="year-tab" key={yr.year}>
                     <button className="year-btn" role="tab" aria-pressed={i === yearIdx ? 'true' : 'false'} onClick={() => onYear(i)}>{yr.year}</button>
                     {yr.isExtra && yr.dbId && i === yearIdx && !isPastYear(yr.year) && (
-                      <button type="button" className="year-del-btn" aria-label={'Delete ' + yr.year} onClick={(e) => { e.stopPropagation(); setConfirm(yr.year); }}>
+                      <button type="button" className="year-del-btn" aria-label={'Delete ' + yr.year} onClick={(e) => { e.stopPropagation(); onDeleteYear(yr); }}>
                         <Icon icon={x} size={10} />
                       </button>
                     )}

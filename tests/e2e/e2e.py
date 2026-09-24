@@ -428,14 +428,52 @@ async def main():
             await pg.click('#breakdown-top-seg button[data-v=Income]'); await pg.wait_for_timeout(200)
             await pg.locator('.meter-row', has_text='Toast test').locator('.note-count').click(); await pg.wait_for_timeout(200)
             await pg.locator('#note-tip .tip-item', has_text='Toast test').locator('.tip-del').click()
+            await pg.wait_for_selector('#confirm-modal[open]', timeout=3000)
+            m = await pg.evaluate('''() => { const d = document.querySelector('#confirm-modal'), b = d.querySelector('#confirm-delete'), il = d.querySelector('.ds-illustration');
+              return { title: d.querySelector('.ds-modal-title').textContent, desc: d.querySelector('.ds-modal-description').textContent, art: il && il.dataset.illustration,
+                       ilSize: il && [il.getAttribute('width'), il.getAttribute('height')], bg: getComputedStyle(b).backgroundColor, label: b.textContent, cancel: d.querySelector('#confirm-cancel').textContent }; }''')
+            check('deleting an entry asks first: modal with the entry name, Trash can 64x72, Cancel + red Delete',
+                  'Toast test' in m['title'] and m['art'] == 'trashCan' and m['ilSize'] == ['64', '71.91'] and m['label'] == 'Delete' and m['cancel'] == 'Cancel' and m['bg'] == 'rgb(213, 57, 63)', m)
+            await pg.click('#confirm-cancel'); await pg.wait_for_timeout(200)
+            check('Cancel keeps the entry', not await pg.locator('#confirm-modal[open]').count() and await pg.locator('.meter-row', has_text='Toast test').count() == 1)
+            await pg.locator('.meter-row', has_text='Toast test').locator('.note-count').click(); await pg.wait_for_timeout(200)
+            await pg.locator('#note-tip .tip-item', has_text='Toast test').locator('.tip-del').click()
+            await pg.wait_for_selector('#confirm-modal[open]'); await pg.click('#confirm-delete')
             await pg.wait_for_selector('#ds-toast.visible', timeout=4000)
             check('removing an entry shows a toast', 'removed' in await pg.inner_text('#ds-toast'), await pg.inner_text('#ds-toast'))
 
-            # 8. erase my data, then sign out
+            # 7b. deleting a year asks first (2028 is a future year the test created)
+            await pg.locator('.year-btn', has_text='2028').click(); await pg.wait_for_timeout(200)
+            await pg.click('.year-del-btn'); await pg.wait_for_selector('#confirm-modal[open]', timeout=3000)
+            check('deleting a year asks first: "Are you sure you want to delete 2028?"', (await pg.inner_text('#confirm-modal .ds-modal-title')).strip() == 'Are you sure you want to delete 2028?')
+            await pg.keyboard.press('Escape'); await pg.wait_for_timeout(200)
+            check('Escape closes it and keeps the year', not await pg.locator('#confirm-modal[open]').count() and await pg.locator('.year-btn', has_text='2028').count() == 1)
+            await pg.click('.year-del-btn'); await pg.wait_for_selector('#confirm-modal[open]'); await pg.click('#confirm-delete')
+            await pg.wait_for_selector('#year-toast.visible', timeout=5000); await pg.wait_for_timeout(500)
+            check('Delete removes the year (Undo toast shown)', await pg.locator('.year-btn', has_text='2028').count() == 0)
+
+            # 8. delete my data (account stays), then delete the account
+            await ann.click('#user-menu-btn'); await ann.click('#menu-account'); await ann.wait_for_selector('#account-dialog[open]')
+            await ann.click('#delete-data-btn'); await ann.wait_for_selector('#confirm-modal[open]', timeout=3000)
+            check('delete data asks first', (await ann.inner_text('#confirm-modal .ds-modal-title')).strip() == 'Are you sure you want to delete all your data?')
+            def rows_by_user():
+                c = {}
+                for r in state()['rows']: c[r['user_id']] = c.get(r['user_id'], 0) + 1
+                return c
+            ann_rows = lambda: [(r['collection'], r['updated_at']) for r in state()['rows'] if r['user_id'].startswith('u-616e6e')]
+            before = rows_by_user(); ann_before = ann_rows()
+            await ann.click('#confirm-delete'); await ann.wait_for_load_state('load'); await ann.wait_for_selector('#user-nav', timeout=8000); await ann.wait_for_timeout(500)
+            after = rows_by_user(); ann_after = ann_rows()
+            # everything of Ann's is gone; the page then starts her over with a fresh current-year doc, as for a new account
+            check('delete data: that user\'s rows are gone (only a fresh year doc), the other user\'s untouched, still signed in',
+                  all(c == 'years' for c, _ in ann_after) and len(ann_after) <= 1 and not set(ann_after) & set(ann_before)
+                  and all(after.get(u) == n for u, n in before.items() if not u.startswith('u-616e6e')) and '/login' not in ann.url, [ann_before, ann_after, ann.url])
             await ann.click('#user-menu-btn'); await ann.click('#menu-account'); await ann.wait_for_selector('#account-dialog[open]')
             check('greets the user by the first part of the email', (await ann.inner_text('.app-title')).strip() == 'Hey, Ann')
-            await ann.click('text=Delete all my data'); await ann.click('text=Click again to permanently delete'); await ann.wait_for_url('**/login', timeout=5000)
-            check('erase: key and rows removed for that user', len(state()['keys']) == 1)
+            await ann.click('#delete-account-btn'); await ann.wait_for_selector('#confirm-modal[open]', timeout=3000)
+            check('delete account asks first', (await ann.inner_text('#confirm-modal .ds-modal-title')).strip() == 'Are you sure you want to delete your account?')
+            await ann.click('#confirm-delete'); await ann.wait_for_url('**/login', timeout=5000)
+            check('delete account: signed out, key gone', len(state()['keys']) == 1, state()['keys'])
             await pg.click('#user-menu-btn'); await pg.click('#menu-signout'); await pg.wait_for_url('**/login', timeout=5000)
             check('sign-out returns to login', True)
             await b.close()

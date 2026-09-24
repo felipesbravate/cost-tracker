@@ -100,6 +100,13 @@ export async function handle(req, deps) {
       return json(201, { saved: ids.length, yearsCreated: newYears });
     }
 
+    // ---- data erase: every document and the data key go, the account stays approved (a fresh key is made on
+    // the next write) ----
+    if (method === 'DELETE' && path === '/api/me/data') {
+      await deps.vault.eraseUser(user.id);
+      return json(200, { erased: true });
+    }
+
     // ---- account erase (crypto-shredding) ----
     if (method === 'DELETE' && path === '/api/me') {
       await deps.vault.eraseUser(user.id);

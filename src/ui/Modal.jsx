@@ -3,11 +3,13 @@ import { useEffect, useRef } from 'react';
 import { Button, RoundButton } from './Button.jsx';
 import { x } from './icons.js';
 
-// An illustration (src/ui/illustrations.js) at its 64px size, in surface/dark.
-export function Illustration({ art, className }) {
+// An Okara illustration (src/ui/illustrations.js), `width` wide (64 in the Modal) with the height of its own
+// proportions (Trash can 178x200 -> 64x72, as in the Cost-tracker delete modal). Drawn in surface/dark.
+export function Illustration({ art, width = 64, className }) {
   if (!art) return null;
+  const height = Math.round((width * art.height / art.width) * 100) / 100;
   return (
-    <svg className={['ds-illustration', className].filter(Boolean).join(' ')} viewBox={art.viewBox} width="64" height="64" aria-hidden="true" data-illustration={art.name}>
+    <svg className={['ds-illustration', className].filter(Boolean).join(' ')} viewBox={art.viewBox} width={width} height={height} aria-hidden="true" data-illustration={art.name}>
       {art.paths.map((d, i) => <path key={i} d={d} fill="currentColor" />)}
     </svg>
   );
@@ -17,6 +19,8 @@ export function Illustration({ art, className }) {
 // Header (Round button Small Tertiary, X), Content (optional 64px illustration, title Heading/Large, description
 // Body/Medium/Medium, centred) and Actions (Secondary + Primary Medium buttons, 240 wide, 16 apart).
 // `illustration` = an object from illustrations.js, or null to hide it (the "Illustration" boolean).
+// primary/secondary = { label, onClick, disabled, id }; primary.destructive paints it action/destructive (the
+// override on the Cost-tracker delete modal, 258:10267).
 // Opens as a native <dialog> (focus trap, Escape closes, page behind inert).
 export function Modal({ open, onClose, title, description, illustration, primary, secondary, id, children }) {
   const ref = useRef(null);
@@ -41,7 +45,7 @@ export function Modal({ open, onClose, title, description, illustration, primary
       {(primary || secondary) && (
         <div className="ds-modal-actions">
           {secondary && <Button variant="secondary" onClick={secondary.onClick} disabled={secondary.disabled} id={secondary.id}>{secondary.label}</Button>}
-          {primary && <Button onClick={primary.onClick} disabled={primary.disabled} id={primary.id}>{primary.label}</Button>}
+          {primary && <Button variant={primary.destructive ? 'destructive' : 'primary'} onClick={primary.onClick} disabled={primary.disabled} id={primary.id}>{primary.label}</Button>}
         </div>
       )}
     </dialog>

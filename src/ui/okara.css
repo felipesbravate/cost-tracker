@@ -245,6 +245,12 @@
   .btn-pill:disabled{ opacity:var(--opacity-disabled); cursor:not-allowed; }
   .btn-pill:disabled:hover{ background:var(--ink); }
   .btn-pill.ghost:disabled:hover{ background:var(--surface); }
+  /* Destructive: Primary filled with action/destructive (Cost-tracker 258:10267). Figma has no hover/press for it;
+     it darkens with the same ink overlay the ink Primary uses, so it still reacts. */
+  .btn-pill.destructive{ background:var(--action-destructive); }
+  .btn-pill.destructive:hover{ background:linear-gradient(rgba(22,21,15,.12),rgba(22,21,15,.12)),var(--action-destructive); }
+  .btn-pill.destructive:active{ background:linear-gradient(rgba(22,21,15,.2),rgba(22,21,15,.2)),var(--action-destructive); }
+  .btn-pill.destructive:disabled:hover{ background:var(--action-destructive); }
   .btn-plain{ font-size:12px; color:var(--ink-2); background:none; border:none; cursor:pointer; padding:var(--space-sm) 4px; font-weight:500; border-radius:var(--radius-sm); transition:color .12s ease, background-color .12s ease; }
   .btn-plain:hover{ color:var(--state-ink-hover); background:var(--surface-2); }
   .btn-plain:active{ color:var(--state-ink-press); background:var(--state-surface2-press); }

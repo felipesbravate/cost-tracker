@@ -7,7 +7,7 @@ import { useState } from 'react';
 import {
   ActionLink, BreakdownRow, Button, Card, Divider, Dropdown, EntriesTooltip, EntryCounter, ExpenseCard, Field, FieldGroup,
   KpiCard, Label, Meter, MonthSelector, PanelHeader, RoundButton, Segments, Toast, TooltipEntryItem, YearAddButton, YearTab,
-  Avatar, MenuList, Notification, NotificationItem, ProgressBar, UserMenu, UserNav, Modal, illustrations,
+  Avatar, MenuList, Notification, NotificationItem, ProgressBar, UserMenu, UserNav, Modal, Illustration, illustrations,
 } from '../index.js';
 import { actions, arrowStraightDown, arrowStraightUp, bell, edit, minus, plus, reload, signOut, upload, x } from '../icons.js';
 
@@ -203,4 +203,20 @@ export const CASES = [
         <Modal id="g-modal" open={v} onClose={() => s(false)} illustration={illustrations.hashtag} title="Title" description="Description"
           secondary={{ label: 'Button label', onClick: () => s(false) }} primary={{ label: 'Button label', onClick: () => s(false) }} />
       </div>)}</Controlled>) },
+  { id: 'modal-destructive', render: () => (
+    <Controlled initial={false}>{(v, s) => (
+      <div>
+        <Button variant="secondary" id="g-modal-del-open" onClick={() => s(true)}>Open delete modal</Button>
+        <Modal id="g-modal-del" open={v} onClose={() => s(false)} illustration={illustrations.trashCan} title="Are you sure you want to delete 2026?"
+          description="All the entries and data of this year will be permanently deleted."
+          secondary={{ label: 'Cancel', onClick: () => s(false) }} primary={{ label: 'Delete', destructive: true, onClick: () => s(false) }} />
+      </div>)}</Controlled>) },
+  // Okara Illustrations: every drawing of the Figma Illustrations file, 64 wide, with its code name.
+  { id: 'illustrations', render: () => (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 96px)', gap: 16 }}>
+      {illustrations.all.map((a) => (
+        <div key={a.name} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, fontSize: 11, color: 'var(--text-secondary)' }}>
+          <div style={{ height: 96, display: 'flex', alignItems: 'center' }}><Illustration art={a} /></div>{a.name}
+        </div>))}
+    </div>) },
 ];

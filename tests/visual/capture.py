@@ -141,6 +141,8 @@ async def s_year_add_currency(pg):
 async def s_year_hover(pg): await pg.locator('.year-btn:text-is("2025")').hover(); await settle(pg)
 async def s_year_del_hover(pg):
     await year(pg, '2026'); await pg.locator('.year-btn[aria-pressed="true"]').hover(); await settle(pg)
+async def s_year_delete_modal(pg):
+    await year(pg, '2026'); await pg.click('.year-del-btn'); await pg.wait_for_selector('#confirm-modal[open]'); await settle(pg)
 async def s_month_hover(pg): await pg.locator('.month-btn').nth(3).hover(); await settle(pg)
 async def s_btn_hover(pg): await pg.locator('#tracker-add-btn').hover(); await settle(pg)
 
@@ -208,6 +210,7 @@ STATES = [
     ('36-budget-amount-hover', 'view', s_budget_hover), ('37-budget-editing', 'view', s_budget_edit), ('38-admin-dialog', 'view', s_admin),
     ('40-user-menu', 'view', s_user_menu), ('41-notifications', 'view', s_notif), ('42-tracker-menu', 'view', s_tracker_menu),
     ('43-month-budget', 'view', s_month_budget),
+    ('44-year-delete-modal', 'view', s_year_delete_modal),
     ('39-toast', 'view', s_toast),  # writes an entry: keep last
 ]
 

@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Notification, NotificationItem, UserMenu, UserNav } from '../ui/index.js';
 import { signOut as signOutIcon } from '../ui/icons.js';
-import { deleteMe, listUsers, setUserStatus, signOut } from './api.js';
+import { deleteMe, deleteMyData, listUsers, setUserStatus, signOut } from './api.js';
 
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -14,8 +14,8 @@ export function firstNameOf(email) {
 }
 
 // User nav (DS 230:618) in the page header: notifications (for an admin: accounts waiting for approval) and the
-// user menu (Account, Admin for admins, Sign out).
-export function AccountNav({ me }) {
+// user menu (Account, Admin for admins, Sign out). `confirm` = the page's useConfirm (one confirm modal per page).
+export function AccountNav({ me, confirm }) {
   const [open, setOpen] = useState(null); // 'notif' | 'user' | null
   const [pending, setPending] = useState([]);
   const [busy, setBusy] = useState({});
@@ -60,7 +60,7 @@ export function AccountNav({ me }) {
         </Notification>
         <UserMenu name={name} open={open === 'user'} onClose={close} onToggle={() => setOpen((o) => (o === 'user' ? null : 'user'))} items={items} />
       </UserNav>
-      {dialog === 'account' && <AccountDialog me={me} onClose={() => setDialog(null)} />}
+      {dialog === 'account' && <AccountDialog me={me} confirm={confirm} onClose={() => setDialog(null)} />}
       {dialog === 'admin' && <UsersDialog onClose={() => { setDialog(null); loadPending(); }} />}
     </>
   );
@@ -72,22 +72,27 @@ function useModal(onClose) {
   return [ref, { onClose, onCancel: onClose }];
 }
 
-// Account: who is signed in, and deleting every entry of this account (two clicks).
-function AccountDialog({ me, onClose }) {
+// Account: who is signed in, deleting all data (the account stays) and deleting the account. Both ask first in
+// the confirm modal.
+function AccountDialog({ me, confirm, onClose }) {
   const [ref, handlers] = useModal(onClose);
-  const [armed, setArmed] = useState(false);
-  const timer = useRef(null);
-  useEffect(() => () => clearTimeout(timer.current), []);
-  const onDelete = () => {
-    if (!armed) { setArmed(true); timer.current = setTimeout(() => setArmed(false), 5000); return; }
-    deleteMe().then(() => signOut()).then(() => { location.href = '/login'; });
-  };
+  const deleteData = () => confirm({
+    title: 'Are you sure you want to delete all your data?',
+    description: 'All your years, entries and budgets will be permanently deleted. Your account stays, so you can start again.',
+    onConfirm: async () => { await deleteMyData(); location.reload(); },
+  });
+  const deleteAccount = () => confirm({
+    title: 'Are you sure you want to delete your account?',
+    description: `All your data will be permanently deleted and you'll be signed out. ${me.email} won't be able to sign in again.`,
+    onConfirm: async () => { await deleteMe(); await signOut(); location.href = '/login'; },
+  });
   return (
     <dialog ref={ref} className="ct-dialog" id="account-dialog" {...handlers}>
       <h2 className="ct-dialog-title">Account</h2>
       <p className="ct-dialog-text">{`Signed in as ${me.email}`}</p>
       <div className="ct-dialog-actions">
-        <Button variant="secondary" id="delete-data-btn" onClick={onDelete}>{armed ? 'Click again to permanently delete' : 'Delete all my data'}</Button>
+        <Button variant="secondary" id="delete-data-btn" onClick={deleteData}>Delete all my data</Button>
+        <Button variant="secondary" id="delete-account-btn" onClick={deleteAccount}>Delete account</Button>
         <Button variant="tertiary" onClick={() => ref.current?.close()}>Close</Button>
       </div>
     </dialog>

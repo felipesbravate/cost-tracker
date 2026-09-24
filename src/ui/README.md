@@ -35,3 +35,12 @@ unchanged. Design changes happen here, one Figma frame at a time.
 
 Fixed Sept 23, 2026: Year budget amounts in European format, the year-delete button no longer clipped, no panel
 shadow on the page edge when the panels are closed, strike-through on removed rows.
+
+## Okara Illustrations
+
+`illustrations.js` is the Okara Illustrations library: all 109 drawings of the Figma Illustrations file
+(ksgSp0pN0PrjODsWy1q1se), one colour, drawn with `currentColor` (surface/dark). It is generated. Don't edit it by hand:
+`node scripts/sync-illustrations.mjs <combined-export.svg>` (the header of that script explains how the export is made).
+Import only what a screen uses (`import { trashCan } from '../ui/illustrations.js'`), so the rest stays out of the bundle.
+Render with `<Illustration art={trashCan} width={64} />` (the height follows the drawing's proportions).
+The gallery (`/dev/components`, case `illustrations`) shows them all with their code names.

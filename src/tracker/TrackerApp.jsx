@@ -6,6 +6,7 @@ import { Button, Toast, useToast } from '../ui/index.js';
 import { db, getMe } from './api.js';
 import { AccountNav, firstNameOf } from './AccountBar.jsx';
 import { AddPanel } from './AddPanel.jsx';
+import { useConfirm } from './ConfirmModal.jsx';
 import { BudgetPanel } from './BudgetPanel.jsx';
 import { ExpenseStrip, HeroLeft, TrackerCard, TrendChart, YearOverYear } from './Dashboard.jsx';
 import { MONTH_ABBR, budgetDefaultDocId, createModel, currentYearLabel, parseAmount, yearsFromDocs } from './model.js';
@@ -31,6 +32,7 @@ export default function TrackerApp() {
   const viewRef = useRef(view); viewRef.current = view;
   const [bd, setBd] = useState({ type: 'Fixed', group: 'Fixed' });
   const [tip, setTip] = useState(null);
+  const [confirmModal, confirm] = useConfirm();
   const [addPanel, setAddPanel] = useState({ open: false, preset: { type: 'expense', group: 'Fixed' } });
   const [pendingYear, setPendingYear] = useState(null);
   const [monthBudget, setMonthBudget] = useState(null); // { yearIdx, monthIdx } while "Adjust month's budget" is open
@@ -155,19 +157,26 @@ export default function TrackerApp() {
   };
 
   const tipActions = {
-    deleteEntry: async (id) => {
+    deleteEntry: (id) => {
       setTip(null);
       const e = modelRef.current.ENTRIES.find((x) => x.id === id);
-      try { await db.doc('entries/' + id).delete(); showToast(e && e.description ? `"${e.description}" removed.` : 'Entry removed.', 'success'); }
-      catch { showToast('Could not remove the entry.', 'fail'); }
+      const what = e && e.description ? `"${e.description}"` : 'this entry';
+      confirm({
+        title: `Are you sure you want to delete ${what}?`,
+        description: 'This entry will be permanently deleted.',
+        onConfirm: () => removeEntry(id, e),
+      });
     },
-    deleteBaseValue: async (row) => {
+    deleteBaseValue: (row) => {
       if (row.override) return;
       setTip(null);
-      try {
-        await db.collection('overrides').add({ year: row.yearLabel, monthIndex: row.mi, type: row.type, group: row.group, category: row.category, item: row.item, createdAt: new Date().toISOString() });
-        showToast(`${row.item} removed from ${MONTH_ABBR[row.mi]} ${row.yearLabel}.`, 'success');
-      } catch { showToast(`Could not remove ${row.item}.`, 'fail'); }
+      confirm({
+        title: `Are you sure you want to delete ${row.item} from ${MONTH_ABBR[row.mi]} ${row.yearLabel}?`,
+        description: row.isEstimate
+          ? 'This estimate will no longer count for this month. You can restore it from the same list.'
+          : 'This value will no longer count for this month. You can restore it from the same list.',
+        onConfirm: () => removeBaseValue(row),
+      });
     },
     restoreOverride: async (id) => {
       if (!id) return;
@@ -176,6 +185,16 @@ export default function TrackerApp() {
       catch { showToast('Could not restore the value.', 'fail'); }
     },
   };
+  async function removeEntry(id, e) {
+      try { await db.doc('entries/' + id).delete(); showToast(e && e.description ? `"${e.description}" removed.` : 'Entry removed.', 'success'); }
+      catch { showToast('Could not remove the entry.', 'fail'); }
+  }
+  async function removeBaseValue(row) {
+      try {
+        await db.collection('overrides').add({ year: row.yearLabel, monthIndex: row.mi, type: row.type, group: row.group, category: row.category, item: row.item, createdAt: new Date().toISOString() });
+        showToast(`${row.item} removed from ${MONTH_ABBR[row.mi]} ${row.yearLabel}.`, 'success');
+      } catch { showToast(`Could not remove ${row.item}.`, 'fail'); }
+  }
 
   // ---- years ----
   const hideYearToast = useCallback(() => { clearTimeout(yearToastTimer.current); setYearToast(null); }, []);
@@ -204,6 +223,11 @@ export default function TrackerApp() {
     setYearToast({ message: `"${label}" deleted — ${entrySnaps.length} entr${entrySnaps.length === 1 ? 'y' : 'ies'} removed with it.`, undo });
     yearToastTimer.current = setTimeout(() => setYearToast(null), 8000);
   };
+  const askDeleteYear = (y) => confirm({
+    title: `Are you sure you want to delete ${y.year}?`,
+    description: 'All the entries and data of this year will be permanently deleted.',
+    onConfirm: () => deleteYear(y),
+  });
   const createYear = async (rows) => {
     const { label, currency } = pendingYear;
     try {
@@ -260,10 +284,10 @@ export default function TrackerApp() {
         <header className="top">
           <h1 className="app-title">{`Hey, ${firstNameOf(me.email)}`}</h1>
           <div className="app-sub">Ready to see where you stand today? Track your spending, investments, and savings for the month.</div>
-          <AccountNav me={me} />
+          <AccountNav me={me} confirm={confirm} />
         </header>
         <YearNav model={model} yearIdx={yearIdx} monthIdx={monthIdx} onYear={selectYear} onMonth={selectMonth} canSave onAddingChange={setAddingYear}
-          onAddYear={(label, currency) => setPendingYear({ label, currency })} onDeleteYear={deleteYear} />
+          onAddYear={(label, currency) => setPendingYear({ label, currency })} onDeleteYear={askDeleteYear} />
         <AddPanel open={addPanel.open} preset={addPanel.preset} model={model} yearIdx={yearIdx} monthIdx={monthIdx}
           onClose={() => setAddPanel((p) => ({ ...p, open: false }))} save={save} />
         <BudgetPanel pending={pendingYear} model={model} onClose={() => setPendingYear(null)} onCreate={createYear} />
@@ -285,6 +309,7 @@ export default function TrackerApp() {
       {toastEl}
       <Toast id="year-toast" type="neutral" visible={!!yearToast}
         action={yearToast ? <Button size="tiny" variant="secondary" className="toast-undo" onClick={yearToast.undo}>Undo</Button> : null}>{yearToast ? yearToast.message : ''}</Toast>
+      {confirmModal}
     </>
   );
 }

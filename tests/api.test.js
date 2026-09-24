@@ -88,6 +88,17 @@ test('erase removes data and blocks the account', async () => {
   assert.equal((await call('DELETE', '/api/me', boss)).status, 200);
 });
 
+test('data erase removes every document but keeps the account usable', async () => {
+  const { call } = setup();
+  await call('POST', '/api/db/entries', boss, { a: 1 });
+  assert.equal((await call('DELETE', '/api/me/data', boss)).status, 200);
+  const after = await call('GET', '/api/db/entries', boss);
+  assert.equal(after.status, 200);
+  assert.equal(JSON.stringify(after.body).includes('"a":1'), false);
+  assert.equal((await call('GET', '/api/me', boss)).body.status, 'approved');
+  assert.equal((await call('POST', '/api/db/entries', boss, { b: 2 })).status < 300, true);
+});
+
 test('helpers', () => {
   assert.equal(passesCsrf({ method: 'GET', headers: {} }, ORIGIN), true);
   assert.equal(passesCsrf({ method: 'POST', headers: { 'x-requested-with': 'costs-tracker', 'sec-fetch-site': 'cross-site' } }, ORIGIN), false);

@@ -118,6 +118,7 @@ if (typeof window !== 'undefined') window.claude = { use: async (name) => (name 
 // ---------- account ----------
 export const getMe = () => api('GET', '/api/me');
 export const signOut = () => fetch('/auth/signout', { method: 'POST', headers: HEADERS, credentials: 'same-origin' });
-export const deleteMe = () => api('DELETE', '/api/me');
+export const deleteMe = () => api('DELETE', '/api/me');           // erase everything and close the account
+export const deleteMyData = () => api('DELETE', '/api/me/data');  // erase everything, keep the account
 export const listUsers = () => api('GET', '/api/admin/users');
 export const setUserStatus = (id, act) => api('POST', '/api/admin/users/' + encodeURIComponent(id) + '/' + act);

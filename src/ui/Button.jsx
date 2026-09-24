@@ -2,11 +2,12 @@ import { Icon } from './Icon.jsx';
 
 const cx = (...c) => c.filter(Boolean).join(' ');
 
-// Button (DS 41:119). variant: primary | secondary | tertiary. size: medium | small | tiny.
+// Button (DS 41:119). variant: primary | secondary | tertiary | destructive (Primary filled with action/destructive,
+// as overridden in the Cost-tracker delete modal; the DS has no destructive style of its own). size: medium | small | tiny.
 // Figma's Secondary is the `ghost` class in CSS.
 export function Button({ variant = 'primary', size = 'medium', icon, className, children, type = 'button', ...rest }) {
   return (
-    <button type={type} className={cx('btn-pill', variant === 'secondary' && 'ghost', variant === 'tertiary' && 'tertiary', size !== 'medium' && size, className)} {...rest}>
+    <button type={type} className={cx('btn-pill', variant === 'secondary' && 'ghost', variant === 'tertiary' && 'tertiary', variant === 'destructive' && 'destructive', size !== 'medium' && size, className)} {...rest}>
       {icon && <Icon icon={icon} size={size === 'tiny' ? 12 : 20} />}
       {icon ? <span>{children}</span> : children}
     </button>
