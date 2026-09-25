@@ -1,5 +1,5 @@
 {
-  "_note": "Snapshot of the Okara Design System Variables (Figma file 7glNMA9d7iVJFf2CvyrzAb), read Sept 25, 2026 (Typography collection added the same day: DM Sans + Martian Mono). Values are hex or numbers; {\"alias\": name} points at a variable in Primitives. To update: re-read Figma, write this file, run `node scripts/sync-tokens.mjs` (rewrites the token block in src/ui/okara.css), then `npm test`. Sept 25: every SemiBold text style set to Medium (500), as Felipe changed them in Figma.",
+  "_note": "Snapshot of the Okara Design System Variables (Figma file 7glNMA9d7iVJFf2CvyrzAb), read Sept 25, 2026 (Typography collection added the same day: DM Sans + Martian Mono). Values are hex or numbers; {\"alias\": name} points at a variable in Primitives. To update: re-read Figma, write this file, run `node scripts/sync-tokens.mjs` (rewrites the token block in src/ui/okara.css), then `npm test`. Sept 25: every SemiBold text style set to Medium (500) except Display/Title (page titles), which stays SemiBold.",
   "Primitives": {
     "neutral/page": "#eef5f4",
     "neutral/surface": "#ffffff",
@@ -221,7 +221,7 @@
   "TextStyles": {
     "Display/Title": {
       "family": "sans",
-      "weight": 500,
+      "weight": 600,
       "size": 40,
       "lineHeight": 48,
       "letterSpacing": 0
