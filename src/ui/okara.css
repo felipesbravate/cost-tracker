@@ -130,7 +130,7 @@
 
     /* Collection: TextStyles */
     --type-display-title-size: 40px;
-    --type-display-title-weight: 600;
+    --type-display-title-weight: 500;
     --type-display-title-lh: 48px;
     --type-display-title-ls: 0;
     --type-value-xl-size: 32px;
@@ -150,19 +150,19 @@
     --type-value-small-lh: normal;
     --type-value-small-ls: -0.04em;
     --type-heading-xl-size: 24px;
-    --type-heading-xl-weight: 600;
+    --type-heading-xl-weight: 500;
     --type-heading-xl-lh: 24px;
     --type-heading-xl-ls: -0.01em;
     --type-heading-large-size: 20px;
-    --type-heading-large-weight: 600;
+    --type-heading-large-weight: 500;
     --type-heading-large-lh: 20px;
     --type-heading-large-ls: -0.01em;
     --type-heading-medium-size: 16px;
-    --type-heading-medium-weight: 600;
+    --type-heading-medium-weight: 500;
     --type-heading-medium-lh: 16px;
     --type-heading-medium-ls: 0;
     --type-heading-small-size: 14px;
-    --type-heading-small-weight: 600;
+    --type-heading-small-weight: 500;
     --type-heading-small-lh: 14px;
     --type-heading-small-ls: 0;
     --type-body-large-medium-size: 16px;
@@ -170,7 +170,7 @@
     --type-body-large-medium-lh: 20px;
     --type-body-large-medium-ls: -0.02em;
     --type-body-large-semibold-size: 16px;
-    --type-body-large-semibold-weight: 600;
+    --type-body-large-semibold-weight: 500;
     --type-body-large-semibold-lh: 20px;
     --type-body-large-semibold-ls: -0.02em;
     --type-body-medium-regular-size: 14px;
@@ -182,7 +182,7 @@
     --type-body-medium-medium-lh: 18px;
     --type-body-medium-medium-ls: -0.02em;
     --type-body-medium-semibold-size: 14px;
-    --type-body-medium-semibold-weight: 600;
+    --type-body-medium-semibold-weight: 500;
     --type-body-medium-semibold-lh: 18px;
     --type-body-medium-semibold-ls: -0.02em;
     --type-body-small-regular-size: 12px;
@@ -194,11 +194,11 @@
     --type-body-small-medium-lh: 14px;
     --type-body-small-medium-ls: -0.02em;
     --type-body-small-semibold-size: 12px;
-    --type-body-small-semibold-weight: 600;
+    --type-body-small-semibold-weight: 500;
     --type-body-small-semibold-lh: 14px;
     --type-body-small-semibold-ls: -0.02em;
     --type-label-default-semibold-size: 12px;
-    --type-label-default-semibold-weight: 600;
+    --type-label-default-semibold-weight: 500;
     --type-label-default-semibold-lh: 12px;
     --type-label-default-semibold-ls: 0;
     --type-label-default-medium-size: 12px;
@@ -210,7 +210,7 @@
     --type-label-tiny-regular-lh: 10px;
     --type-label-tiny-regular-ls: 0;
     --type-label-tiny-semibold-size: 10px;
-    --type-label-tiny-semibold-weight: 600;
+    --type-label-tiny-semibold-weight: 500;
     --type-label-tiny-semibold-lh: 10px;
     --type-label-tiny-semibold-ls: -0.02em;
     --type-label-tiny-medium-size: 10px;
@@ -218,7 +218,7 @@
     --type-label-tiny-medium-lh: 10px;
     --type-label-tiny-medium-ls: -0.02em;
     --type-badge-semibolt-size: 8px;
-    --type-badge-semibolt-weight: 600;
+    --type-badge-semibolt-weight: 500;
     --type-badge-semibolt-lh: 8px;
     --type-badge-semibolt-ls: -0.02em;
     /* @tokens:end */
@@ -740,7 +740,7 @@
   .alloc-name{ font-size:var(--type-label-tiny-semibold-size); font-weight:var(--type-label-tiny-semibold-weight); line-height:var(--type-label-tiny-semibold-lh); letter-spacing:var(--type-label-tiny-semibold-ls); color:var(--label-muted); text-transform:uppercase; }
 
   .insight-text{ font-size:var(--type-body-small-regular-size); font-weight:var(--type-body-small-regular-weight); line-height:var(--type-body-small-regular-lh); letter-spacing:var(--type-body-small-regular-ls); color:var(--ink-2); margin-top:var(--space-xs); }
-  .insight-text b{ color:var(--ink); font-weight:600; }
+  .insight-text b{ color:var(--ink); font-weight:500; }
   .insight-tags{ display:flex; gap:var(--space-xs); flex-wrap:wrap; margin-top:var(--space-xs); padding-top:var(--space-xs); }
   /* Tags are the DS "Label" component (211:859): 20px high, 8px side padding, 4px radius, 12px SemiBold, line height auto,
      tracking 0. Types: Neutral (surface/secondary + text/secondary), Positive, Negative, Warning (surface/x + status/x). */

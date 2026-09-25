@@ -1,5 +1,5 @@
 {
-  "_note": "Snapshot of the Okara Design System Variables (Figma file 7glNMA9d7iVJFf2CvyrzAb), read Sept 25, 2026 (Typography collection added the same day: DM Sans + Martian Mono). Values are hex or numbers; {\"alias\": name} points at a variable in Primitives. To update: re-read Figma, write this file, run `node scripts/sync-tokens.mjs` (rewrites the token block in src/ui/okara.css), then `npm test`.",
+  "_note": "Snapshot of the Okara Design System Variables (Figma file 7glNMA9d7iVJFf2CvyrzAb), read Sept 25, 2026 (Typography collection added the same day: DM Sans + Martian Mono). Values are hex or numbers; {\"alias\": name} points at a variable in Primitives. To update: re-read Figma, write this file, run `node scripts/sync-tokens.mjs` (rewrites the token block in src/ui/okara.css), then `npm test`. Sept 25: every SemiBold text style set to Medium (500), as Felipe changed them in Figma.",
   "Primitives": {
     "neutral/page": "#eef5f4",
     "neutral/surface": "#ffffff",
@@ -221,7 +221,7 @@
   "TextStyles": {
     "Display/Title": {
       "family": "sans",
-      "weight": 600,
+      "weight": 500,
       "size": 40,
       "lineHeight": 48,
       "letterSpacing": 0
@@ -256,28 +256,28 @@
     },
     "Heading/XL": {
       "family": "sans",
-      "weight": 600,
+      "weight": 500,
       "size": 24,
       "lineHeight": 24,
       "letterSpacing": -1
     },
     "Heading/Large": {
       "family": "sans",
-      "weight": 600,
+      "weight": 500,
       "size": 20,
       "lineHeight": 20,
       "letterSpacing": -1
     },
     "Heading/Medium": {
       "family": "sans",
-      "weight": 600,
+      "weight": 500,
       "size": 16,
       "lineHeight": 16,
       "letterSpacing": 0
     },
     "Heading/Small": {
       "family": "sans",
-      "weight": 600,
+      "weight": 500,
       "size": 14,
       "lineHeight": 14,
       "letterSpacing": 0
@@ -291,7 +291,7 @@
     },
     "Body/Large/SemiBold": {
       "family": "sans",
-      "weight": 600,
+      "weight": 500,
       "size": 16,
       "lineHeight": 20,
       "letterSpacing": -2
@@ -312,7 +312,7 @@
     },
     "Body/Medium/SemiBold": {
       "family": "sans",
-      "weight": 600,
+      "weight": 500,
       "size": 14,
       "lineHeight": 18,
       "letterSpacing": -2
@@ -333,14 +333,14 @@
     },
     "Body/Small/SemiBold": {
       "family": "sans",
-      "weight": 600,
+      "weight": 500,
       "size": 12,
       "lineHeight": 14,
       "letterSpacing": -2
     },
     "Label/Default/SemiBold": {
       "family": "sans",
-      "weight": 600,
+      "weight": 500,
       "size": 12,
       "lineHeight": 12,
       "letterSpacing": 0
@@ -361,7 +361,7 @@
     },
     "Label/Tiny/SemiBold": {
       "family": "sans",
-      "weight": 600,
+      "weight": 500,
       "size": 10,
       "lineHeight": 10,
       "letterSpacing": -2
@@ -375,7 +375,7 @@
     },
     "Badge/SemiBolt": {
       "family": "sans",
-      "weight": 600,
+      "weight": 500,
       "size": 8,
       "lineHeight": 8,
       "letterSpacing": -2
