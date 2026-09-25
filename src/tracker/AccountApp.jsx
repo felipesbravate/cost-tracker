@@ -1,12 +1,12 @@
 'use client';
 // Account page (Cost-tracker/Ongatu 250:3399, Security states 283:4288 / 283:4351 / 283:4409): the App header, "Return
-// to dashboard", a menu on the left (Edit profile, Password, Data and privacy) and three cards: Personal information
+// to dashboard", a menu on the left (Side menu 304:553: Edit profile, Security, Data and privacy) and three cards: Personal information
 // (picture, first/last name, email), Security (sign-in code or password, one or the other) and Data and privacy
 // (import, export, clear all data, delete account). Destructive actions ask first in the confirm modal.
 import { useEffect, useRef, useState } from 'react';
 import '../ui/okara.css';
 import '../ui/shell.css';
-import { ActionLink, AppHeader, Avatar, Button, Checkbox, Divider, Field, Input, RoundButton, Toggle, useToast } from '../ui/index.js';
+import { ActionLink, AppHeader, Avatar, Button, Checkbox, Divider, Field, Input, RoundButton, SideMenu, Toggle, useToast } from '../ui/index.js';
 import { arrowStraightLeft, lock, trash, upload } from '../ui/icons.js';
 import { api, deleteMe, deleteMyData, getMe, getSignIn, setSignIn, signOut } from './api.js';
 import { AccountNav } from './AccountBar.jsx';
@@ -15,7 +15,7 @@ import { avatarFromFile, removeAvatar, saveAvatar, saveProfile, useProfile } fro
 
 const SECTIONS = [
   { id: 'profile', label: 'Edit profile' },
-  { id: 'security', label: 'Password' },
+  { id: 'security', label: 'Security' },
   { id: 'data', label: 'Data and privacy' },
 ];
 const EXPORT_COLLECTIONS = ['years', 'entries', 'budgets', 'budgetDefaults', 'overrides', 'settings'];
@@ -60,12 +60,9 @@ export default function AccountApp() {
           <div className="app-sub">Manage your personal identity, security preferences, and data privacy controls.</div>
         </header>
         <div className="acct-content">
-          <nav className="acct-menu" aria-label="Account sections">
-            {SECTIONS.map((s) => (
-              <a key={s.id} href={'#' + s.id} className={'acct-menu-item' + (active === s.id ? ' is-active' : '')} aria-current={active === s.id ? 'true' : undefined}
-                onClick={(e) => { e.preventDefault(); setActive(s.id); document.getElementById(s.id).scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>{s.label}</a>
-            ))}
-          </nav>
+          <SideMenu className="acct-menu" label="Account sections" value={active}
+            items={SECTIONS.map((s) => ({ key: s.id, id: 'menu-' + s.id, label: s.label, href: '#' + s.id }))}
+            onSelect={(key, e) => { e.preventDefault(); setActive(key); document.getElementById(key).scrollIntoView({ behavior: 'smooth', block: 'start' }); }} />
           <div className="acct-cards">
             <ProfileCard me={me} profile={profile} confirm={confirm} showToast={showToast} />
             <SecurityCard showToast={showToast} />

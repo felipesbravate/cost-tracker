@@ -13,6 +13,7 @@ export { Toast, useToast } from './Toast.jsx';
 export { Dropdown } from './Dropdown.jsx';
 export { Field, FieldGroup, Input } from './Field.jsx';
 export { Logo, Toggle, Checkbox, AppHeader } from './Brand.jsx';
+export { MenuItem, SideMenu } from './SideMenu.jsx';
 export { PanelHeader } from './Panel.jsx';
 export { Modal, Illustration } from './Modal.jsx';
 export * as illustrations from './illustrations.js';

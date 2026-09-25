@@ -8,9 +8,9 @@ import {
   ActionLink, BreakdownRow, Button, Card, Divider, Dropdown, EntriesTooltip, EntryCounter, ExpenseCard, Field, FieldGroup,
   KpiCard, Label, Meter, MonthSelector, PanelHeader, RoundButton, Segments, Toast, TooltipEntryItem, YearAddButton, YearTab,
   Avatar, MenuList, Notification, NotificationItem, ProgressBar, UserMenu, UserNav, Modal, Illustration, illustrations,
-  Logo, Toggle, Checkbox, AppHeader, Input,
+  Logo, Toggle, Checkbox, AppHeader, Input, SideMenu,
 } from '../index.js';
-import { actions, arrowStraightDown, arrowStraightUp, bell, edit, lock, minus, plus, reload, signOut, upload, x } from '../icons.js';
+import { actions, arrowStraightDown, arrowStraightUp, bell, edit, lock, minus, plus, reload, signOut, upload, user, x } from '../icons.js';
 
 const TOP = [{ value: 'Income', label: 'Income' }, { value: 'Investments', label: 'Savings/Investments' }, { value: 'Expenses', label: 'Expenses' }];
 const GROUPS = ['Fixed', 'Variable', 'Additional', 'Extra'].map((g) => ({ value: g, label: g }));
@@ -228,4 +228,10 @@ export const CASES = [
       <Input placeholder="Label" /><Input defaultValue="Felipe" /><Input icon={lock} value="felipe@example.com" disabled readOnly />
     </div>) },
   { id: 'app-header', render: () => <div style={{ width: 1318, margin: '0 -40px' }}><AppHeader><UserNav><Notification unread /><UserMenu name="Felipe" items={[]} /></UserNav></AppHeader></div> },
+  { id: 'side-menu', render: () => (
+    <Controlled initial="a">{(v, s) => (
+      <div style={{ display: 'flex', gap: 40 }}>
+        <SideMenu label="Menu" value={v} onSelect={s} items={[{ key: 'a', label: 'Edit profile' }, { key: 'b', label: 'Security' }, { key: 'c', label: 'Data and privacy' }]} />
+        <SideMenu label="With icons" value={v} onSelect={s} items={[{ key: 'a', label: 'Profile', icon: user }, { key: 'b', label: 'Security', icon: lock }, { key: 'c', label: 'Upload', icon: upload }]} />
+      </div>)}</Controlled>) },
 ];
