@@ -4,4 +4,5 @@
 import dynamic from 'next/dynamic';
 
 const TrackerApp = dynamic(() => import('./TrackerApp.jsx'), { ssr: false });
-export default function Root() { return <TrackerApp />; }
+const AccountApp = dynamic(() => import('./AccountApp.jsx'), { ssr: false });
+export default function Root({ view }) { return view === 'account' ? <AccountApp /> : <TrackerApp />; }

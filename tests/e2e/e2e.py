@@ -1,7 +1,7 @@
 """End-to-end test against scripts/dev-mock-server.mjs (real UI, real API/vault/CSP code, fake sign-in).
 Run:  python3 tests/e2e/e2e.py      (starts and stops its own server on port 3199)
 Needs: python playwright + a chromium (set CHROMIUM_PATH if not at /opt/pw-browsers/chromium)."""
-import asyncio, json, os, subprocess, sys, time, urllib.request
+import asyncio, base64, json, os, subprocess, sys, time, urllib.request
 from playwright.async_api import async_playwright
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -452,28 +452,69 @@ async def main():
             await pg.wait_for_selector('#year-toast.visible', timeout=5000); await pg.wait_for_timeout(500)
             check('Delete removes the year (Undo toast shown)', await pg.locator('.year-btn', has_text='2028').count() == 0)
 
-            # 8. delete my data (account stays), then delete the account
-            await ann.click('#user-menu-btn'); await ann.click('#menu-account'); await ann.wait_for_selector('#account-dialog[open]')
+            # 8. App header: logo + User nav, sticks to the top when the page scrolls
+            hdr = await ann.evaluate("""() => { const h = document.querySelector('#app-header'), r0 = h.getBoundingClientRect().top;
+              window.scrollTo(0, 600); const r1 = h.getBoundingClientRect().top; window.scrollTo(0, 0);
+              return { logo: !!h.querySelector('.ds-logo[data-variant=symbol]'), nav: !!h.querySelector('#user-nav'), r0, r1, h: h.getBoundingClientRect().height }; }""")
+            check('App header: symbol logo + User nav, 40 from the top, sticks at 0 on scroll, 64 high', hdr['logo'] and hdr['nav'] and hdr['r0'] == 40 and hdr['r1'] == 0 and hdr['h'] == 64, hdr)
+            check('greets the user by the first part of the email', (await ann.inner_text('.app-title')).strip() == 'Hey, Ann')
+
+            # 9. Account page: name, sign-in method, data
+            await ann.click('#user-menu-btn'); await ann.click('#menu-account'); await ann.wait_for_url('**/account'); await ann.wait_for_selector('#profile')
+            check('Account page: three cards and the menu', await ann.locator('.acct-card').count() == 3 and await ann.locator('.acct-menu-item').count() == 3)
+            check('email is shown locked', await ann.eval_on_selector('#email', 'e => e.disabled && e.value') == 'ann@example.com')
+            await ann.fill('#first-name', 'Annabel'); await ann.fill('#last-name', 'Lee'); await ann.click('#profile-save')
+            await ann.wait_for_selector('#ds-toast.visible', timeout=4000)
+            await ann.wait_for_timeout(300); await ann.click('#user-menu-btn'); await ann.wait_for_selector('.ds-user-name')
+            check('the first name reaches the user menu', (await ann.inner_text('.ds-user-name')).strip() == 'Annabel', await ann.inner_text('.ds-user-name'))
+            await ann.keyboard.press('Escape'); await ann.wait_for_timeout(300)
+            # picture: upload a PNG, the avatar turns into the image; delete asks first
+            png = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAEklEQVR4nGP4z8CAFWEXHbQSACj/P8Fu7N9hAAAAAElFTkSuQmCC')
+            await ann.set_input_files('#avatar-file', files=[{'name': 'me.png', 'mimeType': 'image/png', 'buffer': png}])
+            await ann.wait_for_selector('.acct-avatar-row .ds-avatar.is-image img', timeout=5000)
+            check('uploaded picture shows in the avatar and in the user menu', await ann.locator('.ds-user-trigger .ds-avatar.is-image img').count() == 1)
+            await ann.click('#avatar-delete'); await ann.wait_for_selector('#confirm-modal[open]')
+            check('deleting the picture asks first', 'picture' in await ann.inner_text('#confirm-modal .ds-modal-title'))
+            await ann.click('#confirm-delete'); await ann.wait_for_selector('.acct-avatar-row .ds-avatar:not(.is-image)', timeout=4000)
+            # sign-in method: set a password (either-or with codes)
+            check('sign-in code is on by default', await ann.get_attribute('#toggle-code', 'aria-checked') == 'true' and await ann.get_attribute('#toggle-password', 'aria-checked') == 'false')
+            await ann.click('#toggle-password')
+            check('turning Password on shows Password + Repeat password + Save password, code turns off',
+                  await ann.locator('#pw-save').count() == 1 and await ann.get_attribute('#toggle-code', 'aria-checked') == 'false')
+            await ann.fill('#pw-a', 'correct-horse'); await ann.fill('#pw-b', 'correct-hors'); await ann.click('#pw-save')
+            check('mismatched passwords are refused', "don't match" in await ann.inner_text('#security-error'))
+            await ann.fill('#pw-b', 'correct-horse'); await ann.click('#pw-save'); await ann.wait_for_selector('#pw-change', timeout=4000)
+            check('with a password set: Current + New password + Change password', await ann.locator('#pw-change').count() == 1)
+            # sign out and back in with the password
+            await ann.click('#user-menu-btn'); await ann.click('#menu-signout'); await ann.wait_for_url('**/login', timeout=5000)
+            await ann.fill('input[name=email]', 'ann@example.com'); await ann.click('button'); await ann.wait_for_selector('#pw-submit')
+            check('an account with a password is asked for it at sign-in', True)
+            await ann.fill('input[name=password]', 'wrong-one-here'); await ann.click('#pw-submit'); await ann.wait_for_selector('#pw-error')
+            await ann.fill('input[name=password]', 'correct-horse'); await ann.click('button'); await ann.wait_for_selector('#user-nav', timeout=8000)
+            check('the right password signs in', '/login' not in ann.url)
+            # back to sign-in codes
+            await ann.goto(BASE + '/account'); await ann.wait_for_selector('#security'); await ann.wait_for_timeout(400)
+            await ann.click('#toggle-code'); await ann.click('#signin-save'); await ann.wait_for_function("() => document.querySelector('#toggle-code').getAttribute('aria-checked') === 'true' && !document.querySelector('#signin-save')")
+            check('switching back to codes: Save changes, then no password form', await ann.locator('#pw-form').count() == 0)
+
+            # 10. delete my data (account and profile stay), then delete the account
             await ann.click('#delete-data-btn'); await ann.wait_for_selector('#confirm-modal[open]', timeout=3000)
             check('delete data asks first', (await ann.inner_text('#confirm-modal .ds-modal-title')).strip() == 'Are you sure you want to delete all your data?')
             def rows_by_user():
                 c = {}
                 for r in state()['rows']: c[r['user_id']] = c.get(r['user_id'], 0) + 1
                 return c
-            ann_rows = lambda: [(r['collection'], r['updated_at']) for r in state()['rows'] if r['user_id'].startswith('u-616e6e')]
-            before = rows_by_user(); ann_before = ann_rows()
-            await ann.click('#confirm-delete'); await ann.wait_for_load_state('load'); await ann.wait_for_selector('#user-nav', timeout=8000); await ann.wait_for_timeout(500)
-            after = rows_by_user(); ann_after = ann_rows()
-            # everything of Ann's is gone; the page then starts her over with a fresh current-year doc, as for a new account
-            check('delete data: that user\'s rows are gone (only a fresh year doc), the other user\'s untouched, still signed in',
-                  all(c == 'years' for c, _ in ann_after) and len(ann_after) <= 1 and not set(ann_after) & set(ann_before)
-                  and all(after.get(u) == n for u, n in before.items() if not u.startswith('u-616e6e')) and '/login' not in ann.url, [ann_before, ann_after, ann.url])
-            await ann.click('#user-menu-btn'); await ann.click('#menu-account'); await ann.wait_for_selector('#account-dialog[open]')
-            check('greets the user by the first part of the email', (await ann.inner_text('.app-title')).strip() == 'Hey, Ann')
-            await ann.click('#delete-account-btn'); await ann.wait_for_selector('#confirm-modal[open]', timeout=3000)
+            ann_rows = lambda: [(r['collection'], r['doc_id']) for r in state()['rows'] if r['user_id'].startswith('u-616e6e')]
+            before = rows_by_user()
+            await ann.click('#confirm-delete'); await ann.wait_for_selector('#ds-toast.visible', timeout=5000); await ann.wait_for_timeout(300)
+            after = rows_by_user()
+            check('delete data: only the profile settings are left, the other user untouched, still signed in',
+                  ann_rows() == [('settings', 'profile')] and all(after.get(u) == n for u, n in before.items() if not u.startswith('u-616e6e')) and '/login' not in ann.url, [ann_rows(), ann.url])
+            check('Delete account is off until the box is ticked', await ann.eval_on_selector('#delete-account-btn', 'e => e.disabled'))
+            await ann.click('.ds-check'); await ann.click('#delete-account-btn'); await ann.wait_for_selector('#confirm-modal[open]', timeout=3000)
             check('delete account asks first', (await ann.inner_text('#confirm-modal .ds-modal-title')).strip() == 'Are you sure you want to delete your account?')
             await ann.click('#confirm-delete'); await ann.wait_for_url('**/login', timeout=5000)
-            check('delete account: signed out, key gone', len(state()['keys']) == 1, state()['keys'])
+            check('delete account: signed out, key and rows gone', len(state()['keys']) == 1 and not ann_rows(), state()['keys'])
             await pg.click('#user-menu-btn'); await pg.click('#menu-signout'); await pg.wait_for_url('**/login', timeout=5000)
             check('sign-out returns to login', True)
             await b.close()

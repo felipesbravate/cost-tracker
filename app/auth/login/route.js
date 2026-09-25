@@ -15,6 +15,14 @@ export async function POST(request) {
   const form = await request.formData();
   const email = cleanEmail(form.get('email'));
   if (!email) return back('/login');
+  const secure = deps.appOrigin.startsWith('https:');
+  // Accounts that chose a password (Account > Security) get the password step and no code, unless they ask for a
+  // code ("Forgot your password?"). This tells a visitor that an address uses a password; the tracker is
+  // invite-only, so that is accepted.
+  if (!form.get('send_code') && (await deps.accounts.methodForEmail(email).catch(() => 'code')) === 'password') {
+    (await cookies()).set(EMAIL_COOKIE, email, emailCookieOptions(secure));
+    return back('/login?step=password');
+  }
   const ip = (request.headers.get('x-forwarded-for') || 'unknown').split(',')[0].trim();
   if (deps.loginLimiter.take(`ip:${ip}`) && deps.loginLimiter.take(`em:${email}`)) {
     const sb = await authClient();
@@ -23,6 +31,6 @@ export async function POST(request) {
     if (error) console.error('[login] sign-in email failed:', error.status, error.message);
     else console.log('[login] sign-in code requested');
   }
-  (await cookies()).set(EMAIL_COOKIE, email, emailCookieOptions(deps.appOrigin.startsWith('https:')));
+  (await cookies()).set(EMAIL_COOKIE, email, emailCookieOptions(secure));
   return back('/login?step=code');
 }

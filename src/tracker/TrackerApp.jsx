@@ -2,11 +2,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import '../ui/okara.css';
 import '../ui/shell.css';
-import { Button, Toast, useToast } from '../ui/index.js';
+import { AppHeader, Button, Toast, useToast } from '../ui/index.js';
 import { db, getMe } from './api.js';
 import { AccountNav, firstNameOf } from './AccountBar.jsx';
 import { AddPanel } from './AddPanel.jsx';
 import { useConfirm } from './ConfirmModal.jsx';
+import { useProfile } from './profile.js';
 import { BudgetPanel } from './BudgetPanel.jsx';
 import { ExpenseStrip, HeroLeft, TrackerCard, TrendChart, YearOverYear } from './Dashboard.jsx';
 import { MONTH_ABBR, budgetDefaultDocId, createModel, currentYearLabel, parseAmount, yearsFromDocs } from './model.js';
@@ -33,6 +34,7 @@ export default function TrackerApp() {
   const [bd, setBd] = useState({ type: 'Fixed', group: 'Fixed' });
   const [tip, setTip] = useState(null);
   const [confirmModal, confirm] = useConfirm();
+  const profile = useProfile(me);
   const [addPanel, setAddPanel] = useState({ open: false, preset: { type: 'expense', group: 'Fixed' } });
   const [pendingYear, setPendingYear] = useState(null);
   const [monthBudget, setMonthBudget] = useState(null); // { yearIdx, monthIdx } while "Adjust month's budget" is open
@@ -49,7 +51,12 @@ export default function TrackerApp() {
     getMe().then((m) => {
       if (m.status === 'pending') location.href = '/pending';
       else if (m.status === 'blocked') location.href = '/blocked';
-      else setMe(m);
+      else {
+        setMe(m);
+        // Account > Import data lands here with ?add=1: open the Add panel (upload a spreadsheet or documents).
+        const q = new URLSearchParams(location.search);
+        if (q.get('add') === '1') { setAddPanel((p) => ({ ...p, open: true })); history.replaceState(null, '', location.pathname); }
+      }
     }).catch(() => {});
     const offs = COLLECTIONS.map((name) => db.collection(name).onSnapshot((snap) => {
       const docs = docsOf(snap);
@@ -280,11 +287,12 @@ export default function TrackerApp() {
   if (!me) return null;
   return (
     <>
+      <div className="app-top-gap" />
+      <AppHeader><AccountNav me={me} profile={profile} /></AppHeader>
       <div className={'wrap' + (addingYear ? ' is-adding-year' : '')}>
         <header className="top">
-          <h1 className="app-title">{`Hey, ${firstNameOf(me.email)}`}</h1>
-          <div className="app-sub">Ready to see where you stand today? Track your spending, investments, and savings for the month.</div>
-          <AccountNav me={me} confirm={confirm} />
+          <h1 className="app-title">{`Hey, ${profile.name}`}</h1>
+          <div className="app-sub">Ready to see where you stand today? Track your spending and savings for the month.</div>
         </header>
         <YearNav model={model} yearIdx={yearIdx} monthIdx={monthIdx} onYear={selectYear} onMonth={selectMonth} canSave onAddingChange={setAddingYear}
           onAddYear={(label, currency) => setPendingYear({ label, currency })} onDeleteYear={askDeleteYear} />

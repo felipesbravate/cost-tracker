@@ -6,7 +6,7 @@ import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { dirname, extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { handle, memoryProfiles, memoryUsage, pageAccess } from '../src/lib/api.js';
+import { handle, memoryAccounts, memoryProfiles, memoryUsage, pageAccess } from '../src/lib/api.js';
 import { Vault, memoryStores } from '../src/lib/vault.js';
 import { RateLimiter, parseAdminEmails } from '../src/lib/security.js';
 import { securityHeaders } from '../src/lib/headers.js';
@@ -25,6 +25,7 @@ const deps = {
   admins: parseAdminEmails(process.env.ADMIN_EMAILS || 'admin@example.com'),
   appOrigin: ORIGIN, limiter: new RateLimiter(60, 60_000), dailyReadCap: Number(process.env.DAILY_READ_CAP || 50),
 };
+deps.accounts = memoryAccounts(deps.profiles);
 const MIME = { '.js': 'text/javascript', '.css': 'text/css', '.html': 'text/html' };
 const cookieUser = (h) => { const m = /(?:^|; )mock_user=([^;]+)/.exec(h.cookie || ''); if (!m) return null; const email = decodeURIComponent(m[1]).toLowerCase(); return { id: 'u-' + Buffer.from(email).toString('hex').slice(0, 24), email }; };
 const readBody = (req) => new Promise((res, rej) => { const c = []; let n = 0; req.on('data', (d) => { n += d.length; if (n > 12e6) { rej(new Error('too big')); req.destroy(); } else c.push(d); }); req.on('end', () => res(Buffer.concat(c).toString('utf8'))); req.on('error', rej); });
@@ -52,15 +53,25 @@ export const server = createServer(async (req, res) => {
     }
     if (path === '/auth/signout' && req.method === 'POST') return send(res, 200, '{}', { 'content-type': 'application/json', 'set-cookie': 'mock_user=; Path=/; Max-Age=0' });
     if (path === '/login') {
-      if (req.method === 'POST') { const email = new URLSearchParams(await readBody(req)).get('email') || ''; return send(res, 303, '', { location: '/', 'set-cookie': `mock_user=${encodeURIComponent(email)}; Path=/; HttpOnly; SameSite=Lax` }); }
+      if (req.method === 'POST') {
+        const f = new URLSearchParams(await readBody(req)); const email = (f.get('email') || '').toLowerCase();
+        const signIn = () => send(res, 303, '', { location: '/', 'set-cookie': `mock_user=${encodeURIComponent(email)}; Path=/; HttpOnly; SameSite=Lax` });
+        // Accounts with a password: the mock asks for it on the same page (the real flow has a separate step).
+        if (!f.get('send_code') && (await deps.accounts.methodForEmail(email)) === 'password') {
+          if (f.has('password')) return (await deps.accounts.checkPassword(email, f.get('password'))) ? signIn()
+            : send(res, 200, `<!doctype html><title>Enter your password</title><p id="pw-error">That password didn't work.</p><form method="post" action="/login"><input type="hidden" name="email" value="${email}"><input name="password" type="password"> <button>Sign in</button></form>`, { 'content-type': 'text/html' });
+          return send(res, 200, `<!doctype html><link rel="icon" href="data:,"><title>Enter your password</title><h1>Enter your password</h1><form method="post" action="/login"><input type="hidden" name="email" value="${email}"><input name="password" type="password" aria-label="Password"> <button id="pw-submit">Sign in</button></form>`, { 'content-type': 'text/html' });
+        }
+        return signIn();
+      }
       return send(res, 200, '<!doctype html><link rel="icon" href="data:,"><title>Sign in</title><form method="post" action="/login"><label>Email <input name="email" type="email" required></label> <button>Sign in (mock)</button></form>', { 'content-type': 'text/html' });
     }
     if (path === '/pending') return send(res, 200, '<!doctype html><link rel="icon" href="data:,"><title>Pending</title><h1>Waiting for approval</h1><p>An administrator has to approve your account before you can use the tracker.</p>', { 'content-type': 'text/html' });
-    if (path === '/') {
+    if (path === '/' || path === '/account') {
       const access = await pageAccess(user, deps);
       if (access === 'login') return send(res, 303, '', { location: '/login' });
       if (access !== 'ok') return send(res, 303, '', { location: '/pending' });
-      return proxy(req, res, '/' + url.search);
+      return proxy(req, res, path + url.search);
     }
     if (path === '/__test/state' && process.env.MOCK_TEST_ENDPOINTS === '1') {
       return send(res, 200, JSON.stringify({ aiCalls: state.aiCalls.map((c) => ({ prompt: c.prompt.slice(0, 4000), images: (c.images || []).length })), rows: [...stores.docMap.values()], keys: [...stores.keyMap.keys()] }), { 'content-type': 'application/json' });

@@ -6,6 +6,7 @@ import { loadMasterKeys } from '../lib/keyring.js';
 import { RateLimiter, parseAdminEmails } from '../lib/security.js';
 import { supabaseStores } from '../lib/supabase-stores.js';
 import { Vault } from '../lib/vault.js';
+import { supabaseAccounts } from './accounts.js';
 
 function need(name) {
   const v = process.env[name];
@@ -21,6 +22,7 @@ export function getDeps() {
   cached = {
     vault: new Vault({ master: loadMasterKeys(process.env), keys: stores.keys, docs: stores.docs }),
     profiles: stores.profiles,
+    accounts: supabaseAccounts(sb, { url: need('SUPABASE_URL'), anonKey: need('SUPABASE_ANON_KEY'), profiles: stores.profiles }),
     usage: stores.usage,
     // Optional: without an API key the app runs normally and document reading reports "not configured".
     ai: process.env.ANTHROPIC_API_KEY

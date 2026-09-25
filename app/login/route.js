@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { codeHtml, loginHtml } from '../../src/lib/pages.js';
+import { codeHtml, loginHtml, passwordHtml } from '../../src/lib/pages.js';
 import { securityHeaders } from '../../src/lib/headers.js';
 import { EMAIL_COOKIE, cleanEmail } from '../../src/lib/otp-login.js';
 export const dynamic = 'force-dynamic';
@@ -16,6 +16,11 @@ export async function GET(request) {
     const msg = q.get('error') === 'code' ? "That code didn't work. Check it, or start again to get a new one (codes expire)."
       : q.get('error') === 'limit' ? 'Too many attempts. Wait a few minutes and start again.' : undefined;
     return page(codeHtml({ email, message: msg }));
+  }
+  if (q.get('step') === 'password' && email) {
+    const msg = q.get('error') === 'password' ? "That password didn't work. Try again, or get a sign-in code instead."
+      : q.get('error') === 'limit' ? 'Too many attempts. Wait a few minutes and start again.' : undefined;
+    return page(passwordHtml({ email, message: msg }));
   }
   // Old emailed links still land on /auth/callback, which sends failures here with ?error=1.
   const msg = q.get('error') ? 'That sign-in link did not work. Enter your email to get a sign-in code instead.' : undefined;

@@ -11,7 +11,8 @@ export { Card, Divider, KpiCard, ExpenseCard, Meter, BreakdownRow, ProgressBar }
 export { Avatar, MenuList, UserMenu, Notification, NotificationItem, UserNav, useDismiss } from './UserNav.jsx';
 export { Toast, useToast } from './Toast.jsx';
 export { Dropdown } from './Dropdown.jsx';
-export { Field, FieldGroup } from './Field.jsx';
+export { Field, FieldGroup, Input } from './Field.jsx';
+export { Logo, Toggle, Checkbox, AppHeader } from './Brand.jsx';
 export { PanelHeader } from './Panel.jsx';
 export { Modal, Illustration } from './Modal.jsx';
 export * as illustrations from './illustrations.js';

@@ -25,10 +25,10 @@ export function RoundButton({ icon, size, variant, active, className, label, typ
 }
 
 // Action link (DS 106:3611). size: small (default, 12px) | medium (14px). Optional leading 12px icon.
-export function ActionLink({ icon, size, className, children, type = 'button', ...rest }) {
-  return (
-    <button type={type} className={cx('ds-action-link', size === 'medium' && 'medium', className)} {...rest}>
-      {icon && <Icon icon={icon} size={12} />}{children}
-    </button>
-  );
+// With `href` it is a link (<a>), otherwise a button.
+export function ActionLink({ icon, size, className, children, type = 'button', href, ...rest }) {
+  const cls = cx('ds-action-link', size === 'medium' && 'medium', className);
+  const inner = <>{icon && <Icon icon={icon} size={12} />}{children}</>;
+  if (href) return <a href={href} className={cls} {...rest}>{inner}</a>;
+  return <button type={type} className={cls} {...rest}>{inner}</button>;
 }

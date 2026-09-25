@@ -45,6 +45,7 @@ export function supabaseStores(sb) {
     },
     profiles: {
       async get(/** @type {string} */ u) { return ok(await sb.from('profiles').select('*').eq('user_id', u).maybeSingle()); },
+      async byEmail(/** @type {string} */ e) { return ok(await sb.from('profiles').select('user_id,email').eq('email', String(e).toLowerCase()).limit(1).maybeSingle()); },
       async upsert(/** @type {any} */ p) { ok(await sb.from('profiles').upsert({ user_id: p.user_id, email: p.email }, { onConflict: 'user_id', ignoreDuplicates: true })); },
       async list() { return ok(await sb.from('profiles').select('*').order('created_at', { ascending: false })) || []; },
       async setStatus(/** @type {string} */ u, /** @type {string} */ s) { ok(await sb.from('profiles').update({ status: s }).eq('user_id', u)); },

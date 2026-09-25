@@ -2,7 +2,7 @@
 // Framework-agnostic API. Both the Next.js route handlers and the mock dev server call `handle`.
 //   handle(req, deps) -> { status, body }
 // req  : { method, path (no query), headers (lower-case keys), body (parsed JSON or undefined), user ({id,email}|null) }
-// deps : { vault, profiles, usage, ai, admins, appOrigin, limiter, dailyReadCap }
+// deps : { vault, profiles, usage, ai, admins, appOrigin, limiter, dailyReadCap, accounts? }
 import { effectiveStatus, passesCsrf, safeError } from './security.js';
 import { VaultError } from './vault.js';
 import { validateImportBatch } from './import-commit.js';
@@ -101,17 +101,45 @@ export async function handle(req, deps) {
     }
 
     // ---- data erase: every document and the data key go, the account stays approved (a fresh key is made on
-    // the next write) ----
+    // the next write). ----
+    // Account settings (name, picture: the `settings` collection) are kept: they are re-saved under the new key.
     if (method === 'DELETE' && path === '/api/me/data') {
+      const keep = await deps.vault.list(user.id, 'settings');
       await deps.vault.eraseUser(user.id);
+      for (const d of keep) await deps.vault.set(user.id, 'settings', d.id, d.data);
       return json(200, { erased: true });
     }
 
-    // ---- account erase (crypto-shredding) ----
+    // ---- sign-in method: email code (default) or password, one or the other (Account > Security) ----
+    if (path === '/api/account/sign-in') {
+      if (!deps.accounts) return json(501, { error: { code: 'not_available', message: 'Passwords are not available on this server' } });
+      if (method === 'GET') return json(200, { method: await deps.accounts.getMethod(user) });
+      if (method === 'POST') {
+        if (!deps.limiter.take(`pw:${user.id}`)) return json(429, { error: { code: 'rate_limited', message: 'Too many requests, slow down' } });
+        const b = req.body || {};
+        if (b.method === 'code') { await deps.accounts.useCode(user); return json(200, { method: 'code' }); }
+        if (b.method !== 'password') return json(400, { error: { code: 'bad_input', message: 'Unknown sign-in method' } });
+        const pwErr = passwordProblem(b.password);
+        if (pwErr) return json(400, { error: { code: 'weak_password', message: pwErr } });
+        // Changing an existing password needs the current one; switching from codes to a password doesn't.
+        if ((await deps.accounts.getMethod(user)) === 'password') {
+          if (typeof b.current !== 'string' || !(await deps.accounts.checkPassword(user.email, b.current))) {
+            return json(400, { error: { code: 'wrong_password', message: 'The current password is not right' } });
+          }
+        }
+        await deps.accounts.setPassword(user, b.password);
+        return json(200, { method: 'password' });
+      }
+      return json(405, { error: { code: 'bad_method', message: 'Method not allowed' } });
+    }
+
+    // ---- account erase (crypto-shredding): data and key go; with account support the login is deleted too
+    // (profile, key and documents cascade), otherwise the account is blocked ----
     if (method === 'DELETE' && path === '/api/me') {
       await deps.vault.eraseUser(user.id);
-      await deps.profiles.setStatus(user.id, 'blocked');
       profileCache(deps).delete(user.id);
+      if (deps.accounts) { await deps.accounts.deleteUser(user); return json(200, { erased: true, deleted: true }); }
+      await deps.profiles.setStatus(user.id, 'blocked');
       return json(200, { erased: true });
     }
 
@@ -159,6 +187,33 @@ export async function pageAccess(user, deps) {
 }
 
 /** In-memory profile/usage stores for tests + mock server. */
+/** Password rules: 8 to 72 characters (bcrypt reads 72 bytes at most). @param {unknown} p */
+export function passwordProblem(p) {
+  if (typeof p !== 'string' || p.length < 8) return 'Use at least 8 characters';
+  if (Buffer.byteLength(p) > 72) return 'Use at most 72 characters';
+  return null;
+}
+
+/**
+ * Accounts (sign-in method and password). In production: Supabase auth admin (src/server/deps.js).
+ * { getMethod(user), methodForEmail(email), setPassword(user, pw), checkPassword(email, pw), useCode(user), deleteUser(user) }
+ * In memory for tests and the mock server; `m` maps email -> { method, password, userId }.
+ */
+export function memoryAccounts(/** @type {any} */ profiles) {
+  /** @type {Map<string, any>} */ const m = new Map();
+  const rec = (/** @type {string} */ email) => m.get(String(email || '').toLowerCase()) || { method: 'code' };
+  return {
+    m,
+    async getMethod(/** @type {any} */ u) { return rec(u.email).method; },
+    async methodForEmail(/** @type {string} */ email) { return rec(email).method; },
+    async setPassword(/** @type {any} */ u, /** @type {string} */ pw) { m.set(u.email.toLowerCase(), { method: 'password', password: pw, userId: u.id }); },
+    async checkPassword(/** @type {string} */ email, /** @type {string} */ pw) { const r = rec(email); return r.method === 'password' && r.password === pw; },
+    async useCode(/** @type {any} */ u) { m.set(u.email.toLowerCase(), { method: 'code', userId: u.id }); },
+    // Deleting the login cascades to the profile, as in the database.
+    async deleteUser(/** @type {any} */ u) { m.delete(u.email.toLowerCase()); if (profiles && profiles.remove) await profiles.remove(u.id); },
+  };
+}
+
 export function memoryProfiles() {
   /** @type {Map<string, any>} */ const m = new Map();
   return {
@@ -166,6 +221,7 @@ export function memoryProfiles() {
     async upsert(p) { if (!m.has(p.user_id)) m.set(p.user_id, { created_at: new Date().toISOString(), ...p }); },
     async list() { return [...m.values()]; },
     async setStatus(id, status) { const p = m.get(id); if (p) p.status = status; },
+    async remove(id) { m.delete(id); },
   };
 }
 export function memoryUsage() {

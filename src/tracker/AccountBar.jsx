@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Notification, NotificationItem, UserMenu, UserNav } from '../ui/index.js';
 import { signOut as signOutIcon } from '../ui/icons.js';
-import { deleteMe, deleteMyData, listUsers, setUserStatus, signOut } from './api.js';
+import { listUsers, setUserStatus, signOut } from './api.js';
 
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -14,12 +14,12 @@ export function firstNameOf(email) {
 }
 
 // User nav (DS 230:618) in the page header: notifications (for an admin: accounts waiting for approval) and the
-// user menu (Account, Admin for admins, Sign out). `confirm` = the page's useConfirm (one confirm modal per page).
-export function AccountNav({ me, confirm }) {
+// user menu (Account page, Admin for admins, Sign out). `profile` (useProfile) gives the name and picture.
+export function AccountNav({ me, profile }) {
   const [open, setOpen] = useState(null); // 'notif' | 'user' | null
   const [pending, setPending] = useState([]);
   const [busy, setBusy] = useState({});
-  const [dialog, setDialog] = useState(null); // 'account' | 'admin'
+  const [dialog, setDialog] = useState(null); // 'admin'
   const close = useCallback(() => setOpen(null), []);
 
   const loadPending = useCallback(async () => {
@@ -34,9 +34,9 @@ export function AccountNav({ me, confirm }) {
     try { await setUserStatus(u.id, 'approve'); setPending((p) => p.filter((x) => x.id !== u.id)); }
     finally { setBusy((b) => ({ ...b, [u.id]: false })); }
   };
-  const name = firstNameOf(me.email);
+  const name = (profile && profile.name) || firstNameOf(me.email);
   const items = [
-    { key: 'account', id: 'menu-account', label: 'Account', onSelect: () => { setOpen(null); setDialog('account'); } },
+    { key: 'account', id: 'menu-account', label: 'Account', onSelect: () => { setOpen(null); location.href = '/account'; } },
     ...(me.isAdmin ? [{ key: 'admin', id: 'menu-admin', label: 'Admin', onSelect: () => { setOpen(null); setDialog('admin'); } }] : []),
     { key: 'signout', id: 'menu-signout', label: 'Sign out', icon: signOutIcon, onSelect: () => signOut().then(() => { location.href = '/login'; }) },
   ];
@@ -58,9 +58,8 @@ export function AccountNav({ me, confirm }) {
             })
             : <div className="ds-notif-item ds-notif-empty"><div className="ds-notif-text">No notifications.</div></div>}
         </Notification>
-        <UserMenu name={name} open={open === 'user'} onClose={close} onToggle={() => setOpen((o) => (o === 'user' ? null : 'user'))} items={items} />
+        <UserMenu name={name} image={profile && profile.image} open={open === 'user'} onClose={close} onToggle={() => setOpen((o) => (o === 'user' ? null : 'user'))} items={items} />
       </UserNav>
-      {dialog === 'account' && <AccountDialog me={me} confirm={confirm} onClose={() => setDialog(null)} />}
       {dialog === 'admin' && <UsersDialog onClose={() => { setDialog(null); loadPending(); }} />}
     </>
   );
@@ -70,33 +69,6 @@ function useModal(onClose) {
   const ref = useRef(null);
   useEffect(() => { ref.current?.showModal(); }, []);
   return [ref, { onClose, onCancel: onClose }];
-}
-
-// Account: who is signed in, deleting all data (the account stays) and deleting the account. Both ask first in
-// the confirm modal.
-function AccountDialog({ me, confirm, onClose }) {
-  const [ref, handlers] = useModal(onClose);
-  const deleteData = () => confirm({
-    title: 'Are you sure you want to delete all your data?',
-    description: 'All your years, entries and budgets will be permanently deleted. Your account stays, so you can start again.',
-    onConfirm: async () => { await deleteMyData(); location.reload(); },
-  });
-  const deleteAccount = () => confirm({
-    title: 'Are you sure you want to delete your account?',
-    description: `All your data will be permanently deleted and you'll be signed out. ${me.email} won't be able to sign in again.`,
-    onConfirm: async () => { await deleteMe(); await signOut(); location.href = '/login'; },
-  });
-  return (
-    <dialog ref={ref} className="ct-dialog" id="account-dialog" {...handlers}>
-      <h2 className="ct-dialog-title">Account</h2>
-      <p className="ct-dialog-text">{`Signed in as ${me.email}`}</p>
-      <div className="ct-dialog-actions">
-        <Button variant="secondary" id="delete-data-btn" onClick={deleteData}>Delete all my data</Button>
-        <Button variant="secondary" id="delete-account-btn" onClick={deleteAccount}>Delete account</Button>
-        <Button variant="tertiary" onClick={() => ref.current?.close()}>Close</Button>
-      </div>
-    </dialog>
-  );
 }
 
 // Admin: every account, with Approve and Block.

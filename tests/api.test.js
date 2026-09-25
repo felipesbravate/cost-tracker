@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
-import { handle, memoryProfiles, memoryUsage } from '../src/lib/api.js';
+import { handle, memoryAccounts, memoryProfiles, memoryUsage, passwordProblem } from '../src/lib/api.js';
 import { Vault, memoryStores } from '../src/lib/vault.js';
 import { RateLimiter, parseAdminEmails, passesCsrf, passesFormCsrf, effectiveStatus } from '../src/lib/security.js';
 
@@ -97,6 +97,51 @@ test('data erase removes every document but keeps the account usable', async () 
   assert.equal(JSON.stringify(after.body).includes('"a":1'), false);
   assert.equal((await call('GET', '/api/me', boss)).body.status, 'approved');
   assert.equal((await call('POST', '/api/db/entries', boss, { b: 2 })).status < 300, true);
+});
+
+test('data erase keeps account settings (name, picture)', async () => {
+  const { call } = setup();
+  await call('PUT', '/api/db/settings/profile', boss, { firstName: 'Bo', lastName: 'Ss' });
+  await call('POST', '/api/db/entries', boss, { a: 1 });
+  assert.equal((await call('DELETE', '/api/me/data', boss)).status, 200);
+  const settings = (await call('GET', '/api/db/settings', boss)).body.docs;
+  assert.deepEqual(settings.map((d) => [d.id, d.data.firstName]), [['profile', 'Bo']]);
+  assert.equal((await call('GET', '/api/db/entries', boss)).body.docs.length, 0);
+});
+
+test('sign-in method: code by default, set a password, change it with the current one, back to codes', async () => {
+  const { call, deps } = setup();
+  deps.accounts = memoryAccounts(deps.profiles);
+  assert.deepEqual((await call('GET', '/api/account/sign-in', boss)).body, { method: 'code' });
+  assert.equal((await call('POST', '/api/account/sign-in', boss, { method: 'password', password: 'short' })).body.error.code, 'weak_password');
+  assert.equal((await call('POST', '/api/account/sign-in', boss, { method: 'password', password: 'first-password' })).status, 200);
+  assert.equal(await deps.accounts.methodForEmail('BOSS@example.com'), 'password');
+  // changing needs the current password
+  assert.equal((await call('POST', '/api/account/sign-in', boss, { method: 'password', password: 'second-password' })).body.error.code, 'wrong_password');
+  assert.equal((await call('POST', '/api/account/sign-in', boss, { method: 'password', current: 'nope-nope', password: 'second-password' })).body.error.code, 'wrong_password');
+  assert.equal((await call('POST', '/api/account/sign-in', boss, { method: 'password', current: 'first-password', password: 'second-password' })).status, 200);
+  assert.equal(await deps.accounts.checkPassword('boss@example.com', 'second-password'), true);
+  assert.deepEqual((await call('POST', '/api/account/sign-in', boss, { method: 'code' })).body, { method: 'code' });
+  assert.equal(await deps.accounts.checkPassword('boss@example.com', 'second-password'), false);
+  assert.equal((await call('POST', '/api/account/sign-in', boss, { method: 'magic' })).status, 400);
+  assert.equal(passwordProblem('x'.repeat(73)), 'Use at most 72 characters');
+});
+
+test('sign-in method: 501 without account support; pending users cannot use it', async () => {
+  const { call, deps } = setup();
+  assert.equal((await call('GET', '/api/account/sign-in', boss)).status, 501);
+  deps.accounts = memoryAccounts(deps.profiles);
+  assert.equal((await call('GET', '/api/account/sign-in', ann)).status, 403);
+});
+
+test('delete account with account support: data erased and the login deleted (profile gone)', async () => {
+  const { call, deps, s } = setup();
+  deps.accounts = memoryAccounts(deps.profiles);
+  await call('POST', '/api/db/entries', boss, { a: 1 });
+  const r = await call('DELETE', '/api/me', boss);
+  assert.deepEqual(r.body, { erased: true, deleted: true });
+  assert.equal(await deps.profiles.get(boss.id), null);
+  assert.ok(![...s.docMap.values()].some((x) => x.user_id === boss.id));
 });
 
 test('helpers', () => {

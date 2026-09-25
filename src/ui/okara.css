@@ -204,11 +204,12 @@
   /* Header (Cost-tracker 211:18753 / 238:7184): "Hey, {first name}" (Display/Title, 32 SemiBold) and the line under it
      (Body/Medium/Medium, text/secondary), 8 apart after 8px of top padding; the User nav sits at the top-right corner.
      Header, Nav and Content are 40 apart. */
-  header.top{ position:relative; margin-bottom:var(--space-xl); padding-top:var(--space-xs); padding-right:240px; }
-  header.top .ds-user-nav{ position:absolute; top:0; right:0; }
+  /* Page header (211:18753): the title block, then the year/month nav 16 below the line under the title. The User nav
+     moved into the App header. */
+  header.top{ position:relative; margin-bottom:var(--space-md); }
   .app-title{ font-size:32px; font-weight:600; letter-spacing:0; line-height:normal; color:var(--ink); }
   .app-sub{ color:var(--text-secondary); font-size:14px; font-weight:500; letter-spacing:-0.14px; line-height:15.2px; margin-top:var(--space-xs); }
-  @media (max-width:600px){ header.top{ padding-right:128px; } .app-title{ font-size:24px; } }
+  @media (max-width:600px){ .app-title{ font-size:24px; } }
 
   /* ---- Buttons — matches DS "Button" component (Components page, node 4:43) exactly:
      Size=Medium/Small/Tiny × Style=Primary/Secondary/Tertiary, pulled directly from the
@@ -306,7 +307,8 @@
   /* "Add year" open (Cost-tracker 229:19777): everything but the pill fades to opacity/background (24%). */
   .wrap > header.top, .wrap > .row1, .wrap > .yoy-heading, .wrap > .yoy-sub, .wrap > .yoy, .wrap > footer.note{ transition:opacity .18s ease; }
   .wrap.is-adding-year > header.top, .wrap.is-adding-year > .row1, .wrap.is-adding-year > .yoy-heading, .wrap.is-adding-year > .yoy-sub,
-  .wrap.is-adding-year > .yoy, .wrap.is-adding-year > footer.note{ opacity:var(--opacity-background); pointer-events:none; }
+  .wrap.is-adding-year > .yoy, .wrap.is-adding-year > footer.note, body:has(.wrap.is-adding-year) .ds-app-header{ opacity:var(--opacity-background); pointer-events:none; }
+  .ds-app-header{ transition:opacity .18s ease; }
   .top-nav{ display:flex; flex-direction:column; gap:var(--space-xs); flex:1 1 auto; min-width:0; }
 
   /* ---- Year nav: underline tabs, not pills (matches Nav tabs / Tab components,
@@ -1197,3 +1199,123 @@
   .ds-modal-actions{ display:flex; justify-content:center; align-items:center; gap:var(--space-md); padding:0 var(--space-2xl); }
   .ds-modal-actions .btn-pill{ width:240px; min-width:0; flex:0 0 240px; justify-content:center; }
   @media (prefers-reduced-motion: reduce){ .ds-modal[open], .ds-modal::backdrop{ animation:none; } }
+
+  /* ---- logo_ongatu (277:670): raw brand colours, as the component paints them. ---- */
+  .ds-logo{ display:block; flex-shrink:0; }
+  .ds-logo-indigo{ fill:var(--primitive-brand-indigo); }
+  .ds-logo-mint{ fill:var(--primitive-brand-mint); }
+
+  /* ---- App header (285:600): full width, 64 high, padding space/xs space/xl, surface/body; logo left, User nav
+     right. It starts 40px below the top of the page and sticks to the top edge while the page scrolls. ---- */
+  .ds-app-header{
+    position:sticky; top:0; z-index:30; display:flex; justify-content:space-between; align-items:flex-start;
+    height:64px; background:var(--surface-body); box-sizing:border-box;
+    /* body has 40px side padding: the bar runs edge to edge, and its contents line up with the 1238px page. */
+    margin:0 calc(-1 * var(--space-xl)); padding:var(--space-xs) max(var(--space-xl), calc((100% + 2 * var(--space-xl) - 1238px) / 2));
+  }
+  .ds-app-header-logo{ display:block; border-radius:var(--radius-sm); }
+  .ds-app-header-logo:focus-visible{ outline:2px solid var(--border-focus); outline-offset:2px; }
+  .app-top-gap{ height:var(--space-xl); }
+
+  /* ---- Toggle (298:637) ---- */
+  .ds-toggle{
+    position:relative; width:38px; height:24px; flex-shrink:0; padding:0; cursor:pointer; border-radius:var(--radius-full);
+    background:var(--surface-secondary); border:1px solid var(--border-default); box-sizing:border-box;
+    transition:background-color .15s ease, border-color .15s ease;
+  }
+  .ds-toggle-knob{
+    position:absolute; top:0; left:0; width:22px; height:22px; border-radius:var(--radius-full); background:var(--surface-tertiary);
+    transition:transform .15s cubic-bezier(.2,0,0,1), background-color .15s ease;
+  }
+  .ds-toggle.is-on{ background:var(--primitive-brand-mint-light); border-color:var(--primitive-brand-mint); }
+  .ds-toggle.is-on .ds-toggle-knob{ transform:translateX(14px); background:var(--surface-dark); }
+  .ds-toggle:focus-visible{ outline:2px solid var(--border-focus); outline-offset:2px; }
+  .ds-toggle:disabled{ opacity:var(--opacity-disabled); cursor:not-allowed; }
+
+  /* ---- Checkbox (Account page 272:24091) ---- */
+  .ds-check{ display:flex; align-items:center; gap:var(--space-xs); cursor:pointer; }
+  .ds-check input{ position:absolute; opacity:0; width:1px; height:1px; pointer-events:none; }
+  .ds-check-box{
+    width:18px; height:18px; flex-shrink:0; box-sizing:border-box; border-radius:var(--radius-ty); background:var(--surface-primary);
+    border:1px solid var(--border-default); display:flex; align-items:center; justify-content:center; color:var(--text-white);
+  }
+  .ds-check input:checked + .ds-check-box{ background:var(--surface-dark); border-color:var(--surface-dark); }
+  .ds-check input:focus-visible + .ds-check-box{ outline:2px solid var(--border-focus); outline-offset:2px; }
+  .ds-check-label{ font-size:12px; font-weight:500; line-height:17px; color:var(--text-primary); }
+
+  /* ---- Input (71:1093), Size=Medium ---- */
+  .ds-input{
+    display:flex; align-items:center; gap:var(--space-xs); height:40px; padding:0 var(--space-md); box-sizing:border-box;
+    border:1px solid var(--border-default); border-radius:var(--radius-sm); background:var(--surface-primary);
+    transition:border-color .12s ease;
+  }
+  .ds-input:hover{ border-color:var(--border-hover); }
+  .ds-input:focus-within{ border-color:var(--border-focus); }
+  .ds-input input{
+    flex:1; min-width:0; border:none; outline:none; background:transparent; padding:0; font-family:inherit;
+    font-size:14px; line-height:15.2px; letter-spacing:-0.14px; font-weight:500; color:var(--text-primary);
+  }
+  .ds-input input::placeholder{ font-weight:400; color:var(--text-secondary); opacity:1; }
+  .ds-input.is-disabled{ background:var(--surface-secondary); }
+  .ds-input.is-disabled:hover{ border-color:var(--border-default); }
+  .ds-input.is-disabled input{ font-weight:400; color:var(--text-secondary); cursor:not-allowed; }
+  .ds-input svg{ color:var(--surface-tertiary); flex-shrink:0; }
+
+  /* avatar, Style=Image and the 88px Account avatar (initial in Value/XL: JetBrains Mono Medium 36). */
+  .ds-avatar.is-image{ background:var(--surface-secondary); overflow:hidden; }
+  .ds-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .ds-avatar.large{ width:88px; height:88px; font-family:'JetBrains Mono', monospace; font-size:36px; font-weight:500; line-height:normal; letter-spacing:0; }
+
+  /* ---- Account page (Ongatu 250:3399) ---- */
+  a.ds-action-link{ text-decoration:none; }
+  .acct-head{ display:flex; flex-direction:column; align-items:flex-start; gap:var(--space-xs); }
+  .acct-head .app-sub{ margin-top:0; }
+  .acct-content{ display:flex; justify-content:center; align-items:flex-start; gap:var(--space-3xl); margin-top:var(--space-2xl); }
+  .acct-menu{ position:sticky; top:88px; width:200px; flex-shrink:0; display:flex; flex-direction:column; gap:var(--space-tn); }
+  .acct-menu-item{
+    display:block; padding:var(--space-xs); border-radius:var(--radius-sm); text-decoration:none;
+    font-size:14px; font-weight:600; line-height:15.2px; letter-spacing:-0.14px; color:var(--text-secondary);
+  }
+  .acct-menu-item:hover{ color:var(--text-primary); }
+  .acct-menu-item.is-active{ padding:var(--space-sm); background:var(--surface-secondary); color:var(--text-primary); }
+  .acct-menu-item:focus-visible{ outline:2px solid var(--border-focus); outline-offset:2px; }
+  .acct-cards{ width:800px; min-width:0; display:flex; flex-direction:column; gap:var(--space-lg); }
+  .acct-card{
+    display:flex; flex-direction:column; gap:var(--space-xl); padding:var(--space-lg) var(--space-xl) var(--space-xl);
+    background:var(--surface-primary); border:1px solid var(--border-default); border-radius:var(--radius-md); scroll-margin-top:88px;
+  }
+  .acct-card-head{ display:flex; flex-direction:column; gap:var(--space-tn); }
+  .acct-card-head h2{ font-size:20px; font-weight:600; line-height:1.2; color:var(--text-primary); }
+  .acct-card-head p{ margin:0; font-size:14px; font-weight:500; line-height:15.2px; letter-spacing:-0.14px; color:var(--text-secondary); }
+  .acct-card-body{ display:flex; flex-direction:column; gap:var(--space-lg); }
+  .acct-avatar-row{ display:flex; align-items:center; gap:var(--space-md); }
+  .acct-avatar-actions{ display:flex; align-items:center; gap:var(--space-xs); }
+  .acct-form{ display:flex; flex-direction:column; gap:var(--space-sm); }
+  .acct-row{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:var(--space-md); }
+  .acct-row .field label{ margin-bottom:var(--space-xs); font-size:12px; font-weight:600; line-height:17px; letter-spacing:-0.12px; color:var(--text-secondary); }
+  .acct-actions{ display:flex; gap:var(--space-xs); }
+  .acct-option-group{ display:flex; flex-direction:column; gap:var(--space-lg); }
+  .acct-option{ display:flex; align-items:center; gap:var(--space-xs); }
+  .acct-meta{ flex:1; min-width:0; display:flex; flex-direction:column; gap:var(--space-xs); }
+  .acct-meta h3{ font-size:16px; font-weight:600; line-height:1.2; color:var(--text-primary); }
+  .acct-meta p{ margin:0; font-size:12px; font-weight:500; line-height:17px; color:var(--text-secondary); }
+  .acct-data{ gap:var(--space-lg); }
+  .acct-data-row{ display:flex; align-items:center; gap:var(--space-xl); padding:var(--space-md); border-radius:var(--radius-sm); }
+  .acct-data-row .btn-pill{ flex-shrink:0; }
+  .acct-error{ margin:0; font-size:12px; font-weight:500; line-height:17px; color:var(--status-fail); }
+  .acct-note{ margin:0; font-size:12px; font-weight:500; line-height:17px; color:var(--text-secondary); }
+  /* Secondary buttons for destructive actions (Clear all data, delete picture): border/destructive, action/destructive
+     label or icon, as overridden on the Account page. */
+  .btn-pill.ghost.is-destructive{ border-color:var(--border-destructive); color:var(--action-destructive); }
+  .round-btn.secondary.is-destructive{ border-color:var(--border-destructive); color:var(--action-destructive); }
+  .round-btn.secondary.is-destructive:disabled{ opacity:var(--opacity-disabled); cursor:not-allowed; }
+  @media (max-width:1100px){
+    .acct-content{ flex-direction:column; align-items:stretch; gap:var(--space-lg); }
+    .acct-menu{ position:static; width:auto; flex-direction:row; flex-wrap:wrap; }
+    .acct-cards{ width:auto; }
+  }
+  @media (max-width:640px){
+    .acct-card{ padding:var(--space-lg) var(--space-md) var(--space-md); }
+    .acct-row{ grid-template-columns:1fr; }
+    .acct-data-row{ flex-direction:column; align-items:flex-start; gap:var(--space-md); padding:var(--space-md) 0; }
+  }

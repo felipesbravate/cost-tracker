@@ -8,8 +8,9 @@ import {
   ActionLink, BreakdownRow, Button, Card, Divider, Dropdown, EntriesTooltip, EntryCounter, ExpenseCard, Field, FieldGroup,
   KpiCard, Label, Meter, MonthSelector, PanelHeader, RoundButton, Segments, Toast, TooltipEntryItem, YearAddButton, YearTab,
   Avatar, MenuList, Notification, NotificationItem, ProgressBar, UserMenu, UserNav, Modal, Illustration, illustrations,
+  Logo, Toggle, Checkbox, AppHeader, Input,
 } from '../index.js';
-import { actions, arrowStraightDown, arrowStraightUp, bell, edit, minus, plus, reload, signOut, upload, x } from '../icons.js';
+import { actions, arrowStraightDown, arrowStraightUp, bell, edit, lock, minus, plus, reload, signOut, upload, x } from '../icons.js';
 
 const TOP = [{ value: 'Income', label: 'Income' }, { value: 'Investments', label: 'Savings/Investments' }, { value: 'Expenses', label: 'Expenses' }];
 const GROUPS = ['Fixed', 'Variable', 'Additional', 'Extra'].map((g) => ({ value: g, label: g }));
@@ -219,4 +220,12 @@ export const CASES = [
           <div style={{ height: 96, display: 'flex', alignItems: 'center' }}><Illustration art={a} /></div>{a.name}
         </div>))}
     </div>) },
+  { id: 'logo', render: () => <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}><Logo variant="full" height={48} /><Logo variant="symbol" height={48} /></div> },
+  { id: 'toggle', render: () => <Controlled initial={false}>{(v, s) => <div style={{ display: 'flex', gap: 16 }}><Toggle label="Off" on={false} /><Toggle label="On" on /><Toggle id="g-toggle" label="Try" on={v} onChange={s} /></div>}</Controlled> },
+  { id: 'checkbox', render: () => <Controlled initial={false}>{(v, s) => <Checkbox id="g-check" checked={v} onChange={s}>I confirm that I want to do this.</Checkbox>}</Controlled> },
+  { id: 'input', render: () => (
+    <div style={{ display: 'grid', gap: 12, width: 352 }}>
+      <Input placeholder="Label" /><Input defaultValue="Felipe" /><Input icon={lock} value="felipe@example.com" disabled readOnly />
+    </div>) },
+  { id: 'app-header', render: () => <div style={{ width: 1318, margin: '0 -40px' }}><AppHeader><UserNav><Notification unread /><UserMenu name="Felipe" items={[]} /></UserNav></AppHeader></div> },
 ];

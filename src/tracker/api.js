@@ -120,5 +120,7 @@ export const getMe = () => api('GET', '/api/me');
 export const signOut = () => fetch('/auth/signout', { method: 'POST', headers: HEADERS, credentials: 'same-origin' });
 export const deleteMe = () => api('DELETE', '/api/me');           // erase everything and close the account
 export const deleteMyData = () => api('DELETE', '/api/me/data');  // erase everything, keep the account
+export const getSignIn = () => api('GET', '/api/account/sign-in');                  // { method: 'code' | 'password' }
+export const setSignIn = (body) => api('POST', '/api/account/sign-in', body);         // { method, password?, current? }
 export const listUsers = () => api('GET', '/api/admin/users');
 export const setUserStatus = (id, act) => api('POST', '/api/admin/users/' + encodeURIComponent(id) + '/' + act);

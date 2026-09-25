@@ -18,10 +18,15 @@ export function useDismiss(open, ref, onClose) {
   }, [open, ref, onClose]);
 }
 
-// avatar (DS 221:1044), Style=Text: 40px surface/accent circle with the initial.
-export function Avatar({ name, className }) {
+// avatar (DS 221:1044): 40px circle. Style=Text: surface/accent with the initial; Style=Image: the picture, cropped
+// to the circle. `large` is the 88px avatar of the Account page (initial in Value/XL).
+export function Avatar({ name, image, large, className }) {
   const initial = (name || '?').trim().charAt(0).toUpperCase() || '?';
-  return <span className={cx('ds-avatar', className)} aria-hidden="true">{initial}</span>;
+  return (
+    <span className={cx('ds-avatar', image && 'is-image', large && 'large', className)} aria-hidden="true">
+      {image ? <img src={image} alt="" /> : initial}
+    </span>
+  );
 }
 
 // Menu of actions (Dropdown-list 182:6851, Type=Simple, made of dropdown-items 183:6858 with an optional left icon).
@@ -55,19 +60,19 @@ function usePresence(open, ms = 200) {
 // user (DS 221:1048): chevron + avatar (Hover: the pill fills action/secondary-hover). Active: the pill grows into a
 // card with the first name (text/accent), the chevron turned up, and the menu (Account, Admin, Sign out). Clicking the
 // card's top row, the avatar, outside it or Escape closes it; it shrinks back into the pill.
-export function UserMenu({ name, open, onToggle, onClose, items }) {
+export function UserMenu({ name, image, open, onToggle, onClose, items }) {
   const ref = useRef(null);
   const phase = usePresence(open);
   useDismiss(open, ref, onClose);
   return (
     <div className={cx('ds-user', phase === 'open' && 'is-open', phase === 'closing' && 'is-closing')} ref={ref}>
       <button type="button" className="ds-user-trigger" id="user-menu-btn" aria-haspopup="menu" aria-expanded={open ? 'true' : 'false'} aria-label="Account menu" onClick={onToggle}>
-        <span className="ds-user-info"><Icon icon={chevronDown} size={12} /><Avatar name={name} /></span>
+        <span className="ds-user-info"><Icon icon={chevronDown} size={12} /><Avatar name={name} image={image} /></span>
       </button>
       {phase && (
         <div className={cx('ds-user-card', phase === 'closing' && 'is-closing')} id="user-menu">
           <button type="button" className="ds-user-info" aria-label="Close account menu" onClick={onClose}>
-            <Icon icon={chevronDown} size={12} className="ds-user-chevron" /><span className="ds-user-name">{name}</span><Avatar name={name} />
+            <Icon icon={chevronDown} size={12} className="ds-user-chevron" /><span className="ds-user-name">{name}</span><Avatar name={name} image={image} />
           </button>
           <MenuList bare items={items} />
         </div>
