@@ -15,6 +15,8 @@ export function firstNameOf(email) {
 
 // User nav (DS 230:618) in the page header: notifications (for an admin: accounts waiting for approval) and the
 // user menu (Account page, Admin for admins, Sign out). `profile` (useProfile) gives the name and picture.
+// Choosing an item doesn't close the menu: it closes only from its top row (chevron, name, avatar) or a click outside.
+// Account on the Account page does nothing; Account elsewhere and Sign out load another page with the menu open.
 export function AccountNav({ me, profile }) {
   const [open, setOpen] = useState(null); // 'notif' | 'user' | null
   const [pending, setPending] = useState([]);
@@ -36,8 +38,8 @@ export function AccountNav({ me, profile }) {
   };
   const name = (profile && profile.name) || firstNameOf(me.email);
   const items = [
-    { key: 'account', id: 'menu-account', label: 'Account', onSelect: () => { setOpen(null); location.href = '/account'; } },
-    ...(me.isAdmin ? [{ key: 'admin', id: 'menu-admin', label: 'Admin', onSelect: () => { setOpen(null); setDialog('admin'); } }] : []),
+    { key: 'account', id: 'menu-account', label: 'Account', onSelect: () => { if (location.pathname !== '/account') location.href = '/account'; } },
+    ...(me.isAdmin ? [{ key: 'admin', id: 'menu-admin', label: 'Admin', onSelect: () => setDialog('admin') }] : []),
     { key: 'signout', id: 'menu-signout', label: 'Sign out', icon: signOutIcon, onSelect: () => signOut().then(() => { location.href = '/login'; }) },
   ];
   return (

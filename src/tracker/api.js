@@ -117,7 +117,10 @@ if (typeof window !== 'undefined') window.claude = { use: async (name) => (name 
 
 // ---------- account ----------
 export const getMe = () => api('GET', '/api/me');
-export const signOut = () => fetch('/auth/signout', { method: 'POST', headers: HEADERS, credentials: 'same-origin' });
+export const signOut = () => {
+  try { sessionStorage.removeItem('ongatu.profile'); } catch { /* blocked */ }
+  return fetch('/auth/signout', { method: 'POST', headers: HEADERS, credentials: 'same-origin' });
+};
 export const deleteMe = () => api('DELETE', '/api/me');           // erase everything and close the account
 export const deleteMyData = () => api('DELETE', '/api/me/data');  // erase everything, keep the account
 export const getSignIn = () => api('GET', '/api/account/sign-in');                  // { method: 'code' | 'password' }

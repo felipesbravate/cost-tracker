@@ -472,7 +472,10 @@ async def main():
             await ann.wait_for_selector('#ds-toast.visible', timeout=4000)
             await ann.wait_for_timeout(300); await ann.click('#user-menu-btn'); await ann.wait_for_selector('.ds-user-name')
             check('the first name reaches the user menu', (await ann.inner_text('.ds-user-name')).strip() == 'Annabel', await ann.inner_text('.ds-user-name'))
-            await ann.keyboard.press('Escape'); await ann.wait_for_timeout(300)
+            await ann.click('#menu-account'); await ann.wait_for_timeout(400)
+            check('choosing an item keeps the user menu open (Account on the Account page does nothing)', await ann.locator('#user-menu').count() == 1 and ann.url.endswith('/account'))
+            await ann.click('#user-menu .ds-user-info'); await ann.wait_for_timeout(400)
+            check('the menu closes from its top row', await ann.locator('#user-menu').count() == 0)
             # picture: upload a PNG, the avatar turns into the image; delete asks first
             png = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAEklEQVR4nGP4z8CAFWEXHbQSACj/P8Fu7N9hAAAAAElFTkSuQmCC')
             await ann.set_input_files('#avatar-file', files=[{'name': 'me.png', 'mimeType': 'image/png', 'buffer': png}])

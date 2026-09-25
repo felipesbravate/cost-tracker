@@ -5,12 +5,23 @@ import { useEffect, useState } from 'react';
 import { db } from './api.js';
 import { firstNameOf } from './AccountBar.jsx';
 
+// The name and picture this tab last saw are kept in sessionStorage (this tab only, gone when it closes), so going
+// between the dashboard and Account doesn't flash the initial before the picture loads.
+const CACHE = 'ongatu.profile';
+const readCache = () => { try { const v = JSON.parse(sessionStorage.getItem(CACHE) || 'null'); return v && typeof v === 'object' ? v : null; } catch { return null; } };
+const writeCache = (v) => { try { sessionStorage.setItem(CACHE, JSON.stringify(v)); } catch { /* storage full or blocked */ } };
+
 export function useProfile(me) {
-  const [p, setP] = useState({ firstName: '', lastName: '', image: null, loaded: false });
+  const [p, setP] = useState(() => {
+    const c = typeof window !== 'undefined' ? readCache() : null;
+    return { firstName: (c && c.firstName) || '', lastName: (c && c.lastName) || '', image: (c && c.image) || null, loaded: false };
+  });
   useEffect(() => db.collection('settings').onSnapshot((snap) => {
     const get = (id) => { const d = snap.docs.find((x) => x.id === id); return d ? d.data() : null; };
     const prof = get('profile') || {}, av = get('avatar') || {};
-    setP({ firstName: prof.firstName || '', lastName: prof.lastName || '', image: typeof av.image === 'string' ? av.image : null, loaded: true });
+    const next = { firstName: prof.firstName || '', lastName: prof.lastName || '', image: typeof av.image === 'string' ? av.image : null };
+    writeCache(next);
+    setP({ ...next, loaded: true });
   }), []);
   // The greeting and the menu use the first name when there is one, else the part of the email before the dot.
   const name = p.firstName.trim() || firstNameOf(me && me.email);
