@@ -1,11 +1,11 @@
 {
-  "_note": "Snapshot of the Okara Design System Variables (Figma file 7glNMA9d7iVJFf2CvyrzAb), read Sept 25, 2026. Values are hex or numbers; {\"alias\": name} points at a variable in Primitives. To update: re-read Figma, write this file, run `node scripts/sync-tokens.mjs` (rewrites the token block in src/ui/okara.css), then `npm test`.",
+  "_note": "Snapshot of the Okara Design System Variables (Figma file 7glNMA9d7iVJFf2CvyrzAb), read Sept 25, 2026 (Typography collection added the same day: DM Sans + Martian Mono). Values are hex or numbers; {\"alias\": name} points at a variable in Primitives. To update: re-read Figma, write this file, run `node scripts/sync-tokens.mjs` (rewrites the token block in src/ui/okara.css), then `npm test`.",
   "Primitives": {
     "neutral/page": "#eef5f4",
     "neutral/surface": "#ffffff",
     "neutral/surface-secondary": "#efeee5",
     "neutral/ink": "#16150f",
-    "neutral/ink-2": "#7b786d",
+    "neutral/ink-2": "#605d53",
     "neutral/ink-muted": "#928e80",
     "neutral/border": "#16150f",
     "brand/indigo": "#4f46e5",
@@ -20,7 +20,7 @@
     "data/green": "#17a768",
     "data/lime": "#cdd936",
     "data/red-orange": "#e2583a",
-    "data/red": "#d5393f",
+    "data/red": "#a12a2f",
     "data/ochre": "#a89412",
     "brand/mint-light": "#7be9b4",
     "data/purple-vivid": "#4b0fa5",
@@ -36,7 +36,7 @@
     "neutral/stone-300": "#cbcac5",
     "neutral/stone-325": "#cac9c0",
     "neutral/stone-350": "#acaca1",
-    "status/ochre-deep": "#a87704",
+    "status/ochre-deep": "#7a5703",
     "data/orange": "#ffba3a",
     "status/green-pale": "#e3f4ec",
     "status/red-pale": "#ffc4c6",
@@ -213,5 +213,172 @@
   "Opacity": {
     "opacity/disabled": 0.4,
     "opacity/background": 24
+  },
+  "Typography": {
+    "font/sans": "DM Sans",
+    "font/mono": "Martian Mono"
+  },
+  "TextStyles": {
+    "Display/Title": {
+      "family": "sans",
+      "weight": 600,
+      "size": 40,
+      "lineHeight": 48,
+      "letterSpacing": 0
+    },
+    "Value/XL": {
+      "family": "mono",
+      "weight": 500,
+      "size": 32,
+      "lineHeight": null,
+      "letterSpacing": 0
+    },
+    "Value/Large": {
+      "family": "mono",
+      "weight": 500,
+      "size": 20,
+      "lineHeight": null,
+      "letterSpacing": 0
+    },
+    "Value/Medium": {
+      "family": "mono",
+      "weight": 500,
+      "size": 14,
+      "lineHeight": null,
+      "letterSpacing": -4
+    },
+    "Value/Small": {
+      "family": "mono",
+      "weight": 500,
+      "size": 12,
+      "lineHeight": null,
+      "letterSpacing": -4
+    },
+    "Heading/XL": {
+      "family": "sans",
+      "weight": 600,
+      "size": 24,
+      "lineHeight": 24,
+      "letterSpacing": -1
+    },
+    "Heading/Large": {
+      "family": "sans",
+      "weight": 600,
+      "size": 20,
+      "lineHeight": 20,
+      "letterSpacing": -1
+    },
+    "Heading/Medium": {
+      "family": "sans",
+      "weight": 600,
+      "size": 16,
+      "lineHeight": 16,
+      "letterSpacing": 0
+    },
+    "Heading/Small": {
+      "family": "sans",
+      "weight": 600,
+      "size": 14,
+      "lineHeight": 14,
+      "letterSpacing": 0
+    },
+    "Body/Large/Medium": {
+      "family": "sans",
+      "weight": 500,
+      "size": 16,
+      "lineHeight": 20,
+      "letterSpacing": -2
+    },
+    "Body/Large/SemiBold": {
+      "family": "sans",
+      "weight": 600,
+      "size": 16,
+      "lineHeight": 20,
+      "letterSpacing": -2
+    },
+    "Body/Medium/Regular": {
+      "family": "sans",
+      "weight": 400,
+      "size": 14,
+      "lineHeight": 18,
+      "letterSpacing": -2
+    },
+    "Body/Medium/Medium": {
+      "family": "sans",
+      "weight": 500,
+      "size": 14,
+      "lineHeight": 18,
+      "letterSpacing": -2
+    },
+    "Body/Medium/SemiBold": {
+      "family": "sans",
+      "weight": 600,
+      "size": 14,
+      "lineHeight": 18,
+      "letterSpacing": -2
+    },
+    "Body/Small/Regular": {
+      "family": "sans",
+      "weight": 400,
+      "size": 12,
+      "lineHeight": 14,
+      "letterSpacing": -2
+    },
+    "Body/Small/Medium": {
+      "family": "sans",
+      "weight": 500,
+      "size": 12,
+      "lineHeight": 14,
+      "letterSpacing": -2
+    },
+    "Body/Small/SemiBold": {
+      "family": "sans",
+      "weight": 600,
+      "size": 12,
+      "lineHeight": 14,
+      "letterSpacing": -2
+    },
+    "Label/Default/SemiBold": {
+      "family": "sans",
+      "weight": 600,
+      "size": 12,
+      "lineHeight": 12,
+      "letterSpacing": 0
+    },
+    "Label/Default/Medium": {
+      "family": "sans",
+      "weight": 500,
+      "size": 12,
+      "lineHeight": 12,
+      "letterSpacing": -2
+    },
+    "Label/Tiny/Regular": {
+      "family": "sans",
+      "weight": 500,
+      "size": 10,
+      "lineHeight": 10,
+      "letterSpacing": 0
+    },
+    "Label/Tiny/SemiBold": {
+      "family": "sans",
+      "weight": 600,
+      "size": 10,
+      "lineHeight": 10,
+      "letterSpacing": -2
+    },
+    "Label/Tiny/Medium": {
+      "family": "sans",
+      "weight": 500,
+      "size": 10,
+      "lineHeight": 10,
+      "letterSpacing": -2
+    },
+    "Badge/SemiBolt": {
+      "family": "sans",
+      "weight": 600,
+      "size": 8,
+      "lineHeight": 8,
+      "letterSpacing": -2
+    }
   }
 }

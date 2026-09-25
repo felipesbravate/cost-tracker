@@ -12,10 +12,22 @@ for (const m of root.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) decl[m[1]] = m[2].t
 const figma = JSON.parse(readFileSync(new URL('./figma-tokens.json', import.meta.url), 'utf8'));
 const kebab = (name) => name.toLowerCase().replace(/\//g, '-');
 const cssName = (collection, name) => (collection === 'Primitives' ? '--primitive-' : '--') + kebab(name);
+const FONT_FALLBACK = {
+  'font/sans': 'system-ui, -apple-system, "Segoe UI", sans-serif',
+  'font/mono': 'ui-monospace, SFMono-Regular, Menlo, monospace',
+};
 
 test('every Figma variable is in :root with the same value (aliases as var() to the same Primitive)', () => {
   for (const [collection, vars] of Object.entries(figma)) {
     if (collection.startsWith('_')) continue;
+    if (collection === 'TextStyles') {
+      for (const [name, s] of Object.entries(vars)) {
+        const k = '--type-' + kebab(name);
+        const want = { size: s.size + 'px', weight: String(s.weight), lh: s.lineHeight == null ? 'normal' : s.lineHeight + 'px', ls: s.letterSpacing ? s.letterSpacing / 100 + 'em' : '0' };
+        for (const [p, v] of Object.entries(want)) assert.equal(decl[`${k}-${p}`], v, `${k}-${p}: code has ${decl[`${k}-${p}`]}, Figma ${name} has ${v}`);
+      }
+      continue;
+    }
     for (const [name, value] of Object.entries(vars)) {
       const key = cssName(collection, name);
       const got = decl[key];
@@ -23,6 +35,7 @@ test('every Figma variable is in :root with the same value (aliases as var() to 
       let want;
       if (value && typeof value === 'object') want = `var(${cssName('Primitives', value.alias)})`;
       else if (typeof value === 'number') want = collection === 'Opacity' ? String(value > 1 ? value / 100 : value) : value + 'px';
+      else if (collection === 'Typography') want = `"${value}", ${FONT_FALLBACK[name] || 'sans-serif'}`;
       else want = value;
       assert.equal(got.toLowerCase(), want.toLowerCase(), `${key}: code has ${got}, Figma has ${want}`);
     }
@@ -49,4 +62,9 @@ test('outside the token block, only Color variables and aliases are used (no Pri
   const colours = new Set(Object.values(figma.Primitives).map((v) => String(v).toLowerCase()));
   const hits = [...body.slice(body.indexOf('*{ box-sizing')).matchAll(/#[0-9a-fA-F]{6}\b/g)].map((m) => m[0].toLowerCase()).filter((h) => colours.has(h) && h !== '#ffffff');
   assert.deepEqual(hits, [], 'use var(--…) instead of these hex literals');
+});
+
+test('every --type-* used in the CSS is a Figma text style', () => {
+  const used = new Set([...css.matchAll(/var\((--type-[\w-]+)\)/g)].map((m) => m[1]));
+  for (const v of used) assert.ok(decl[v] !== undefined, `${v} is used but not generated from a Figma text style`);
 });

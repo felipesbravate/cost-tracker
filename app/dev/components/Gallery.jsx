@@ -8,7 +8,7 @@ const wrap = (ctx, el) => (ctx || []).slice().reverse().reduce((inner, w) => <di
 export default function Gallery() {
   return (
     <div className="wrap" style={{ paddingTop: 24 }}>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Martian+Mono:wght@400;500;600&display=swap" />
       <h1 className="app-title">Okara components</h1>
       {CASES.map((c) => (
         <section key={c.id} style={{ marginTop: 40 }}>
