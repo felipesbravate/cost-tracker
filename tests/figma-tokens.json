@@ -1,5 +1,5 @@
 {
-  "_note": "Snapshot of the Okara Design System Variables (Figma file 7glNMA9d7iVJFf2CvyrzAb), read Sept 24, 2026. Values are hex or numbers; {\"alias\": name} points at a variable in Primitives. To update: re-read Figma, write this file, run `node scripts/sync-tokens.mjs` (rewrites the token block in src/ui/okara.css), then `npm test`.",
+  "_note": "Snapshot of the Okara Design System Variables (Figma file 7glNMA9d7iVJFf2CvyrzAb), read Sept 25, 2026. Values are hex or numbers; {\"alias\": name} points at a variable in Primitives. To update: re-read Figma, write this file, run `node scripts/sync-tokens.mjs` (rewrites the token block in src/ui/okara.css), then `npm test`.",
   "Primitives": {
     "neutral/page": "#eef5f4",
     "neutral/surface": "#ffffff",
@@ -30,8 +30,8 @@
     "status/green-deep": "#0a6d42",
     "neutral/charcoal-800": "#32312c",
     "neutral/charcoal-900": "#1f1e19",
-    "neutral/stone-100": "#e4e3da",
     "status/red-deep": "#bd0007",
+    "neutral/stone-100": "#e4e3da",
     "neutral/stone-150": "#deddd4",
     "neutral/stone-300": "#cbcac5",
     "neutral/stone-325": "#cac9c0",
@@ -39,8 +39,8 @@
     "status/ochre-deep": "#a87704",
     "data/orange": "#ffba3a",
     "status/green-pale": "#e3f4ec",
-    "neutral/stone-400": "#aaa698",
     "status/red-pale": "#ffc4c6",
+    "neutral/stone-400": "#aaa698",
     "status/yellow-pale": "#ffe9b7",
     "neutral/off-white": "#f9f9f7"
   },
@@ -100,7 +100,7 @@
       "alias": "brand/indigo-mid"
     },
     "action/destructive": {
-      "alias": "data/red"
+      "alias": "status/red-deep"
     },
     "link/default": {
       "alias": "brand/indigo"
@@ -137,6 +137,9 @@
     },
     "border/dark": {
       "alias": "neutral/ink"
+    },
+    "border/destructive": {
+      "alias": "status/red-deep"
     },
     "text/white": {
       "alias": "neutral/surface"
@@ -191,12 +194,14 @@
     }
   },
   "Spacing": {
-    "space/xs": 4,
-    "space/sm": 8,
+    "space/tn": 4,
+    "space/xs": 8,
+    "space/sm": 12,
     "space/md": 16,
     "space/lg": 24,
     "space/xl": 40,
-    "space/xxl": 48
+    "space/2xl": 48,
+    "space/3xl": 80
   },
   "Radius": {
     "radius/ty": 4,

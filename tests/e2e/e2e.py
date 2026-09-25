@@ -433,7 +433,7 @@ async def main():
               return { title: d.querySelector('.ds-modal-title').textContent, desc: d.querySelector('.ds-modal-description').textContent, art: il && il.dataset.illustration,
                        ilSize: il && [il.getAttribute('width'), il.getAttribute('height')], bg: getComputedStyle(b).backgroundColor, label: b.textContent, cancel: d.querySelector('#confirm-cancel').textContent }; }''')
             check('deleting an entry asks first: modal with the entry name, Trash can 64x72, Cancel + red Delete',
-                  'Toast test' in m['title'] and m['art'] == 'trashCan' and m['ilSize'] == ['64', '71.91'] and m['label'] == 'Delete' and m['cancel'] == 'Cancel' and m['bg'] == 'rgb(213, 57, 63)', m)
+                  'Toast test' in m['title'] and m['art'] == 'trashCan' and m['ilSize'] == ['64', '71.91'] and m['label'] == 'Delete' and m['cancel'] == 'Cancel' and m['bg'] == 'rgb(189, 0, 7)', m)
             await pg.click('#confirm-cancel'); await pg.wait_for_timeout(200)
             check('Cancel keeps the entry', not await pg.locator('#confirm-modal[open]').count() and await pg.locator('.meter-row', has_text='Toast test').count() == 1)
             await pg.locator('.meter-row', has_text='Toast test').locator('.note-count').click(); await pg.wait_for_timeout(200)

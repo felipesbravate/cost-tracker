@@ -38,8 +38,8 @@
     --primitive-status-green-deep: #0a6d42;
     --primitive-neutral-charcoal-800: #32312c;
     --primitive-neutral-charcoal-900: #1f1e19;
-    --primitive-neutral-stone-100: #e4e3da;
     --primitive-status-red-deep: #bd0007;
+    --primitive-neutral-stone-100: #e4e3da;
     --primitive-neutral-stone-150: #deddd4;
     --primitive-neutral-stone-300: #cbcac5;
     --primitive-neutral-stone-325: #cac9c0;
@@ -47,8 +47,8 @@
     --primitive-status-ochre-deep: #a87704;
     --primitive-data-orange: #ffba3a;
     --primitive-status-green-pale: #e3f4ec;
-    --primitive-neutral-stone-400: #aaa698;
     --primitive-status-red-pale: #ffc4c6;
+    --primitive-neutral-stone-400: #aaa698;
     --primitive-status-yellow-pale: #ffe9b7;
     --primitive-neutral-off-white: #f9f9f7;
 
@@ -71,7 +71,7 @@
     --action-accent-hover: var(--primitive-brand-indigo-light);
     --action-accent-press: var(--primitive-brand-indigo-800);
     --action-accent-disable: var(--primitive-brand-indigo-mid);
-    --action-destructive: var(--primitive-data-red);
+    --action-destructive: var(--primitive-status-red-deep);
     --link-default: var(--primitive-brand-indigo);
     --link-hover: var(--primitive-brand-indigo-900);
     --link-press: var(--primitive-brand-indigo-800);
@@ -84,6 +84,7 @@
     --border-hover: var(--primitive-neutral-stone-350);
     --border-focus: var(--primitive-brand-indigo);
     --border-dark: var(--primitive-neutral-ink);
+    --border-destructive: var(--primitive-status-red-deep);
     --text-white: var(--primitive-neutral-surface);
     --text-accent: var(--primitive-brand-indigo);
     --text-accent-light: var(--primitive-brand-indigo-mid);
@@ -103,12 +104,14 @@
     --status-warning: var(--primitive-status-ochre-deep);
 
     /* Collection: Spacing */
-    --space-xs: 4px;
-    --space-sm: 8px;
+    --space-tn: 4px;
+    --space-xs: 8px;
+    --space-sm: 12px;
     --space-md: 16px;
     --space-lg: 24px;
     --space-xl: 40px;
-    --space-xxl: 48px;
+    --space-2xl: 48px;
+    --space-3xl: 80px;
 
     /* Collection: Radius */
     --radius-ty: 4px;
@@ -201,10 +204,10 @@
   /* Header (Cost-tracker 211:18753 / 238:7184): "Hey, {first name}" (Display/Title, 32 SemiBold) and the line under it
      (Body/Medium/Medium, text/secondary), 8 apart after 8px of top padding; the User nav sits at the top-right corner.
      Header, Nav and Content are 40 apart. */
-  header.top{ position:relative; margin-bottom:var(--space-xl); padding-top:var(--space-sm); padding-right:240px; }
+  header.top{ position:relative; margin-bottom:var(--space-xl); padding-top:var(--space-xs); padding-right:240px; }
   header.top .ds-user-nav{ position:absolute; top:0; right:0; }
   .app-title{ font-size:32px; font-weight:600; letter-spacing:0; line-height:normal; color:var(--ink); }
-  .app-sub{ color:var(--text-secondary); font-size:14px; font-weight:500; letter-spacing:-0.14px; line-height:15.2px; margin-top:var(--space-sm); }
+  .app-sub{ color:var(--text-secondary); font-size:14px; font-weight:500; letter-spacing:-0.14px; line-height:15.2px; margin-top:var(--space-xs); }
   @media (max-width:600px){ header.top{ padding-right:128px; } .app-title{ font-size:24px; } }
 
   /* ---- Buttons — matches DS "Button" component (Components page, node 4:43) exactly:
@@ -212,7 +215,7 @@
      live variant geometry (radius/full, action/default fill, border/default stroke,
      text/white / text/primary text, 4px icon-label gap) rather than approximated. ---- */
   .btn-pill{
-    font-family:inherit; font-weight:600; font-size:var(--font-size-default); line-height:15.2px; letter-spacing:-0.14px; padding:var(--space-sm) var(--space-md);
+    font-family:inherit; font-weight:600; font-size:var(--font-size-default); line-height:15.2px; letter-spacing:-0.14px; padding:var(--space-xs) var(--space-md);
     border-radius:var(--radius-full); border:1px solid transparent; background:var(--ink); color:var(--text-white); cursor:pointer;
     display:inline-flex; align-items:center; gap:4px; height:40px;
     transition: background-color .12s ease, color .12s ease, border-color .12s ease, box-shadow .12s ease, opacity .12s ease;
@@ -233,7 +236,7 @@
      modifiers matching the DS component's real dimensions; not yet applied to any
      button in the markup below (every button here is Size=Medium today). */
   .btn-pill.small{ height:32px; }
-  .btn-pill.tiny{ height:24px; font-size:12px; line-height:17px; letter-spacing:-0.12px; padding:var(--space-xs) var(--space-sm); }
+  .btn-pill.tiny{ height:24px; font-size:12px; line-height:17px; letter-spacing:-0.12px; padding:var(--space-tn) var(--space-xs); }
   /* Medium buttons carry a 20px icon (Button/Size=Medium with Plus). */
   .btn-pill svg{ display:block; flex-shrink:0; }
   /* "+Add entry" is the one Button instance node 2:2 actually shows at 16px/-0.16px
@@ -251,7 +254,7 @@
   .btn-pill.destructive:hover{ background:linear-gradient(rgba(22,21,15,.12),rgba(22,21,15,.12)),var(--action-destructive); }
   .btn-pill.destructive:active{ background:linear-gradient(rgba(22,21,15,.2),rgba(22,21,15,.2)),var(--action-destructive); }
   .btn-pill.destructive:disabled:hover{ background:var(--action-destructive); }
-  .btn-plain{ font-size:12px; color:var(--ink-2); background:none; border:none; cursor:pointer; padding:var(--space-sm) 4px; font-weight:500; border-radius:var(--radius-sm); transition:color .12s ease, background-color .12s ease; }
+  .btn-plain{ font-size:12px; color:var(--ink-2); background:none; border:none; cursor:pointer; padding:var(--space-xs) 4px; font-weight:500; border-radius:var(--radius-sm); transition:color .12s ease, background-color .12s ease; }
   .btn-plain:hover{ color:var(--state-ink-hover); background:var(--surface-2); }
   .btn-plain:active{ color:var(--state-ink-press); background:var(--state-surface2-press); }
 
@@ -263,7 +266,7 @@
   /* Label: the closest thing to a replacement for the deleted "Tag" component —
      radius/ty (4px) pill, bg/dark fill, 10px SemiBold white text. */
   .ds-label{
-    display:inline-flex; align-items:center; padding:0 var(--space-sm); height:20px;
+    display:inline-flex; align-items:center; padding:0 var(--space-xs); height:20px;
     border-radius:var(--radius-ty); background:var(--ink); color:var(--text-white);
     font-size:10px; font-weight:600; letter-spacing:-0.1px; white-space:nowrap;
   }
@@ -304,13 +307,13 @@
   .wrap > header.top, .wrap > .row1, .wrap > .yoy-heading, .wrap > .yoy-sub, .wrap > .yoy, .wrap > footer.note{ transition:opacity .18s ease; }
   .wrap.is-adding-year > header.top, .wrap.is-adding-year > .row1, .wrap.is-adding-year > .yoy-heading, .wrap.is-adding-year > .yoy-sub,
   .wrap.is-adding-year > .yoy, .wrap.is-adding-year > footer.note{ opacity:var(--opacity-background); pointer-events:none; }
-  .top-nav{ display:flex; flex-direction:column; gap:var(--space-sm); flex:1 1 auto; min-width:0; }
+  .top-nav{ display:flex; flex-direction:column; gap:var(--space-xs); flex:1 1 auto; min-width:0; }
 
   /* ---- Year nav: underline tabs, not pills (matches Nav tabs / Tab components,
      DS nodes 59:850 / 53:801, re-confirmed Sept 19 2026: round button stays 40px,
      but tab text is 16px SemiBold (Body/Large/SemiBold) — NOT the 14px this
      component briefly settled on in an earlier pass — and the row's own gap is
-     space-md (16px), not space-sm (8px). the owner's Figma file has now moved this
+     space-md (16px), not space-xs (8px). the owner's Figma file has now moved this
      component's exact sizing three times; this is the current live value,
      verified by a fresh pull, not carried over from an older doc note. ---- */
   .years{ display:flex; align-items:center; gap:var(--space-md); }
@@ -338,7 +341,7 @@
   .year-btn{
     font-family:inherit; font-weight:600; font-size:16px; color:var(--ink-2); letter-spacing:0;
     background:none; border:none; border-bottom:2px solid transparent; cursor:pointer;
-    height:32px; width:auto; padding:0 var(--space-xs); flex-shrink:0;
+    height:32px; width:auto; padding:0 var(--space-tn); flex-shrink:0;
     transition: color .12s ease, border-color .12s ease;
   }
   .year-btn:hover{ color:var(--accent); }
@@ -439,8 +442,8 @@
   .ds-dd{ position:relative; display:block; min-width:0; }
   .ds-dd > select{ display:none; }
   .ds-dd-trigger{
-    display:flex; align-items:center; justify-content:space-between; gap:var(--space-sm);
-    width:100%; height:32px; padding:0 var(--space-sm); box-sizing:border-box;
+    display:flex; align-items:center; justify-content:space-between; gap:var(--space-xs);
+    width:100%; height:32px; padding:0 var(--space-xs); box-sizing:border-box;
     background:transparent; border:1px solid var(--border-default); border-radius:var(--radius-sm);
     font-family:inherit; font-size:12px; font-weight:400; line-height:17px; letter-spacing:0; text-align:left; color:var(--text-primary); cursor:pointer;
     transition:border-color .12s ease, box-shadow .12s ease;
@@ -461,18 +464,18 @@
     overflow-y:auto; overscroll-behavior:contain;
     background:var(--surface-primary); border:1px solid var(--border-default); border-radius:var(--radius-md); padding:var(--space-md);
     box-shadow:0 0 8px color-mix(in srgb, var(--text-primary) 8%, transparent);
-    display:flex; flex-direction:column; gap:var(--space-sm);
+    display:flex; flex-direction:column; gap:var(--space-xs);
   }
-  .ds-dd-block{ display:flex; flex-direction:column; gap:var(--space-sm); }
+  .ds-dd-block{ display:flex; flex-direction:column; gap:var(--space-xs); }
   .ds-dd-group{ font-size:14px; font-weight:600; letter-spacing:-0.14px; line-height:15.2px; color:var(--text-primary); }   /* Dropdown-list group label, Sept 22 pull: 14px SemiBold /15.2 -1% */
-  .ds-dd-items{ display:flex; flex-direction:column; gap:var(--space-xs); }
+  .ds-dd-items{ display:flex; flex-direction:column; gap:var(--space-tn); }
   .ds-dd-menu:not(.is-group) .ds-dd-items{ gap:0; }
   .ds-dd-item{
-    padding:var(--space-xs) var(--space-sm); border-radius:var(--radius-sm); cursor:pointer;
+    padding:var(--space-tn) var(--space-xs); border-radius:var(--radius-sm); cursor:pointer;
     font-size:12px; font-weight:500; line-height:17px; letter-spacing:0; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   /* dropdown-item (DS 183:6858) as a menu action: optional 12px left icon in action/primary, 4px gap. */
-  .ds-dd-item.has-icon{ display:flex; align-items:center; gap:var(--space-xs); }
+  .ds-dd-item.has-icon{ display:flex; align-items:center; gap:var(--space-tn); }
   .ds-dd-item.has-icon svg{ flex-shrink:0; color:var(--action-primary); }
   .ds-dd-item:hover{ background:var(--surface-accent-light); }
   button.ds-dd-item{ border:none; background:transparent; font-family:inherit; text-align:left; width:100%; }
@@ -487,7 +490,7 @@
     position:absolute; top:0; left:0; z-index:10;
     display:flex; align-items:center; gap:var(--space-md); height:40px;
     background:var(--surface-primary); border:1px solid var(--divider); border-radius:var(--radius-full);
-    padding-right:var(--space-xs); box-shadow:0 0 8px color-mix(in srgb, var(--text-primary) 8%, transparent);
+    padding-right:var(--space-tn); box-shadow:0 0 8px color-mix(in srgb, var(--text-primary) 8%, transparent);
     opacity:0; transform:scale(.96); transform-origin:left center; pointer-events:none;
     transition:opacity .18s ease, transform .18s ease;
   }
@@ -499,10 +502,10 @@
   }
   /* Round button, Tertiary, State=Active (Felipe, Sept 24: Active, not the DS component's Press). */
   .year-add-pill .round-btn:hover, .year-add-pill .round-btn:active{ background:var(--action-secondary-active); }
-  .year-add-pill-inputs{ display:flex; align-items:center; gap:var(--space-sm); }
+  .year-add-pill-inputs{ display:flex; align-items:center; gap:var(--space-xs); }
   .year-add-pill-field{
     position:relative; display:flex; align-items:center; height:32px; width:80px;
-    border:1px solid var(--border-card); border-radius:var(--radius-sm); padding:0 var(--space-sm);
+    border:1px solid var(--border-card); border-radius:var(--radius-sm); padding:0 var(--space-xs);
     background:var(--surface); transition:border-color .12s ease, box-shadow .12s ease;
   }
   .year-add-pill-field:focus-within{ border-color:var(--border-focus); }
@@ -513,19 +516,19 @@
   .year-add-pill-currency, .year-add-pill-year{ width:80px; }
   .year-add-pill .btn-pill{ height:32px; padding:0 var(--space-md); }
   .year-add-pill-field input::placeholder{ color:var(--text-secondary); opacity:1; }
-  .year-add-pill .add-status{ position:absolute; top:calc(100% + var(--space-xs)); left:0; white-space:nowrap; }
+  .year-add-pill .add-status{ position:absolute; top:calc(100% + var(--space-tn)); left:0; white-space:nowrap; }
 
   /* ---- Month nav: pills, indented under the year tabs (Tags nav / Month selector).
      Indent corrected to space-xl (40px) — confirmed literal value from node 2:2's
-     "Tags nav" node (pl-space-xl), not space-xxl (48px) as a prior pass inferred
+     "Tags nav" node (pl-space-xl), not space-2xl (48px) as a prior pass inferred
      from "round button + gap should line up under the tab labels." That inference
      was a coincidence, not what Figma actually specifies. ---- */
-  .months{ display:flex; gap:var(--space-sm); flex-wrap:wrap; padding-left:56px; }  /* round button 40 + tabs gap 16 */
+  .months{ display:flex; gap:var(--space-xs); flex-wrap:wrap; padding-left:56px; }  /* round button 40 + tabs gap 16 */
   .month-btn{
     /* Month selector (DS node 4:171): 12px SemiBold, line height auto, tracking 0 (the Sept 22 pull dropped the +2%).
        The pill stays 20px high; Hover and Press use action/recessed-hover and -press. */
     font-family:inherit; font-size:12px; font-weight:600; line-height:normal; text-transform:uppercase; letter-spacing:0;
-    height:20px; display:inline-flex; align-items:center; padding:0 var(--space-sm); border-radius:var(--radius-full); border:none;
+    height:20px; display:inline-flex; align-items:center; padding:0 var(--space-xs); border-radius:var(--radius-full); border:none;
     background:var(--surface-2); color:var(--ink-2); cursor:pointer;
     transition: background-color .12s ease, color .12s ease;
   }
@@ -540,7 +543,7 @@
   .month-btn.estimated[aria-pressed="true"]{ background:var(--accent); color:var(--text-white); border-style:solid; border-color:var(--accent); }
 
   .estimate-pill{
-    display:inline-flex; align-items:center; gap:4px; margin-top:var(--space-sm);
+    display:inline-flex; align-items:center; gap:4px; margin-top:var(--space-xs);
     font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.4px;
     padding:2px 8px; border-radius:var(--radius-full); background:var(--surface-2); color:var(--ink-2);
   }
@@ -563,9 +566,9 @@
   .hero-left .alloc-card{ flex:0 0 auto; }
   .hero-right{ display:flex; flex-direction:column; gap:var(--space-md); min-width:0; }
   .balance-card .label{ font-size:16px; font-weight:600; line-height:1.2; color:var(--ink); text-transform:uppercase; letter-spacing:0; }
-  .balance-card .value{ font-family:var(--font-mono); font-size:36px; font-weight:500; letter-spacing:0; margin-top:var(--space-sm); font-variant-numeric:tabular-nums; }
+  .balance-card .value{ font-family:var(--font-mono); font-size:36px; font-weight:500; letter-spacing:0; margin-top:var(--space-xs); font-variant-numeric:tabular-nums; }
   .pill-delta{
-    display:block; font-family:var(--font-mono); font-size:12px; font-weight:500; margin-top:var(--space-sm);
+    display:block; font-family:var(--font-mono); font-size:12px; font-weight:500; margin-top:var(--space-xs);
     letter-spacing:-0.48px; font-variant-numeric:tabular-nums;
   }
   .mini-grid{ display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md); }
@@ -574,14 +577,14 @@
      side-by-side above it. */
   .mini-grid .mini-kpi:nth-child(3){ grid-column:1 / -1; }
   .mini-kpi{ background:var(--surface); border:1px solid var(--border-card); border-radius:var(--radius-md); padding:var(--space-md); }
-  .mini-kpi .label{ display:flex; align-items:center; gap:var(--space-sm); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mini-kpi .label{ display:flex; align-items:center; gap:var(--space-xs); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .mini-kpi .dot{ width:7px; height:7px; border-radius:50%; display:inline-block; flex-shrink:0; }
   /* KPI card (DS 28:68): label 12px SemiBold, line height auto, tracking 0; the details line is mono 12 Medium -4% in text/secondary, 8px under the value. */
   .mini-kpi .label{ font-size:12px; font-weight:600; line-height:normal; color:var(--ink); text-transform:uppercase; letter-spacing:0; }
-  .mini-kpi .value{ font-family:var(--font-mono); font-size:var(--font-size-default); font-weight:500; margin-top:var(--space-sm); font-variant-numeric:tabular-nums; letter-spacing:-0.56px; }
-  .mini-kpi .detail{ font-family:var(--font-mono); font-size:12px; font-weight:500; line-height:normal; letter-spacing:-0.48px; color:var(--text-secondary); margin-top:var(--space-sm); font-variant-numeric:tabular-nums; }
+  .mini-kpi .value{ font-family:var(--font-mono); font-size:var(--font-size-default); font-weight:500; margin-top:var(--space-xs); font-variant-numeric:tabular-nums; letter-spacing:-0.56px; }
+  .mini-kpi .detail{ font-family:var(--font-mono); font-size:12px; font-weight:500; line-height:normal; letter-spacing:-0.48px; color:var(--text-secondary); margin-top:var(--space-xs); font-variant-numeric:tabular-nums; }
   /* Money with the DS Euro icon: 12px glyph + 4px gap + the figure (Value component). */
-  .money{ display:inline-flex; align-items:center; justify-content:flex-end; gap:var(--space-xs); }
+  .money{ display:inline-flex; align-items:center; justify-content:flex-end; gap:var(--space-tn); }
   .money-ic{ display:inline-flex; width:12px; height:12px; flex-shrink:0; color:var(--text-primary); }
   .money-ic svg{ display:block; }
 
@@ -590,10 +593,10 @@
   .hero-chart{ width:100%; margin-bottom:0; }
   .hero-chart .hc-top{ display:flex; justify-content:space-between; align-items:flex-start; }
   .hero-chart .hc-label{ font-size:14px; font-weight:600; line-height:1.2; letter-spacing:0; color:var(--ink); text-transform:uppercase; }
-  .hero-chart .hc-value{ font-family:var(--font-mono); font-size:20px; font-weight:500; letter-spacing:0; margin-top:var(--space-sm); font-variant-numeric:tabular-nums; }
+  .hero-chart .hc-value{ font-family:var(--font-mono); font-size:20px; font-weight:500; letter-spacing:0; margin-top:var(--space-xs); font-variant-numeric:tabular-nums; }
   .hc-delta{ margin-left:8px; }
   .legend{ display:flex; gap:var(--space-md); flex-wrap:wrap; margin-top:var(--space-md); font-size:12px; color:var(--legend-text); }
-  .legend span{ display:inline-flex; align-items:center; gap:var(--space-sm); font-weight:500; }
+  .legend span{ display:inline-flex; align-items:center; gap:var(--space-xs); font-weight:500; }
   .swatch{ width:9px; height:9px; border-radius:var(--radius-ty); display:inline-block; }
 
   /* Icons carry their DS size (10 / 12 / 20) as width/height attributes (Icon.jsx); CSS never resizes them. */
@@ -608,7 +611,7 @@
   #trend-chart{ display:block; width:100%; height:auto; }
   .tooltip-chart{
     position:absolute; pointer-events:none; background:var(--ink); color:var(--page);
-    font-family:var(--font-mono); font-size:12px; padding:var(--space-sm) var(--space-md); border-radius:var(--radius-sm); transform:translate(-50%,-118%);
+    font-family:var(--font-mono); font-size:12px; padding:var(--space-xs) var(--space-md); border-radius:var(--radius-sm); transform:translate(-50%,-118%);
     white-space:nowrap; opacity:0; transition:opacity .12s; z-index:5; font-variant-numeric:tabular-nums; font-weight:500;
     box-shadow:0 6px 18px rgba(0,0,0,.18);
   }
@@ -618,7 +621,7 @@
   .ticker-strip{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--space-md); }
   .ticker-item{
     background:var(--surface); border:1px solid var(--border-card); border-radius:var(--radius-md);
-    padding:var(--space-md); display:flex; flex-direction:column; gap:var(--space-sm);
+    padding:var(--space-md); display:flex; flex-direction:column; gap:var(--space-xs);
   }
   .ticker-item .ti-top{ display:flex; align-items:center; gap:8px; }
   .ticker-item .ti-dot{ width:20px; height:20px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; line-height:17px; letter-spacing:-0.12px; color:var(--text-white); }
@@ -626,32 +629,32 @@
   /* Expense card: value is Medium mono 14 (-4%), the delta line sits 4px under it. */
   .ticker-item .ti-val{ font-family:var(--font-mono); font-size:var(--font-size-default); font-weight:500; font-variant-numeric:tabular-nums; letter-spacing:-0.56px; display:flex; }
   /* details row (DS 130:3844): 12px arrow icon + 8px + mono 12 Medium -4%, coloured by the direction. */
-  .ticker-item .ti-delta{ display:flex; align-items:center; gap:var(--space-sm); font-family:var(--font-mono); font-size:12px; font-weight:500; line-height:normal; font-variant-numeric:tabular-nums; letter-spacing:-0.48px; margin-top:calc(var(--space-xs) - var(--space-sm)); }
+  .ticker-item .ti-delta{ display:flex; align-items:center; gap:var(--space-xs); font-family:var(--font-mono); font-size:12px; font-weight:500; line-height:normal; font-variant-numeric:tabular-nums; letter-spacing:-0.48px; margin-top:calc(var(--space-tn) - var(--space-xs)); }
   .ticker-item .ti-delta svg{ display:block; flex-shrink:0; }
   @media (max-width:1100px){ .ticker-strip{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
 
   /* ---- Year over year: full-width section below Row 1, ported from the
      live index.html (it had no v2 equivalent until now) and restyled with
      this file's own card/chart tokens instead of copied CSS. ---- */
-  .yoy-heading{ font-size:20px; font-weight:600; letter-spacing:-0.2px; margin:var(--space-xl) 0 var(--space-xs); }
+  .yoy-heading{ font-size:20px; font-weight:600; letter-spacing:-0.2px; margin:var(--space-xl) 0 var(--space-tn); }
   .yoy{ display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md); }
   .card h2{ font-size:16px; font-weight:600; line-height:1.2; letter-spacing:0; text-transform:uppercase; color:var(--ink); }
-  .card .hint{ font-size:12px; font-weight:400; line-height:17px; color:var(--ink-2); margin-top:var(--space-xs); }
+  .card .hint{ font-size:12px; font-weight:400; line-height:17px; color:var(--ink-2); margin-top:var(--space-tn); }
 
   /* Columns hug their label (min 48), 16 apart, bottoms aligned; bar height is 0.8px per percent, at least 6. */
-  .alloc-bars{ display:flex; align-items:flex-end; gap:var(--space-md); height:120px; margin-top:var(--space-sm); }
-  .alloc-col{ min-width:48px; display:flex; flex-direction:column; align-items:center; gap:var(--space-sm); height:100%; justify-content:flex-end; }
+  .alloc-bars{ display:flex; align-items:flex-end; gap:var(--space-md); height:120px; margin-top:var(--space-xs); }
+  .alloc-col{ min-width:48px; display:flex; flex-direction:column; align-items:center; gap:var(--space-xs); height:100%; justify-content:flex-end; }
   .alloc-pct{ font-family:var(--font-mono); font-size:12px; font-weight:500; letter-spacing:-0.48px; }
   .alloc-bar{ width:48px; border-radius:var(--radius-sm); }
   .alloc-name{ font-size:10px; font-weight:600; line-height:11.6px; color:var(--label-muted); text-transform:uppercase; letter-spacing:-0.1px; }
 
-  .insight-text{ font-size:12px; font-weight:400; color:var(--ink-2); line-height:17px; margin-top:var(--space-sm); }
+  .insight-text{ font-size:12px; font-weight:400; color:var(--ink-2); line-height:17px; margin-top:var(--space-xs); }
   .insight-text b{ color:var(--ink); font-weight:600; }
-  .insight-tags{ display:flex; gap:var(--space-sm); flex-wrap:wrap; margin-top:var(--space-sm); padding-top:var(--space-sm); }
+  .insight-tags{ display:flex; gap:var(--space-xs); flex-wrap:wrap; margin-top:var(--space-xs); padding-top:var(--space-xs); }
   /* Tags are the DS "Label" component (211:859): 20px high, 8px side padding, 4px radius, 12px SemiBold, line height auto,
      tracking 0. Types: Neutral (surface/secondary + text/secondary), Positive, Negative, Warning (surface/x + status/x). */
   .insight-tag, .hc-delta{
-    display:inline-flex; align-items:center; gap:var(--space-xs); height:20px; padding:0 var(--space-sm); box-sizing:border-box;
+    display:inline-flex; align-items:center; gap:var(--space-tn); height:20px; padding:0 var(--space-xs); box-sizing:border-box;
     font-size:12px; font-weight:600; line-height:normal; text-transform:uppercase; letter-spacing:0; white-space:nowrap;
     border-radius:var(--radius-ty); background:var(--surface-secondary); color:var(--text-secondary);
   }
@@ -667,8 +670,8 @@
   .breakdown-card{ display:flex; flex-direction:column; gap:var(--space-lg); }
   /* Header (Cost-tracker 211:18753): title + "{Month} {year}" (14px Medium /15.2 -1%, text/secondary), 4 apart, and the Actions
      Round button (Medium, Tertiary) on the right. */
-  .bd-header{ display:flex; align-items:flex-start; gap:var(--space-xs); }
-  .bd-title{ flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:var(--space-xs); }
+  .bd-header{ display:flex; align-items:flex-start; gap:var(--space-tn); }
+  .bd-title{ flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:var(--space-tn); }
   .bd-header h2{ margin:0; }
   .bd-header .hint{ margin-top:0; font-size:14px; font-weight:500; line-height:15.2px; letter-spacing:-0.14px; color:var(--text-secondary); }
   .bd-menu{ position:relative; flex-shrink:0; }
@@ -676,7 +679,7 @@
   .bd-menu .ds-menu{ top:48px; right:0; }
   .seg-tabs{ display:flex; gap:4px; flex-wrap:wrap; background:var(--surface-secondary); padding:4px; border-radius:var(--radius-sm); width:fit-content; }
   .seg-tabs button{
-    font-size:12px; font-weight:600; line-height:17px; padding:var(--space-sm); border-radius:var(--radius-sm); border:none;
+    font-size:12px; font-weight:600; line-height:17px; padding:var(--space-xs); border-radius:var(--radius-sm); border:none;
     background:transparent; color:var(--ink-2); cursor:pointer; font-family:inherit; letter-spacing:-0.12px;
     transition: background-color .12s ease, color .12s ease;
   }
@@ -687,7 +690,7 @@
   .seg-tabs button[aria-pressed="true"]:active{ background:var(--state-ink-press); }
 
   .bd-content{ display:flex; flex-direction:column; gap:var(--space-lg); }
-  .meter-row{ margin-bottom:var(--space-sm); }
+  .meter-row{ margin-bottom:var(--space-xs); }
   .meter-row:last-child{ margin-bottom:0; }
   .meter-row .meter-top{ display:flex; justify-content:space-between; align-items:center; gap:var(--space-md); margin-bottom:4px; }
   .meter-row .meter-name{ font-size:12px; font-weight:500; line-height:17px; color:var(--ink); display:flex; align-items:center; }
@@ -712,10 +715,10 @@
      flat Income/Savings rows render as meters and skip this list, matching
      the one state the Figma file shows us). */
   .bd-list{ display:flex; flex-direction:column; gap:var(--space-md); }
-  .bd-block{ display:flex; flex-direction:column; gap:var(--space-sm); }
+  .bd-block{ display:flex; flex-direction:column; gap:var(--space-xs); }
   .bd-block-title{ font-size:12px; font-weight:600; line-height:17px; color:var(--ink); letter-spacing:-0.12px; }
   .bd-list .ds-divider, .budget-list .ds-divider{ margin:0; }
-  .bd-row{ display:flex; justify-content:space-between; align-items:center; gap:var(--space-sm); height:24px; padding:0; }
+  .bd-row{ display:flex; justify-content:space-between; align-items:center; gap:var(--space-xs); height:24px; padding:0; }
   .bd-row .bd-item-name{ font-size:12px; font-weight:500; line-height:17px; color:var(--ink-2); }
   .bd-row .n{ font-family:var(--font-mono); font-size:12px; font-weight:500; color:var(--ink); letter-spacing:-0.48px; }
 
@@ -726,7 +729,7 @@
      tooltip open (.is-open). The estimate and removed tints are not in the design system yet. */
   .note-count{
     display:inline-flex; align-items:center; justify-content:center;
-    min-width:14px; height:14px; padding:0 var(--space-xs) 1px; margin-left:var(--space-sm); border-radius:var(--radius-full);
+    min-width:14px; height:14px; padding:0 var(--space-tn) 1px; margin-left:var(--space-xs); border-radius:var(--radius-full);
     background:var(--action-primary); color:var(--on-primary);
     font-size:10px; font-weight:600; line-height:11.6px; letter-spacing:-0.1px; font-variant-numeric:tabular-nums;
     vertical-align:middle; cursor:pointer; transition: background-color .12s ease;
@@ -741,18 +744,18 @@
      8px gaps: 12px Dot | name + date (12px SemiBold +2%) | Euro amount + Micro round button (14px, 10px X). No shadow in the design. */
   #note-tip{
     position:fixed; pointer-events:none; z-index:50; box-sizing:border-box; width:max-content; min-width:280px; max-width:360px;
-    padding:var(--space-md) var(--space-sm) var(--space-md) var(--space-md);
+    padding:var(--space-md) var(--space-xs) var(--space-md) var(--space-md);
     background:var(--surface-dark); color:var(--text-white); border-radius:var(--radius-md);
     opacity:0; transition:opacity .1s;
   }
   #note-tip.visible{ opacity:1; pointer-events:auto; }
-  #note-tip .tip-item{ display:flex; align-items:center; gap:var(--space-sm); min-height:24px; }
+  #note-tip .tip-item{ display:flex; align-items:center; gap:var(--space-xs); min-height:24px; }
   #note-tip .tip-dot{ position:relative; flex:none; width:12px; height:12px; }
   #note-tip .tip-dot::before{ content:''; position:absolute; left:4px; top:4px; width:4px; height:4px; border-radius:50%; background:var(--action-disable); }
-  #note-tip .tip-left{ flex:1 1 0; min-width:0; display:flex; align-items:center; gap:var(--space-sm); }
+  #note-tip .tip-left{ flex:1 1 0; min-width:0; display:flex; align-items:center; gap:var(--space-xs); }
   #note-tip .tip-name{ font-size:12px; font-weight:500; line-height:17px; letter-spacing:0; color:var(--text-white); overflow-wrap:anywhere; }
   #note-tip .tip-date{ flex:none; font-size:12px; font-weight:600; line-height:14.4px; letter-spacing:0.24px; color:var(--text-secondary); white-space:nowrap; }
-  #note-tip .tip-right{ flex:none; display:flex; align-items:center; gap:var(--space-sm); }
+  #note-tip .tip-right{ flex:none; display:flex; align-items:center; gap:var(--space-xs); }
   #note-tip .tip-amount{ font-family:var(--font-mono); font-size:12px; font-weight:500; line-height:16px; letter-spacing:-0.48px; color:var(--text-white); white-space:nowrap; font-variant-numeric:tabular-nums; }
   #note-tip .tip-amount .money-ic{ color:var(--text-white); }
   #note-tip .tip-amount.is-estimate{ font-weight:400; opacity:.7; }
@@ -762,7 +765,7 @@
   #note-tip .tip-del:hover{ color:var(--text-white); background:rgba(255,255,255,.18); }
   #note-tip .tip-del:active{ color:var(--text-white); background:rgba(255,255,255,.28); }
   #note-tip .tip-item.sub .tip-name{ font-weight:400; }
-  #note-tip .tip-foot{ margin:var(--space-sm) var(--space-sm) 0 28px; padding-top:var(--space-sm); border-top:1px solid rgba(255,255,255,.16); font-size:12px; line-height:17px; color:var(--text-secondary); }
+  #note-tip .tip-foot{ margin:var(--space-xs) var(--space-xs) 0 28px; padding-top:var(--space-xs); border-top:1px solid rgba(255,255,255,.16); font-size:12px; line-height:17px; color:var(--text-secondary); }
 
   /* ---- Add entry panel: right-side slide-over drawer, matching the Cost-tracker
      file's "Add entry panel - open" frame (border-left, drop shadow, fixed
@@ -781,7 +784,7 @@
     visibility:hidden; /* closed: no shadow on the page edge, and nothing inside it can take focus */
   }
   .add-panel.open{ transform:translateX(0); visibility:visible; transition:transform .2s cubic-bezier(.2,0,0,1), visibility 0s; }
-  .add-panel-header{ display:flex; flex-direction:column; align-items:flex-end; gap:var(--space-xs); }
+  .add-panel-header{ display:flex; flex-direction:column; align-items:flex-end; gap:var(--space-tn); }
   /* Round button (DS 52:629). Style: Tertiary (default: no fill), .secondary (border/default stroke), .primary (action/primary).
      Size: Medium 40 (default), .small 32, .tiny 24, .micro 14. States: Hover, Press, Active (.is-active / aria-expanded), Inactive (:disabled, 40%).
      Icon colour: Primary surface/primary, Secondary and Tertiary action/primary (Micro: surface/dark, the same value). */
@@ -808,20 +811,20 @@
   .add-panel-title{ font-size:16px; font-weight:600; color:var(--ink); letter-spacing:-0.16px; width:100%; }
   .add-panel-hint{ font-size:12px; font-weight:400; color:var(--ink-muted); line-height:1.5; width:100%; }
   .add-panel-content{ display:flex; flex-direction:column; gap:var(--space-md); }
-  .field-group{ display:flex; flex-direction:column; gap:var(--space-xs); }
+  .field-group{ display:flex; flex-direction:column; gap:var(--space-tn); }
   .field-label{ font-size:12px; font-weight:600; color:var(--ink-2); text-transform:uppercase; letter-spacing:0.24px; }
   .seg-tabs[hidden]{ display:none; }
   .seg-tabs.sub{ height:32px; }
-  .seg-tabs.sub button{ height:24px; padding:0 var(--space-sm); }
+  .seg-tabs.sub button{ height:24px; padding:0 var(--space-xs); }
   /* Tracker card's Controllers row (Figma node 61:5499): Segments +
      Sub-segments stacked on the left, contextual "+Add {type}" button
      pinned to the right, bottom-aligned with the tab stack. */
   .bd-controllers{ display:flex; align-items:flex-start; justify-content:space-between; gap:var(--space-md); flex-wrap:wrap; }
-  .bd-tabs-stack{ display:flex; flex-direction:column; gap:var(--space-sm); }
+  .bd-tabs-stack{ display:flex; flex-direction:column; gap:var(--space-xs); }
   .add-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-md); }
-  .field label{ display:block; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:-0.12px; color:var(--ink-muted); margin-bottom:var(--space-xs); }
+  .field label{ display:block; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:-0.12px; color:var(--ink-muted); margin-bottom:var(--space-tn); }
   .field input{
-    width:100%; font-size:14px; font-family:inherit; letter-spacing:-0.14px; padding:var(--space-sm) var(--space-md); border-radius:var(--radius-sm); border:1px solid var(--border-card);
+    width:100%; font-size:14px; font-family:inherit; letter-spacing:-0.14px; padding:var(--space-xs) var(--space-md); border-radius:var(--radius-sm); border:1px solid var(--border-card);
     background:var(--surface); color:var(--ink);
     transition: border-color .12s ease, box-shadow .12s ease;
   }
@@ -832,7 +835,7 @@
   .field-with-prefix .field-prefix{ position:absolute; left:var(--space-md); font-size:14px; color:var(--ink); pointer-events:none; }
   .field-with-prefix input{ padding-left:28px; }
   #entry-amount{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
-  .add-actions{ display:flex; gap:var(--space-sm); align-items:center; }
+  .add-actions{ display:flex; gap:var(--space-xs); align-items:center; }
   .add-status{ font-size:12px; font-weight:500; }
   .add-status{ color:var(--text-secondary); }
   .add-status.err{ color:var(--critical); }
@@ -854,7 +857,7 @@
      The Tracker's own rows deliberately keep the plain ink figure and no Actions
      button: they have no edit or action handler, and a link-coloured value there
      would promise an interaction that doesn't exist. ---- */
-  .bd-value{ display:inline-flex; align-items:center; justify-content:flex-end; gap:var(--space-xs); flex-shrink:0; }
+  .bd-value{ display:inline-flex; align-items:center; justify-content:flex-end; gap:var(--space-tn); flex-shrink:0; }
   .bd-value .bd-euro{ width:12px; height:12px; display:block; color:var(--ink); flex-shrink:0; }
   .bd-amount{
     font-family:var(--font-mono); font-size:12px; font-weight:500; letter-spacing:-0.48px; line-height:normal;
@@ -871,7 +874,7 @@
   .bd-action svg{ display:block; }
   .bd-row.is-editing{ padding-right:var(--space-lg); }
   .bd-input{
-    display:inline-flex; align-items:center; gap:var(--space-sm); height:24px; padding:0 var(--space-sm); flex-shrink:0;
+    display:inline-flex; align-items:center; gap:var(--space-xs); height:24px; padding:0 var(--space-xs); flex-shrink:0;
     border:1px solid var(--border-card); border-radius:var(--radius-sm); background:var(--surface);
     transition:border-color .12s ease, box-shadow .12s ease;
   }
@@ -891,13 +894,13 @@
   #add-panel{ gap:var(--space-xl); box-shadow:0 0 64px rgba(22,21,15,.24); }
   .add-panel-header .round-btn svg{ }
   .add-panel-title{ font-size:24px; line-height:1.2; letter-spacing:-0.24px; }
-  #add-panel .add-panel-hint{ font-size:14px; font-weight:500; line-height:15.2px; letter-spacing:-0.14px; color:var(--ink-2); margin-top:var(--space-xs); }
+  #add-panel .add-panel-hint{ font-size:14px; font-weight:500; line-height:15.2px; letter-spacing:-0.14px; color:var(--ink-2); margin-top:var(--space-tn); }
   /* Year-budget panels use the 12px Medium sub line (Figma 96:5670). */
-  .budget-panel .add-panel-hint{ font-size:12px; font-weight:500; line-height:17px; letter-spacing:0; color:var(--ink-2); margin-top:var(--space-xs); }
+  .budget-panel .add-panel-hint{ font-size:12px; font-weight:500; line-height:17px; letter-spacing:0; color:var(--ink-2); margin-top:var(--space-tn); }
   .ap-main{ display:flex; flex-direction:column; gap:var(--space-lg); }
   .ap-section{ display:flex; flex-direction:column; gap:var(--space-lg); }
   .ap-section-title{ margin:0; font-size:16px; font-weight:600; line-height:1.2; color:var(--ink); }
-  .ap-title-block{ display:flex; flex-direction:column; gap:var(--space-xs); }
+  .ap-title-block{ display:flex; flex-direction:column; gap:var(--space-tn); }
   .ap-section-sub{ font-size:14px; font-weight:500; line-height:15.2px; letter-spacing:-0.14px; color:var(--ink-2); }
   .ap-block{ display:flex; flex-direction:column; gap:var(--space-md); }
 
@@ -918,9 +921,9 @@
   /* Files reading (229:18563): 1px border/default box, padding 40/24, 16 gap: "Reading N files" (14 SemiBold) over the hint,
      then a 404px progress-bar. Header and "Enter manually" fade to opacity/background. */
   .dz-reading{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--space-md); height:160px; box-sizing:border-box; padding:0 var(--space-lg); border:1px solid var(--border-default); border-radius:var(--radius-sm); }
-  .dz-progress-wrap{ display:flex; flex-direction:column; align-items:center; gap:var(--space-sm); width:404px; max-width:100%; }
+  .dz-progress-wrap{ display:flex; flex-direction:column; align-items:center; gap:var(--space-xs); width:404px; max-width:100%; }
   .dz-pct{ font-size:14px; font-weight:500; line-height:15.2px; letter-spacing:-0.14px; color:var(--text-primary); font-variant-numeric:tabular-nums; }
-  .dz-reading-info{ display:flex; flex-direction:column; align-items:center; gap:var(--space-xs); text-align:center; }
+  .dz-reading-info{ display:flex; flex-direction:column; align-items:center; gap:var(--space-tn); text-align:center; }
   .dz-reading-title{ font-size:14px; font-weight:600; line-height:15.2px; letter-spacing:-0.14px; color:var(--text-primary); }
   .dz-progress{ width:100%; }
   .add-panel .is-faded{ opacity:var(--opacity-background); transition:opacity .18s ease; }
@@ -933,14 +936,14 @@
   .date-dd-label{ position:absolute; left:var(--space-md); right:36px; top:50%; transform:translateY(-50%); pointer-events:none;
     font-size:14px; font-weight:400; line-height:15.2px; letter-spacing:-0.14px; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .date-dd .date-dd-chevron{ position:absolute; right:var(--space-md); top:50%; transform:translateY(-50%); width:12px; height:12px; color:var(--action-primary); pointer-events:none; }
-  .dz-text{ display:flex; flex-direction:column; align-items:center; gap:var(--space-xs); }
-  .dz-line{ display:flex; align-items:center; justify-content:center; gap:var(--space-xs); flex-wrap:wrap; font-size:14px; font-weight:600; letter-spacing:-0.14px; line-height:20px; color:var(--ink); }
+  .dz-text{ display:flex; flex-direction:column; align-items:center; gap:var(--space-tn); }
+  .dz-line{ display:flex; align-items:center; justify-content:center; gap:var(--space-tn); flex-wrap:wrap; font-size:14px; font-weight:600; letter-spacing:-0.14px; line-height:20px; color:var(--ink); }
   .dz-line .ds-action-link{ font-size:14px; letter-spacing:-0.14px; line-height:20px; pointer-events:none; }
   .dropzone:hover .ds-action-link{ color:var(--link-hover); text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; }
   .dz-hint{ font-size:12px; font-weight:500; line-height:17px; color:var(--ink-2); text-align:center; }
 
   .doc-list{ display:flex; flex-direction:column; gap:var(--space-md); }
-  .doc-item{ display:flex; align-items:flex-start; gap:var(--space-sm); min-height:32px; }
+  .doc-item{ display:flex; align-items:flex-start; gap:var(--space-xs); min-height:32px; }
   .doc-ic{ width:20px; height:20px; flex-shrink:0; color:var(--ink); }
   .doc-ic svg{ display:block; }
   .doc-info{ flex:1 1 0; min-width:0; display:flex; flex-direction:column; justify-content:center; }
@@ -952,16 +955,16 @@
   .round-btn.doc-remove{ width:24px; height:24px; color:var(--critical); }
   #add-panel .round-btn.doc-remove svg{ }
 
-  .ap-manual .field-group{ gap:var(--space-sm); }
+  .ap-manual .field-group{ gap:var(--space-xs); }
   /* Figma 174:15081: every gap in the form is 8, the Type block and the form are 24 apart, the buttons sit 40 below. */
-  #add-panel .add-grid{ gap:var(--space-sm); }
+  #add-panel .add-grid{ gap:var(--space-xs); }
   .ap-manual .field-label{ font-size:12px; font-weight:600; line-height:normal; letter-spacing:0; text-transform:uppercase; color:var(--text-secondary); }
   .ap-manual .add-actions{ margin-top:calc(var(--space-xl) - var(--space-lg)); }
-  #doc-actions, #ap-review .add-actions{ gap:var(--space-xs); }
+  #doc-actions, #ap-review .add-actions{ gap:var(--space-tn); }
   #add-panel .field-with-prefix .field-prefix{ left:var(--space-md); width:23px; height:24px; display:flex; align-items:center; justify-content:center; }
   #add-panel .field-with-prefix .field-prefix svg{ display:block; color:var(--ink); }
   /* Labels sit 8 above their field in the panel (Cost-tracker 174:15081). "Month and year" is a 200px Dropdown. */
-  #add-panel .field label{ margin-bottom:var(--space-sm); line-height:17px; }
+  #add-panel .field label{ margin-bottom:var(--space-xs); line-height:17px; }
   #add-panel .field-period .ds-dd, #add-panel .ap-period .ds-dd{ width:200px; max-width:100%; }
   #add-panel .field input{ height:48px; padding:0 var(--space-md); font-size:14px; letter-spacing:-0.14px; }
   #add-panel .field input::placeholder{ color:var(--ink-2); opacity:1; }
@@ -971,10 +974,10 @@
   #add-panel .field-with-prefix input{ padding-left:47px; }
   .add-actions .add-status{ line-height:17px; }
 
-  .rv-table{ display:flex; flex-direction:column; gap:var(--space-sm); }
+  .rv-table{ display:flex; flex-direction:column; gap:var(--space-xs); }
   .rv-head, .rv-row{ display:flex; align-items:center; gap:var(--space-md); }
   .rv-head{ font-size:12px; font-weight:600; letter-spacing:-0.12px; line-height:17px; color:var(--ink-muted); text-transform:uppercase; }
-  .rv-rows{ display:flex; flex-direction:column; gap:var(--space-xs); }
+  .rv-rows{ display:flex; flex-direction:column; gap:var(--space-tn); }
   .rv-row{ height:32px; }
   .c-date{ width:40px; flex-shrink:0; }
   .c-desc{ flex:1 1 0; min-width:0; }
@@ -987,26 +990,26 @@
   .rv-row:hover .rv-link:not(.bad), .rv-link:not(.bad):focus-visible{ color:var(--link-hover); text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; }
   .rv-link.bad{ color:var(--critical); }
   /* A "?" chip marks a category the reader was not sure about (a word would squeeze the 120px Category column). Label chip recipe, square. */
-  .c-cat.has-guess{ display:flex; align-items:center; gap:var(--space-xs); }
+  .c-cat.has-guess{ display:flex; align-items:center; gap:var(--space-tn); }
   .c-cat.has-guess .rv-link{ flex:1 1 auto; min-width:0; }
   /* Guess marker: the Question (filled) icon, 20px frame, surface/tertiary. */
   .rv-guess{ flex-shrink:0; display:inline-flex; width:20px; height:20px; color:var(--surface-tertiary); cursor:default; }
   .rv-guess svg{ display:block; }
   /* The review note about guesses starts with the same marker. */
-  #rv-status.has-guess{ display:inline-flex; align-items:center; gap:var(--space-xs); }
+  #rv-status.has-guess{ display:inline-flex; align-items:center; gap:var(--space-tn); }
   .rv-row:hover .rv-link.bad{ text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; }
-  .rv-amt{ display:inline-flex; align-items:center; gap:var(--space-xs); background:none; border:none; padding:0; height:20px; cursor:pointer; color:var(--ink); font-family:var(--font-mono); font-size:12px; font-weight:500; letter-spacing:-0.48px; font-variant-numeric:tabular-nums; }
+  .rv-amt{ display:inline-flex; align-items:center; gap:var(--space-tn); background:none; border:none; padding:0; height:20px; cursor:pointer; color:var(--ink); font-family:var(--font-mono); font-size:12px; font-weight:500; letter-spacing:-0.48px; font-variant-numeric:tabular-nums; }
   .rv-amt svg{ display:block; flex-shrink:0; }
   .rv-amt.bad{ color:var(--critical); }
   .rv-row:hover .rv-amt{ text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; }
   .rv-input{
-    width:100%; height:32px; padding:0 var(--space-sm); font-family:inherit; font-size:12px; font-weight:400; line-height:17px; color:var(--ink);
+    width:100%; height:32px; padding:0 var(--space-xs); font-family:inherit; font-size:12px; font-weight:400; line-height:17px; color:var(--ink);
     background:var(--surface); border:1px solid var(--border-card); border-radius:var(--radius-sm); outline:none; transition:border-color .12s ease, box-shadow .12s ease;
   }
   .rv-input:hover{ border-color:var(--state-border-hover); }
   .rv-input:focus-visible{ border-color:var(--border-focus); }
   .rv-select .ds-dd.is-empty .ds-dd-trigger{ color:var(--critical); }
-  .rv-row .bd-input{ height:32px; gap:var(--space-xs); width:100%; }
+  .rv-row .bd-input{ height:32px; gap:var(--space-tn); width:100%; }
   .rv-row .bd-input input{ width:100%; }
   .rv-rm{ opacity:0; color:var(--critical); transition:opacity .12s ease, background-color .12s ease; }
   .rv-row:hover .rv-rm, .rv-row.is-editing .rv-rm, .rv-rm:focus-visible{ opacity:1; }
@@ -1038,7 +1041,7 @@
   /* Sept 24 pull (232:5852): Entries = the "+ New …" Action link (right-aligned), then category Groups split by Dividers,
      16 apart. A Group: title (12px SemiBold /17 -1%, text/primary), 8 above its rows; rows (breackdown-row, 24 high) touch. */
   .budget-add-link{ align-self:flex-end; }
-  .budget-group{ display:flex; flex-direction:column; gap:var(--space-sm); }
+  .budget-group{ display:flex; flex-direction:column; gap:var(--space-xs); }
   .budget-cat-title{ font-size:12px; font-weight:600; line-height:17px; letter-spacing:-0.12px; color:var(--text-primary); }
   .budget-items{ display:flex; flex-direction:column; }
   .budget-row .br-name{ flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -1048,23 +1051,23 @@
   /* "Add expense" pill (Figma 119:12764): 4/8/4/16 padding, 16 between the fields and the two round buttons,
      fields are Input/Dropdown Size=Small (32 high, 12px), confirm = Round button Tiny Primary, cancel = Tiny Secondary. */
   .budget-add-row{
-    display:flex; align-items:center; gap:var(--space-md); padding:var(--space-xs) var(--space-sm) var(--space-xs) var(--space-md);
+    display:flex; align-items:center; gap:var(--space-md); padding:var(--space-tn) var(--space-xs) var(--space-tn) var(--space-md);
     border:1px solid var(--divider); border-radius:var(--radius-full); background:var(--surface);
   }
-  .budget-add-fields{ display:flex; align-items:center; gap:var(--space-sm); flex:1 1 auto; min-width:0; }
+  .budget-add-fields{ display:flex; align-items:center; gap:var(--space-xs); flex:1 1 auto; min-width:0; }
   .budget-add-label{ font-size:12px; font-weight:600; line-height:17px; letter-spacing:-0.12px; color:var(--ink); white-space:nowrap; }
   .budget-add-input{
-    font-size:12px; font-family:inherit; line-height:17px; border:1px solid var(--border-card); border-radius:var(--radius-sm); padding:0 var(--space-sm);
+    font-size:12px; font-family:inherit; line-height:17px; border:1px solid var(--border-card); border-radius:var(--radius-sm); padding:0 var(--space-xs);
     background:var(--surface); color:var(--ink); height:32px;
   }
   .budget-add-input:focus-visible{ outline:none; border-color:var(--border-focus); }
   .budget-add-cat{ width:120px; flex:0 0 auto; }
   .budget-add-name{ flex:1 1 auto; min-width:0; }
   .budget-add-amt{ width:80px; flex:0 0 auto; height:32px; }
-  .budget-add-amt .field-prefix{ left:var(--space-sm); font-size:12px; }
+  .budget-add-amt .field-prefix{ left:var(--space-xs); font-size:12px; }
   .budget-add-amt input{ padding-left:22px; height:32px; font-family:var(--font-mono); font-weight:500; letter-spacing:-0.48px; text-align:right; width:100%; }
-  .budget-add-actions{ display:flex; gap:var(--space-xs); flex-shrink:0; }
-  #budget-status.err{ display:block; margin-top:var(--space-sm); }
+  .budget-add-actions{ display:flex; gap:var(--space-tn); flex-shrink:0; }
+  #budget-status.err{ display:block; margin-top:var(--space-xs); }
   #budget-panel-hint{ line-height:1.5; }
   .budget-empty{ font-size:12px; color:var(--ink-muted); }
 
@@ -1080,7 +1083,7 @@
      Sept 24 pull of the Okara Design System: components new in the file.
      ================================================================ */
   /* KPI card, Show indicator: 12px arrow + 8px + the details. */
-  .mini-kpi .detail{ display:flex; align-items:center; gap:var(--space-sm); }
+  .mini-kpi .detail{ display:flex; align-items:center; gap:var(--space-xs); }
   .mini-kpi .detail svg{ flex-shrink:0; color:var(--surface-tertiary); }
 
   /* avatar (221:1044), Style=Text: 40px surface/accent circle, 14px SemiBold /15.2 -1% white initial. */
@@ -1092,16 +1095,16 @@
 
   /* User nav (230:618): actions (8px top padding, bell) 16px left of the user. */
   .ds-user-nav{ display:flex; align-items:flex-start; gap:var(--space-md); }
-  .ds-user-nav-actions{ display:flex; gap:var(--space-sm); padding-top:var(--space-sm); }
+  .ds-user-nav-actions{ display:flex; gap:var(--space-xs); padding-top:var(--space-xs); }
 
   /* user (221:1048). Default: 4/0/4/4 padding round an Info row (8px left padding, chevron 12 + 8 + avatar).
      Hover: the Info row fills action/secondary-hover. Active: a surface/primary card, 200 wide, padding 4/4/8/4, gap 4,
      radius 16/24/16/16, shadow 0 0 8 ink@8%: Info row (chevron, first name in text/accent, avatar) over the menu. */
   /* The user takes 72px closed and 200px open; the width moves with the card, so the bell slides instead of jumping. */
   .ds-user{ position:relative; width:72px; height:48px; transition:width .2s cubic-bezier(.2,0,0,1); }
-  .ds-user-trigger{ display:flex; padding:var(--space-xs) 0 var(--space-xs) var(--space-xs); border:none; background:none; cursor:pointer; border-radius:var(--radius-full); font-family:inherit; }
+  .ds-user-trigger{ display:flex; padding:var(--space-tn) 0 var(--space-tn) var(--space-tn); border:none; background:none; cursor:pointer; border-radius:var(--radius-full); font-family:inherit; }
   .ds-user-info{
-    display:flex; align-items:center; gap:var(--space-sm); padding:0 0 0 var(--space-sm); border-radius:var(--radius-full);
+    display:flex; align-items:center; gap:var(--space-xs); padding:0 0 0 var(--space-xs); border-radius:var(--radius-full);
     border:none; background:none; font-family:inherit; cursor:pointer; color:var(--surface-dark); transition:background-color .12s ease;
   }
   .ds-user-info svg{ flex-shrink:0; }
@@ -1115,7 +1118,7 @@
   @media (prefers-reduced-motion: reduce){ .ds-user{ transition:none; } }
   .ds-user-card{
     position:absolute; top:0; right:0; z-index:65; width:200px; box-sizing:border-box;
-    display:flex; flex-direction:column; gap:var(--space-xs); padding:var(--space-xs) var(--space-xs) var(--space-sm) var(--space-xs);
+    display:flex; flex-direction:column; gap:var(--space-tn); padding:var(--space-tn) var(--space-tn) var(--space-xs) var(--space-tn);
     background:var(--surface-primary); border-radius:16px 24px 16px 16px;
     box-shadow:0 0 8px color-mix(in srgb, var(--text-primary) 8%, transparent);
   }
@@ -1134,8 +1137,8 @@
   @media (prefers-reduced-motion: reduce){ .ds-user-card, .ds-user-card *{ animation:none !important; } }
   .ds-user-name{ flex:1 1 auto; min-width:0; text-align:left; font-size:14px; font-weight:600; line-height:15.2px; letter-spacing:-0.14px; color:var(--text-accent); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   /* Menu: 4px right padding, items 4 apart. */
-  .ds-menu-items{ padding-right:var(--space-xs); }
-  .ds-menu-items .ds-dd-items{ gap:var(--space-xs); }
+  .ds-menu-items{ padding-right:var(--space-tn); }
+  .ds-menu-items .ds-dd-items{ gap:var(--space-tn); }
   /* A standalone action menu (Dropdown-list, Type=Simple) anchored under the button that opened it. */
   .ds-menu{ position:absolute; z-index:65; width:auto; min-width:0; }
   .ds-menu .ds-dd-item{ min-width:163px; }
@@ -1149,18 +1152,18 @@
   .ds-notif .round-btn svg{ }
   .ds-notif-panel{
     position:absolute; top:40px; right:0; z-index:65; width:320px; max-width:calc(100vw - 32px); box-sizing:border-box;
-    display:flex; flex-direction:column; gap:var(--space-xs); padding:var(--space-sm);
+    display:flex; flex-direction:column; gap:var(--space-tn); padding:var(--space-xs);
     background:var(--surface-primary); border-radius:16px 24px 16px 16px;
     box-shadow:0 0 8px color-mix(in srgb, var(--text-primary) 8%, transparent);
     max-height:min(480px, calc(100vh - 120px)); overflow-y:auto;
   }
   /* notification-item (228:469): padding 16, gap 4, radius/sm; Hover fills surface/accent-light. */
-  .ds-notif-item{ display:flex; flex-direction:column; gap:var(--space-xs); padding:var(--space-md); border-radius:var(--radius-sm); transition:background-color .12s ease; }
+  .ds-notif-item{ display:flex; flex-direction:column; gap:var(--space-tn); padding:var(--space-md); border-radius:var(--radius-sm); transition:background-color .12s ease; }
   .ds-notif-item:hover{ background:var(--surface-accent-light); }
-  .ds-notif-when{ display:flex; align-items:center; gap:var(--space-xs); font-size:12px; font-weight:600; line-height:17px; letter-spacing:-0.12px; color:var(--text-accent); }
+  .ds-notif-when{ display:flex; align-items:center; gap:var(--space-tn); font-size:12px; font-weight:600; line-height:17px; letter-spacing:-0.12px; color:var(--text-accent); }
   .ds-notif-dot{ position:relative; width:10px; height:10px; flex-shrink:0; }
   .ds-notif-dot::before{ content:''; position:absolute; left:3.33px; top:3.33px; width:3.33px; height:3.33px; border-radius:50%; background:var(--surface-accent); }
-  .ds-notif-content{ display:flex; align-items:flex-start; justify-content:space-between; gap:var(--space-sm); }
+  .ds-notif-content{ display:flex; align-items:flex-start; justify-content:space-between; gap:var(--space-xs); }
   .ds-notif-text{ flex:1 1 auto; min-width:0; font-size:12px; font-weight:500; line-height:17px; color:var(--text-primary); overflow-wrap:anywhere; }
   .ds-notif-content .btn-pill{ flex-shrink:0; }
 
@@ -1182,12 +1185,15 @@
   .ds-modal[open]{ display:flex; animation:ds-modal-in .2s cubic-bezier(.2,0,0,1); }
   .ds-modal::backdrop{ background:rgba(22,21,15,.32); animation:ds-fade-in .2s cubic-bezier(.2,0,0,1); }
   @keyframes ds-modal-in{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
-  .ds-modal-header{ display:flex; justify-content:flex-end; align-items:center; gap:var(--space-sm); }
+  .ds-modal-header{ display:flex; justify-content:flex-end; align-items:center; gap:var(--space-xs); }
   .ds-modal-content{ display:flex; flex-direction:column; align-items:center; gap:var(--space-sm); padding:0 var(--space-lg); text-align:center; }
   .ds-modal-title-block{ display:flex; flex-direction:column; align-items:center; gap:var(--space-md); width:100%; }
+  .ds-modal-text{ display:flex; flex-direction:column; gap:var(--space-tn); width:100%; }
   .ds-illustration{ display:block; flex-shrink:0; color:var(--surface-dark); }
   .ds-modal-title{ margin:0; font-size:20px; font-weight:600; line-height:1.2; letter-spacing:0; color:var(--text-primary); }
   .ds-modal-description{ margin:0; font-size:14px; font-weight:500; line-height:15.2px; letter-spacing:-0.14px; color:var(--text-secondary); }
-  .ds-modal-actions{ display:flex; justify-content:center; align-items:center; gap:var(--space-md); }
-  .ds-modal-actions .btn-pill{ width:240px; min-width:0; flex:0 1 240px; justify-content:center; }
+  /* Actions: padding 0 space/2xl. Two 240px buttons + 16 don't fit the 412px left inside that padding; Figma lets them
+     overflow it evenly (they span the card as before), so they don't shrink here either. */
+  .ds-modal-actions{ display:flex; justify-content:center; align-items:center; gap:var(--space-md); padding:0 var(--space-2xl); }
+  .ds-modal-actions .btn-pill{ width:240px; min-width:0; flex:0 0 240px; justify-content:center; }
   @media (prefers-reduced-motion: reduce){ .ds-modal[open], .ds-modal::backdrop{ animation:none; } }

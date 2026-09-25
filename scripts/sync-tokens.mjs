@@ -1,7 +1,7 @@
 // Writes the Okara Design System variables (tests/figma-tokens.json, read from Figma) into the token block of
 // src/ui/okara.css, between the @tokens:start / @tokens:end markers. Run after updating the JSON from Figma.
 //   node scripts/sync-tokens.mjs
-// Names mirror Figma: Color/surface/primary -> --surface-primary, Spacing/space/sm -> --space-sm.
+// Names mirror Figma: Color/surface/primary -> --surface-primary, Spacing/space/xs -> --space-xs.
 // Primitives get a --primitive- prefix (their names overlap the Color ones, e.g. data/blue) and the Color
 // variables point at them with var(), exactly as the aliases in Figma do.
 import { readFileSync, writeFileSync } from 'node:fs';

@@ -15,9 +15,10 @@ export function Illustration({ art, width = 64, className }) {
   );
 }
 
-// Modal (DS Components 273:632). 540 wide, surface/primary, radius/md, shadow 0 0 8 ink@8%, padding 16/16/24/16, 40 between
-// Header (Round button Small Tertiary, X), Content (optional 64px illustration, title Heading/Large, description
-// Body/Medium/Medium, centred) and Actions (Secondary + Primary Medium buttons, 240 wide, 16 apart).
+// Modal (DS Components 273:632, Sept 25). 540 wide, surface/primary, radius/md, shadow 0 0 8 ink@8%, padding 16/16/24/16,
+// 40 between Header (Round button Small Tertiary, X), Content (padding 0 24, gap space/sm 12: optional 64px illustration,
+// then Text = title Heading/Large + description Body/Medium/Medium, space/tn 4 apart, centred) and Actions (padding
+// 0 space/2xl 48, Secondary + Primary Medium buttons 240 wide, 16 apart).
 // `illustration` = an object from illustrations.js, or null to hide it (the "Illustration" boolean).
 // primary/secondary = { label, onClick, disabled, id }; primary.destructive paints it action/destructive (the
 // override on the Cost-tracker delete modal, 258:10267).
@@ -35,11 +36,11 @@ export function Modal({ open, onClose, title, description, illustration, primary
       onClick={(e) => { if (e.target === ref.current && onClose) onClose(); }}>
       <div className="ds-modal-header"><RoundButton icon={x} size="small" label="Close" onClick={onClose} /></div>
       <div className="ds-modal-content">
-        <div className="ds-modal-title-block">
-          <Illustration art={illustration} />
+        {illustration && <div className="ds-modal-title-block"><Illustration art={illustration} /></div>}
+        <div className="ds-modal-text">
           <h2 className="ds-modal-title" id={titleId}>{title}</h2>
+          {description && <p className="ds-modal-description">{description}</p>}
         </div>
-        {description && <p className="ds-modal-description">{description}</p>}
         {children}
       </div>
       {(primary || secondary) && (
