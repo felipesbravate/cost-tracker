@@ -177,12 +177,14 @@ function ItemTip({ tip, actions }) {
   // Closing fades the tooltip out where it was, with what it showed: without its position it fell back into the page
   // flow (over the Tracker title) and faded there, the flash in Felipe's recording.
   const last = useRef(null);
-  if (!tip) return <EntriesTooltip tipRef={ref} style={last.current ? last.current.style : undefined} footnote={last.current && last.current.foot} budget={last.current ? last.current.budget : null} currency={last.current && last.current.cur}>{last.current && last.current.lines}</EntriesTooltip>;
+  if (!tip) return <EntriesTooltip tipRef={ref} style={last.current ? last.current.style : undefined} footnote={last.current && last.current.foot} budget={last.current ? last.current.budget : null} budgetLabel={last.current ? last.current.budgetLabel : undefined} currency={last.current && last.current.cur}>{last.current && last.current.lines}</EntriesTooltip>;
   const { row, cur } = tip;
   const lines = [];
   if (row.deleted) {
     lines.push(<TooltipEntryItem key="base" name={row.isEstimate ? 'Estimate removed for this month' : 'Value removed for this month'}
       extra={<ActionLink icon={reload} className="tip-restore" onClick={(e) => { e.stopPropagation(); actions.restoreOverride(row.override ? row.override.id : ''); }}>Restore</ActionLink>} />);
+  } else if (row.isEstimate && row.estimateSource === 'budget' && row.budget != null) {
+    // Nothing recorded yet and a budget set: the header already shows it, so no line and no explanation.
   } else if (row.isEstimate) {
     let label, basis;
     if (row.estimateSource === 'sheet') { label = 'Pre-filled in the spreadsheet'; basis = 'not recorded yet'; }
@@ -197,9 +199,10 @@ function ItemTip({ tip, actions }) {
   (row.noteEntries || []).forEach((n, i) => lines.push(<TooltipEntryItem key={'n' + i} sub name={n.text} date={n.date || ''} amount={n.amount} currency={cur} estimate={n.isEstimate} prefix={n.isEstimate ? '~' : ''} />));
   (row.entries || []).forEach((e) => lines.push(<TooltipEntryItem key={'e' + e.id} name={e.description || 'Manual entry'} date={formatEntryDate(e.date) || ''} amount={e.amount} currency={cur} onRemove={() => actions.deleteEntry(e.id)} removeTitle="Delete" />));
   const foot = anyEstimateNote ? "~ estimated (split evenly) — the sheet didn't record this one's exact amount"
-    : (row.isEstimate && !row.deleted) ? '≈ projected from recent months — nothing recorded yet. Add a real entry to replace it, or delete it.' : null;
-  if (pos) last.current = { style: pos, lines, foot, budget: row.budget, cur };
-  return <EntriesTooltip tipRef={ref} visible={!!pos} style={pos || { left: '0px', top: '0px' }} footnote={foot} budget={row.budget} currency={cur}>{lines}</EntriesTooltip>;
+    : (row.isEstimate && !row.deleted && !(row.estimateSource === 'budget' && row.budget != null)) ? '≈ projected from recent months — nothing recorded yet. Add a real entry to replace it, or delete it.' : null;
+  const budgetLabel = row.type === 'income' ? 'Estimated' : 'Budget set';
+  if (pos) last.current = { style: pos, lines, foot, budget: row.budget, budgetLabel, cur };
+  return <EntriesTooltip tipRef={ref} visible={!!pos} style={pos || { left: '0px', top: '0px' }} footnote={foot} budget={row.budget} budgetLabel={budgetLabel} currency={cur}>{lines}</EntriesTooltip>;
 }
 function formatEntryDate(iso) {
   const m = iso && iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
