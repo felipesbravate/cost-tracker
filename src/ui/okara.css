@@ -662,7 +662,8 @@
      Previously Expense allocation sat in Row2 and ticker-strip/Row2/hero-chart
      were full-page-width siblings of Row1 — corrected here. ---- */
   .row1{ display:grid; grid-template-columns:400px 1fr; gap:var(--space-md); margin-bottom:var(--space-lg); }
-  .card{ background:var(--surface); border:1px solid var(--border-card); border-radius:var(--radius-card); padding:var(--space-lg); }
+  /* Cards, KPI boxes and Expense cards have no border (Sept 26). */
+  .card{ background:var(--surface); border:none; border-radius:var(--radius-card); padding:var(--space-lg); }
   .hero-left{ display:flex; flex-direction:column; gap:var(--space-md); }
   /* Hugs its own content, like every other card in this column — the
      get_design_context pull for node 2:2 showed this node as flex-[1_0_0]
@@ -681,7 +682,7 @@
      columns per Figma's redesigned mini-grid -- Income/Expenses stay
      side-by-side above it. */
   .mini-grid .mini-kpi:nth-child(3){ grid-column:1 / -1; }
-  .mini-kpi{ background:var(--surface); border:1px solid var(--border-card); border-radius:var(--radius-md); padding:var(--space-md); }
+  .mini-kpi{ background:var(--surface); border:none; border-radius:var(--radius-md); padding:var(--space-md); }
   .mini-kpi .label{ display:flex; align-items:center; gap:var(--space-xs); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .mini-kpi .dot{ width:7px; height:7px; border-radius:50%; display:inline-block; flex-shrink:0; }
   /* KPI card (DS 28:68): label 12px SemiBold, line height auto, tracking 0; the details line is mono 12 Medium -4% in text/secondary, 8px under the value. */
@@ -724,7 +725,7 @@
      column's own flex gap rather than its own margin-bottom ---- */
   .ticker-strip{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--space-md); }
   .ticker-item{
-    background:var(--surface); border:1px solid var(--border-card); border-radius:var(--radius-md);
+    background:var(--surface); border:none; border-radius:var(--radius-md);
     padding:var(--space-md); display:flex; flex-direction:column; gap:var(--space-xs);
   }
   .ticker-item .ti-top{ display:flex; align-items:center; gap:8px; }

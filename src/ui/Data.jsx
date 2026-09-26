@@ -1,7 +1,7 @@
 import { Icon } from './Icon.jsx';
 import { Money } from './Money.jsx';
 
-// Card (DS): white surface, 1px border, 24px padding. Optional uppercase title and hint.
+// Card (DS): white surface, no border, 24px padding. Optional uppercase title and hint.
 export function Card({ title, hint, hintId, className, children, ...rest }) {
   return (
     <div className={['card', className].filter(Boolean).join(' ')} {...rest}>

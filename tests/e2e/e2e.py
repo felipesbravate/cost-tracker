@@ -193,6 +193,8 @@ async def main():
                          euro: !!q('.mini-kpi .money-ic svg'), tokens: [tok('--group-fixed'), tok('--group-variable'), tok('--group-extra'), tok('--group-additional'), tok('--chart-invest')] }; }""")
             check('cards are radius 20, KPI cards 16', d['radius'] == '20px' and d['kpiR'] == '16px', d)
             check('expense cards sit four across', d['cols'] == 4, d)
+            bw = await pg.evaluate("() => [...document.querySelectorAll('.card, .mini-kpi, .ticker-item')].map(e => getComputedStyle(e).borderTopWidth + ' ' + getComputedStyle(e).borderLeftStyle)")
+            check('dashboard cards, KPI boxes and expense cards have no border', len(bw) >= 8 and all(x == '0px none' for x in bw), bw)
             check('Segments sit on surface/secondary, tags are 4px Label chips', d['segBg'] == 'rgb(239, 238, 229)' and d['tag'] == ['4px', 'rgb(239, 238, 229)'], d)
             check('allocation bars are 48 wide, 16 apart', d['allocBar'] == '48px' and d['allocGap'] == '16px', d)
             check('month row is indented 56', d['monthsPad'] == '56px', d)
