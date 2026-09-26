@@ -349,14 +349,15 @@ export function createModel({ data: DATA, entries: ENTRIES, overrides: OVERRIDES
   }
 
   // ---- over-budget alerts (the bell) ----
-  // Variable, Additional and Extra expenses whose recorded entries add up to more than the item's budget, in the months
-  // of the current year up to this one. Newest first. `at` = the date of the entry that took it over.
+  // Variable, Additional and Extra expenses whose recorded entries add up to more than the item's budget, in any month
+  // of the current year (entries can be dated ahead, e.g. a booking in a budgeted future month). Newest first.
+  // `at` = when the entry that took it over was added.
   const ALERT_GROUPS = ['Variable', 'Additional', 'Extra'];
   function budgetAlerts(now = new Date()) {
     const y = DATA.find((d) => d.year === String(now.getFullYear()));
     if (!y) return [];
     const out = [];
-    for (let mi = 0; mi <= now.getMonth(); mi++) {
+    for (let mi = 0; mi < 12; mi++) {
       if (!budgetApplies(y, mi)) continue;
       for (const b of budgetsFor(y.year, mi)) {
         if (b.type !== 'expense' || !ALERT_GROUPS.includes(b.group) || !(b.amount > 0)) continue;
