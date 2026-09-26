@@ -9,10 +9,7 @@ const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct
 
 // The first name the header greets: the account's email up to the first dot, dash, underscore or plus, capitalised
 // ("felipe.sbravate@…" → "Felipe"). The account has no name field.
-export function firstNameOf(email) {
-  const part = String(email || '').split('@')[0].split(/[._+\-\d]/).find(Boolean) || '';
-  return part ? part.charAt(0).toUpperCase() + part.slice(1).toLowerCase() : 'there';
-}
+export { firstNameOf } from '../lib/names.js';
 
 // When something happened, as the notification item shows it: "Sep 17" and "14:05" (no time for a date-only entry).
 function whenOf(iso) {

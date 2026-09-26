@@ -17,6 +17,16 @@ export function supabaseAccounts(admin, { url, anonKey, profiles }) {
       const r = await admin.auth.admin.getUserById(p.user_id);
       return r.error ? 'code' : methodOf(r.data.user);
     },
+    // Who signs in with this address, for the sign-in pages: an account exists once its profile does (made on the
+    // first signed-in visit). `name` is the full name given on "Create account" (user_metadata.full_name), if any.
+    async lookup(email) {
+      const p = await profiles.byEmail(email);
+      if (!p) return { exists: false, method: 'code', name: null };
+      const r = await admin.auth.admin.getUserById(p.user_id);
+      if (r.error || !r.data.user) return { exists: true, method: 'code', name: null };
+      const meta = r.data.user.user_metadata || {};
+      return { exists: true, method: methodOf(r.data.user), name: typeof meta.full_name === 'string' ? meta.full_name : null };
+    },
     async setPassword(u, password) { must(await admin.auth.admin.updateUserById(u.id, { password, app_metadata: { sign_in: 'password' } })); },
     // A throwaway client (no cookies, no stored session): only answers "is this the password".
     async checkPassword(email, password) {

@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { passesFormCsrf } from '../../../src/lib/security.js';
 import { authClient } from '../../../src/server/auth.js';
 import { getDeps } from '../../../src/server/deps.js';
-import { EMAIL_COOKIE, cleanEmail } from '../../../src/lib/otp-login.js';
+import { EMAIL_COOKIE, LOGIN_CTX_COOKIE, LOGIN_NAME_COOKIE, cleanEmail } from '../../../src/lib/otp-login.js';
 
 export const dynamic = 'force-dynamic';
 const back = (path) => new Response(null, { status: 303, headers: { location: path } });
@@ -22,6 +22,6 @@ export async function POST(request) {
   const sb = await authClient();
   const { error } = await sb.auth.signInWithPassword({ email, password });
   if (error) { console.error('[password] rejected:', error.status, error.code || error.message); return back('/login?step=password&error=password'); }
-  store.delete(EMAIL_COOKIE);
+  store.delete(EMAIL_COOKIE); store.delete(LOGIN_CTX_COOKIE); store.delete(LOGIN_NAME_COOKIE);
   return back('/');
 }

@@ -4,7 +4,7 @@ import { checkmark } from './icons.js';
 
 const cx = (...c) => c.filter(Boolean).join(' ');
 
-// logo_ongatu (DS 277:670). Variant Full (symbol + ONGATU, 482x147.4) or Symbol (147.4x147.4). Drawn in the raw
+// logo_ongatu (DS 277:670). Variant Full (Horizontal: symbol + ONGATU, 482x147.4), Vertical (below) or Symbol (147.4x147.4). Drawn in the raw
 // brand colours the component uses (brand/indigo #4f46e5, brand/mint #13d075; no Color variable is bound).
 // `height` sets the size; the width follows.
 const SYMBOL = [
@@ -21,14 +21,18 @@ const TYPE = [
   'M465.565 45.601V78.8184C465.565 81.2859 465.01 83.2381 463.92 84.6354C462.74 86.1417 460.847 86.9047 458.3 86.9047C455.752 86.9047 453.859 86.1417 452.679 84.6354C451.589 83.248 451.034 81.2859 451.034 78.8184V45.601H434.678V79.6409C434.678 83.4363 435.243 86.7759 436.344 89.5506C437.434 92.2857 439 94.5748 440.993 96.3487C443.005 98.1423 445.483 99.5 448.358 100.402C451.292 101.323 454.642 101.789 458.29 101.789C461.938 101.789 465.278 101.323 468.222 100.402C471.097 99.5 473.595 98.1324 475.646 96.3388C477.669 94.5649 479.245 92.2758 480.335 89.5407C481.445 86.766 482 83.4264 482 79.631V45.5911H465.556L465.565 45.601Z',
 ];
 
+// Variant Vertical (349:565, 248.04 x 197.44): the symbol at 136 centred on top, ONGATU 248 wide 152 below its top.
+// Same paths, placed with transforms: the wordmark spans x 161.81-482, y 44.43-102.97 in the Full drawing.
+const VERT = { w: 248.04, h: 197.44, sym: 'translate(56.02 0) scale(0.92266)', type: 'translate(0 152.09) scale(0.774656) translate(-161.81 -44.4316)' };
+
 export function Logo({ variant = 'symbol', height = 48, className, title = 'Ongatu' }) {
-  const full = variant === 'full';
-  const w = full ? 482 : 147.4, h = 147.4;
+  const full = variant === 'full', vertical = variant === 'vertical';
+  const w = vertical ? VERT.w : full ? 482 : 147.4, h = vertical ? VERT.h : 147.4;
   return (
     <svg className={cx('ds-logo', className)} viewBox={`0 0 ${w} ${h}`} height={height} width={Math.round((height * w / h) * 100) / 100}
-      role="img" aria-label={title} data-variant={full ? 'full' : 'symbol'}>
-      {SYMBOL.map(([d, c], i) => <path key={i} d={d} className={`ds-logo-${c}`} />)}
-      {full && TYPE.map((d, i) => <path key={'t' + i} d={d} className="ds-logo-indigo" />)}
+      role="img" aria-label={title} data-variant={vertical ? 'vertical' : full ? 'full' : 'symbol'}>
+      <g transform={vertical ? VERT.sym : undefined}>{SYMBOL.map(([d, c], i) => <path key={i} d={d} className={`ds-logo-${c}`} />)}</g>
+      {(full || vertical) && <g transform={vertical ? VERT.type : undefined}>{TYPE.map((d, i) => <path key={'t' + i} d={d} className="ds-logo-indigo" />)}</g>}
     </svg>
   );
 }

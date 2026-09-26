@@ -48,7 +48,7 @@ export async function handle(req, deps) {
     const status = effectiveStatus(profile, deps.admins);
     const isAdmin = deps.admins.has((user.email || '').toLowerCase());
 
-    if (method === 'GET' && path === '/api/me') return json(200, { email: user.email, status, isAdmin });
+    if (method === 'GET' && path === '/api/me') return json(200, { email: user.email, status, isAdmin, name: user.name || null });
     if (status !== 'approved') return json(403, { error: { code: status === 'blocked' ? 'blocked' : 'pending', message: status === 'blocked' ? 'Account blocked' : 'Waiting for approval' } });
 
     // ---- document store ----
@@ -196,16 +196,25 @@ export function passwordProblem(p) {
 
 /**
  * Accounts (sign-in method and password). In production: Supabase auth admin (src/server/deps.js).
- * { getMethod(user), methodForEmail(email), setPassword(user, pw), checkPassword(email, pw), useCode(user), deleteUser(user) }
+ * { getMethod(user), methodForEmail(email), lookup(email), setPassword(user, pw), checkPassword(email, pw), useCode(user), deleteUser(user) }
  * In memory for tests and the mock server; `m` maps email -> { method, password, userId }.
  */
 export function memoryAccounts(/** @type {any} */ profiles) {
   /** @type {Map<string, any>} */ const m = new Map();
   const rec = (/** @type {string} */ email) => m.get(String(email || '').toLowerCase()) || { method: 'code' };
+  /** @type {Map<string, string>} */ const names = new Map();
   return {
     m,
     async getMethod(/** @type {any} */ u) { return rec(u.email).method; },
     async methodForEmail(/** @type {string} */ email) { return rec(email).method; },
+    // An account exists once its profile does; `names` maps email -> the full name given on "Create account".
+    names,
+    async lookup(/** @type {string} */ email) {
+      const e = String(email || '').toLowerCase();
+      const all = profiles && profiles.list ? await profiles.list() : [];
+      const exists = all.some((/** @type {any} */ p) => String(p.email || '').toLowerCase() === e);
+      return { exists, method: exists ? rec(e).method : 'code', name: names.get(e) || null };
+    },
     async setPassword(/** @type {any} */ u, /** @type {string} */ pw) { m.set(u.email.toLowerCase(), { method: 'password', password: pw, userId: u.id }); },
     async checkPassword(/** @type {string} */ email, /** @type {string} */ pw) { const r = rec(email); return r.method === 'password' && r.password === pw; },
     async useCode(/** @type {any} */ u) { m.set(u.email.toLowerCase(), { method: 'code', userId: u.id }); },
@@ -218,6 +227,7 @@ export function memoryProfiles() {
   /** @type {Map<string, any>} */ const m = new Map();
   return {
     async get(id) { return m.get(id) || null; },
+    async byEmail(e) { return [...m.values()].find((p) => p.email === String(e).toLowerCase()) || null; },
     async upsert(p) { if (!m.has(p.user_id)) m.set(p.user_id, { created_at: new Date().toISOString(), ...p }); },
     async list() { return [...m.values()]; },
     async setStatus(id, status) { const p = m.get(id); if (p) p.status = status; },

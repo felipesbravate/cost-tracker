@@ -1,7 +1,7 @@
 'use client';
 // The account's name and picture, kept encrypted in the vault's `settings` collection like the rest of the data:
 // settings/profile = { firstName, lastName }, settings/avatar = { image } (a small JPEG data URL, made in the browser).
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { db } from './api.js';
 import { firstNameOf } from './AccountBar.jsx';
 
@@ -19,10 +19,19 @@ export function useProfile(me) {
   useEffect(() => db.collection('settings').onSnapshot((snap) => {
     const get = (id) => { const d = snap.docs.find((x) => x.id === id); return d ? d.data() : null; };
     const prof = get('profile') || {}, av = get('avatar') || {};
-    const next = { firstName: prof.firstName || '', lastName: prof.lastName || '', image: typeof av.image === 'string' ? av.image : null };
+    const next = { firstName: prof.firstName || '', lastName: prof.lastName || '', image: typeof av.image === 'string' ? av.image : null, hasDoc: !!get('profile') };
     writeCache(next);
     setP({ ...next, loaded: true });
   }), []);
+  // The full name typed on "Create account" (kept on the sign-in account, /api/me `name`) fills the profile once,
+  // on the first visit with no profile saved yet: first word = first name, the rest = last name.
+  const seeded = useRef(false);
+  useEffect(() => {
+    if (!p.loaded || p.hasDoc || seeded.current || !me || !me.name) return;
+    seeded.current = true;
+    const [first, ...rest] = String(me.name).trim().split(/\s+/);
+    if (first) saveProfile(first, rest.join(' ')).catch(() => { seeded.current = false; });
+  }, [p.loaded, p.hasDoc, me]);
   // The greeting and the menu use the first name when there is one, else the part of the email before the dot.
   const name = p.firstName.trim() || firstNameOf(me && me.email);
   return { ...p, name };

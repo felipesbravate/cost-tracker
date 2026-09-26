@@ -324,7 +324,8 @@
   /* Style=Secondary: no fill, border/default stroke (was incorrectly a solid --ink
      border with a white fill — corrected to match the real component: transparent
      background, #cbcac5 border). */
-  .btn-pill.ghost{ background:transparent; color:var(--ink); border-color:var(--border-card); }
+  /* Secondary (41:119): 1px border/dark (Sept 26). */
+  .btn-pill.ghost{ background:transparent; color:var(--ink); border-color:var(--border-dark); }
   /* Style=Tertiary: no fill, no border, ink text only — new, not yet used by any
      button in this app, added for parity with the DS component. */
   .btn-pill.tertiary{ background:transparent; color:var(--ink); border-color:transparent; }
@@ -1446,3 +1447,38 @@
   #note-tip .tip-head-amount .money-ic{ color:var(--action-disable); }
   #note-tip .tip-empty{ font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); color:var(--text-muted); }
   #note-tip .tip-head-divider{ border:none; border-top:1px solid var(--border-tertiary); margin:var(--space-md) var(--space-xs) var(--space-md) 0; }
+  /* ---- Sign in (Ongatu 325:10734 and steps 335:7580, 335:7542, 335:7606, 342:7702, 342:7885) ----
+     Page surface/body, 80 from the top; a 480 column, 40 between the header and the card. Header: logo Vertical
+     (160 x 127), 8 above the tagline (Body/Medium/Medium, brand indigo). Card: surface/primary, 1px border/default,
+     radius/md, padding 40, 24 between blocks. Title Heading/XL, centred. Fields: label Body/Small/SemiBold text/secondary,
+     8 above the Input; 24 between fields and buttons (16 between the two Create-account fields). */
+  .login-page{ min-height:100vh; box-sizing:border-box; background:var(--surface-body); padding:80px var(--space-md); display:flex; justify-content:center; font-family:var(--font-sans); color:var(--text-primary); }
+  .login-content{ width:480px; max-width:100%; display:flex; flex-direction:column; align-items:center; gap:var(--space-xl); }
+  .login-header{ display:flex; flex-direction:column; align-items:center; gap:var(--space-xs); padding:0 var(--space-lg); }
+  .login-header .ds-logo{ display:block; }
+  .login-tagline{ margin:0; text-align:center; color:var(--primitive-brand-indigo); font-size:var(--type-body-medium-medium-size); font-weight:var(--type-body-medium-medium-weight); line-height:var(--type-body-medium-medium-lh); letter-spacing:var(--type-body-medium-medium-ls); }
+  .login-card{ width:100%; box-sizing:border-box; background:var(--surface-primary); border:1px solid var(--border-default); border-radius:var(--radius-md); padding:var(--space-xl); display:flex; flex-direction:column; gap:var(--space-lg); }
+  .login-head{ display:flex; flex-direction:column; align-items:center; gap:var(--space-md); text-align:center; }
+  .login-title{ margin:0; font-size:var(--type-heading-xl-size); font-weight:var(--type-heading-xl-weight); line-height:var(--type-heading-xl-lh); letter-spacing:var(--type-heading-xl-ls); color:var(--text-primary); }
+  .login-sub{ margin:0; color:var(--text-secondary); font-size:var(--type-body-medium-medium-size); font-weight:var(--type-body-medium-medium-weight); line-height:var(--type-body-medium-medium-lh); letter-spacing:var(--type-body-medium-medium-ls); }
+  .login-sub strong{ font-weight:inherit; color:var(--text-primary); }
+  .login-user{ display:flex; flex-direction:column; align-items:center; gap:var(--space-xs); }
+  .login-user-text p{ margin:0; }
+  .login-hello{ color:var(--text-primary); font-size:var(--type-body-large-medium-size); font-weight:var(--type-body-large-medium-weight); line-height:var(--type-body-large-medium-lh); letter-spacing:var(--type-body-large-medium-ls); }
+  .login-email{ color:var(--text-secondary); font-size:var(--type-body-medium-medium-size); font-weight:var(--type-body-medium-medium-weight); line-height:var(--type-body-medium-medium-lh); letter-spacing:var(--type-body-medium-medium-ls); overflow-wrap:anywhere; }
+  .login-body, .login-form{ display:flex; flex-direction:column; gap:var(--space-lg); }
+  .login-form--tight{ gap:var(--space-md); }
+  .login-field{ display:flex; flex-direction:column; align-items:flex-start; gap:var(--space-xs); }
+  .login-field .ds-input{ width:100%; }
+  .login-label{ color:var(--text-secondary); font-size:var(--type-body-small-semibold-size); font-weight:var(--type-body-small-semibold-weight); line-height:var(--type-body-small-semibold-lh); letter-spacing:var(--type-body-small-semibold-ls); }
+  .login-code{ display:flex; gap:var(--space-xs); width:100%; }
+  .login-code .login-code-box{ flex:1 1 0; min-width:0; padding:0; }
+  .login-code-box input{ width:100%; height:100%; text-align:center; font-variant-numeric:tabular-nums; }
+  .login-cta{ display:flex; gap:var(--space-xs); }
+  .login-cta > *{ flex:1 1 0; min-width:0; justify-content:center; text-decoration:none; box-sizing:border-box; }
+  .login-wide{ width:100%; justify-content:center; }
+  /* Errors and "code sent" are not in the design: a Body/Small line under the field, status/fail for errors. */
+  .login-msg{ margin:0; color:var(--critical); font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); }
+  .login-msg.is-ok{ color:var(--text-secondary); }
+  #forgot-form, #resend-form{ display:none; }
+

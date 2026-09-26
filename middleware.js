@@ -15,4 +15,4 @@ export function middleware(request) {
   return res;
 }
 
-export const config = { matcher: ['/', '/account'] };
+export const config = { matcher: ['/', '/account', '/login'] };

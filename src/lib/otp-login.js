@@ -19,3 +19,19 @@ export function cleanCode(v) {
   const c = String(v || '').replace(/[\s-]/g, '');
   return /^\d{6,10}$/.test(c) ? c : null;
 }
+
+// What the sign-in pages show between steps, in a short-lived httpOnly cookie next to the address:
+// { k: 'code' | 'password' | 'new', n: the greeting name }. And the full name typed on "Create account".
+export const LOGIN_CTX_COOKIE = 'ct_login_ctx';
+export const LOGIN_NAME_COOKIE = 'ct_login_name';
+
+/** @param {{ k: string, n?: string }} c */
+export const encodeCtx = (c) => Buffer.from(JSON.stringify({ k: c.k, n: String(c.n || '').slice(0, 80) })).toString('base64url');
+/** @param {unknown} v @returns {{ k: 'code'|'password'|'new', n: string } | null} */
+export function decodeCtx(v) {
+  try {
+    const c = JSON.parse(Buffer.from(String(v || ''), 'base64url').toString('utf8'));
+    return c && ['code', 'password', 'new'].includes(c.k) ? { k: c.k, n: typeof c.n === 'string' ? c.n.slice(0, 80) : '' } : null;
+  } catch { return null; }
+}
+export { cleanName, firstNameOf, greetingName } from './names.js';

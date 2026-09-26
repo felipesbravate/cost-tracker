@@ -36,14 +36,26 @@ async def dd_pick(pg, sid, text, group=None):
 
 async def dd_text(pg, sid): return await pg.inner_text(f'#{sid}-trigger')
 
-async def login(ctx, email):
+async def login(ctx, email, name=None):
     pg = await ctx.new_page()
     errs = []
     pg.on('pageerror', lambda e: errs.append('PAGEERROR ' + str(e)))
     pg.on('console', lambda m: errs.append(m.text) if m.type == 'error' and not any(x in m.text for x in IGNORE) else None)
     pg.on('response', lambda r: errs.append('HTTP %s %s' % (r.status, r.url)) if r.status >= 400 and r.url.startswith(BASE) else None)
-    await pg.goto(BASE + '/login'); await pg.fill('input[name=email]', email); await pg.click('button')
+    await sign_in(pg, email, name or email.split('@')[0].capitalize())
     return pg, errs
+
+# The sign-in steps (Ongatu 335:7580 ...): email, then "Create account" for a new address, then the 8-digit code
+# (the mock's code is 12345678). An account with a password stops at the password step.
+async def sign_in(pg, email, name):
+    await pg.goto(BASE + '/login'); await pg.fill('#login-email', email)
+    async with pg.expect_navigation(): await pg.click('#email-submit')
+    if 'step=new' in pg.url:
+        await pg.fill('#full-name', name)
+        async with pg.expect_navigation(): await pg.click('#signup-submit')
+    if 'step=code' in pg.url:
+        await pg.fill('#code-0', '12345678')
+        async with pg.expect_navigation(): await pg.click('#code-submit')
 
 async def main():
     env = dict(os.environ, PORT=str(PORT), APP_ORIGIN=BASE, ADMIN_EMAILS='admin@example.com', MOCK_TEST_ENDPOINTS='1', DAILY_READ_CAP='5')
@@ -55,6 +67,43 @@ async def main():
         async with async_playwright() as p:
             b = await p.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH', '/opt/pw-browsers/chromium'))
             admin_ctx = await b.new_context(viewport={'width': 1300, 'height': 900}); ann_ctx = await b.new_context(viewport={'width': 1300, 'height': 900})
+
+            # 0. sign-in steps (Ongatu 325:10734 ...): email -> Create account (new address) -> 8-digit code
+            sp = await admin_ctx.new_page(); sp_errs = []
+            sp.on('pageerror', lambda e: sp_errs.append(str(e))); sp.on('console', lambda m: sp_errs.append(m.text) if m.type == 'error' and not any(x in m.text for x in IGNORE) else None)
+            await sp.goto(BASE + '/login'); await sp.wait_for_selector('#email-submit')
+            lg = await sp.evaluate("""() => { const cs = e => getComputedStyle(e), r = e => e.getBoundingClientRect(), card = document.querySelector('.login-card'), logo = document.querySelector('.login-header .ds-logo');
+                return { title: document.querySelector('.login-title').textContent, tagline: document.querySelector('.login-tagline').textContent, logo: [Math.round(r(logo).width), Math.round(r(logo).height), logo.dataset.variant],
+                         card: [r(card).width, cs(card).padding, cs(card).borderRadius, cs(card).borderTopColor], top: r(logo).top, gap: r(card).top - r(document.querySelector('.login-tagline')).bottom,
+                         label: document.querySelector('.login-label').textContent }; }""")
+            check('sign in (335:7580): vertical logo 160 x 127, 80 from the top, tagline, 480 card with 40 padding, 40 below the header',
+                  lg['title'] == 'Sign in or create an account' and lg['tagline'] == 'Take charge of your money' and lg['logo'] == [160, 127, 'vertical'] and lg['top'] == 80
+                  and lg['card'] == [480, '40px', '16px', 'rgb(203, 202, 197)'] and abs(lg['gap'] - 40) < 1 and lg['label'] == 'ENTER YOUR EMAIL', lg)
+            await sp.fill('#login-email', 'newbie@example.com'); await sp.click('#email-submit'); await sp.wait_for_selector('#signup-submit')
+            check('a new address gets "Create account" with the name and the address filled in (342:7702)',
+                  await sp.inner_text('.login-title') == 'Create account' and await sp.input_value('#signup-email') == 'newbie@example.com' and 'newbie@example.com' in await sp.inner_text('.login-sub'))
+            await sp.click('#signup-submit'); await sp.wait_for_timeout(300)
+            check('Create account: the name is required', 'step=new' in sp.url or await sp.locator('#full-name:invalid').count() == 1)
+            await sp.fill('#full-name', 'Nina Newbie'); await sp.click('#signup-submit'); await sp.wait_for_selector('#code-submit')
+            boxes = await sp.locator('.login-code input:not([type=hidden])').count()
+            await sp.click('#code-0'); await sp.keyboard.type('1a2b3')
+            typed = await sp.eval_on_selector('input[name=code]', 'e => e.value')
+            check('code step (342:7885): 8 boxes, digits only, typing moves to the next box, "We sent your sign-in code" copy',
+                  boxes == 8 and typed == '123' and 'We sent your sign-in code to' in await sp.inner_text('.login-sub'), [boxes, typed])
+            await sp.click('#code-0'); await sp.keyboard.press('Backspace'); await sp.keyboard.press('Backspace'); await sp.keyboard.press('Backspace')
+            await sp.evaluate("""() => { const dt = new DataTransfer(); dt.setData('text', '9876 5432'); document.getElementById('code-0').dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true })); }""")
+            await sp.wait_for_timeout(100)
+            check('pasting "9876 5432" fills all eight boxes', await sp.eval_on_selector('input[name=code]', 'e => e.value') == '98765432')
+            await sp.click('#code-submit'); await sp.wait_for_selector('#login-msg')
+            check('a wrong code says so and stays on the code step', 'step=code' in sp.url and "didn't work" in await sp.inner_text('#login-msg'))
+            await sp.fill('#code-0', '12345678')
+            async with sp.expect_navigation(): await sp.click('#code-submit')
+            await sp.wait_for_timeout(300)
+            check('the right code signs in (a new account waits for approval)', '/pending' in sp.url, sp.url)
+            await sp.goto(BASE + '/login'); await sp.wait_for_timeout(300)
+            check('someone signed in who opens /login goes to the tracker', '/login' not in sp.url, sp.url)
+            await sp.close(); await admin_ctx.clear_cookies()
+            check('sign-in pages: no script or CSP errors', not sp_errs, sp_errs)
 
             # 1. admin: page loads with an empty account and no script/CSP errors
             pg, errs = await login(admin_ctx, 'admin@example.com')
@@ -86,6 +135,8 @@ async def main():
             # 2b. an imported spreadsheet cell with a note shows as a base line + the note's sub-lines
             ym = await pg.evaluate("[String(new Date().getFullYear()), new Date().getMonth()]")
             hdr = {'origin': BASE, 'x-requested-with': 'costs-tracker'}
+            # the account made by the sign-in steps test is blocked, so it doesn't sit in the admin's approvals
+            await admin_ctx.request.post(BASE + '/api/admin/users/u-' + 'newbie@example.com'.encode().hex()[:24] + '/block', headers=hdr)
             r = await admin_ctx.request.post(BASE + '/api/db/entries', headers=hdr, data={
                 'year': ym[0], 'monthIndex': ym[1], 'type': 'expense', 'group': 'Fixed', 'category': 'Habitation', 'item': 'Note test item',
                 'description': 'Imported', 'amount': 100, 'date': ym[0] + '-01-01', 'note': 'Alpha shop\nBeta shop (5/3)', 'realAmounts': [60, 40]})
@@ -407,7 +458,7 @@ async def main():
             resp = await r.request.get(BASE + '/api/db/entries'); check('anonymous API call -> 401', resp.status == 401); await r.close()
 
             # 6. second user is pending, then approved, and sees none of the admin's data
-            ann, aerrs = await login(ann_ctx, 'ann@example.com'); await ann.wait_for_url('**/pending', timeout=5000)
+            ann, aerrs = await login(ann_ctx, 'ann@example.com', 'Ann Lee'); await ann.wait_for_url('**/pending', timeout=5000)
             check('new user lands on the pending page', ann.url.endswith('/pending'))
             resp = await ann_ctx.request.get(BASE + '/api/db/entries'); check('pending user API -> 403', resp.status == 403)
             await pg.keyboard.press('Escape'); await pg.evaluate("(document.querySelector('#add-panel.open .add-panel-close, #add-panel.open [aria-label*=lose]')||{click(){}}).click()"); await pg.wait_for_timeout(300)
@@ -547,10 +598,10 @@ async def main():
             check('with a password set: Current + New password + Change password', await ann.locator('#pw-change').count() == 1)
             # sign out and back in with the password
             await ann.click('#user-menu-btn'); await ann.click('#menu-signout'); await ann.wait_for_url('**/login', timeout=5000)
-            await ann.fill('input[name=email]', 'ann@example.com'); await ann.click('button'); await ann.wait_for_selector('#pw-submit')
-            check('an account with a password is asked for it at sign-in', True)
-            await ann.fill('input[name=password]', 'wrong-one-here'); await ann.click('#pw-submit'); await ann.wait_for_selector('#pw-error')
-            await ann.fill('input[name=password]', 'correct-horse'); await ann.click('button'); await ann.wait_for_selector('#user-nav', timeout=8000)
+            await ann.fill('#login-email', 'ann@example.com'); await ann.click('#email-submit'); await ann.wait_for_selector('#pw-submit')
+            check('an account with a password is asked for it at sign-in, greeted by name (335:7542)', 'Hello, Ann!' in await ann.inner_text('.login-user') and await ann.locator('#forgot-password').count() == 1)
+            await ann.fill('input[name=password]', 'wrong-one-here'); await ann.click('#pw-submit'); await ann.wait_for_selector('#login-msg')
+            await ann.fill('input[name=password]', 'correct-horse'); await ann.click('#pw-submit'); await ann.wait_for_selector('#user-nav', timeout=8000)
             check('the right password signs in', '/login' not in ann.url)
             # back to sign-in codes
             await ann.goto(BASE + '/account'); await ann.wait_for_selector('#security'); await ann.wait_for_timeout(400)

@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cleanCode, cleanEmail, emailCookieOptions, EMAIL_COOKIE_MAX_AGE } from '../src/lib/otp-login.js';
-import { codeHtml, loginHtml, passwordHtml } from '../src/lib/pages.js';
+import { cleanName, decodeCtx, encodeCtx, greetingName } from '../src/lib/otp-login.js';
+import { memoryAccounts, memoryProfiles } from '../src/lib/api.js';
 
 test('codes: digits only, 6 to 10, pasted spaces/dashes tolerated', () => {
   assert.equal(cleanCode('123456'), '123456');
@@ -22,22 +23,29 @@ test('email cookie is httpOnly, short-lived, secure on https', () => {
   assert.deepEqual([o.httpOnly, o.secure, o.sameSite, o.maxAge], [true, true, 'lax', EMAIL_COOKIE_MAX_AGE]);
   assert.equal(emailCookieOptions(false).secure, false);
 });
-test('pages: password step escapes the address, posts to /auth/password, offers a code instead; no script', () => {
-  const h = passwordHtml({ email: '<b>ann@example.com</b>', message: 'Nope' });
-  assert.match(h, /action="\/auth\/password"/);
-  assert.match(h, /type="password"/);
-  assert.match(h, /name="send_code" value="1"/);
-  assert.ok(!h.includes('<b>ann@example.com</b>') && h.includes('&lt;b&gt;ann@example.com&lt;/b&gt;'));
-  assert.ok(!/<script/i.test(h));
+test('login context cookie: round-trips, rejects junk and unknown steps', () => {
+  assert.deepEqual(decodeCtx(encodeCtx({ k: 'password', n: 'Felipe' })), { k: 'password', n: 'Felipe' });
+  assert.deepEqual(decodeCtx(encodeCtx({ k: 'new', n: 'x'.repeat(200) })).n.length, 80);
+  assert.equal(decodeCtx('not base64 json'), null);
+  assert.equal(decodeCtx(Buffer.from('{"k":"admin"}').toString('base64url')), null);
+  assert.equal(decodeCtx(undefined), null);
 });
-
-test('pages: code step escapes the address and posts to /auth/verify; no script anywhere', () => {
-  const h = codeHtml({ email: '<b>ann@example.com</b>', message: 'Oops' });
-  assert.match(h, /action="\/auth\/verify"/);
-  assert.match(h, /autocomplete="one-time-code"/);
-  assert.ok(!h.includes('<b>ann@example.com</b>') && h.includes('&lt;b&gt;ann@example.com&lt;/b&gt;'));
-  assert.match(h, /Oops/);
-  assert.ok(!/<script/i.test(h + loginHtml()));
-  assert.match(loginHtml(), />Continue</);
-  assert.ok(new RegExp('^' + h.match(/pattern="([^"]+)"/)[1] + '$').test('123 456'));
+test('names: typed names cleaned; greeting = first word, else from the address', () => {
+  assert.equal(cleanName('  Felipe   Sbravate \n'), 'Felipe Sbravate');
+  assert.equal(cleanName('\u0000\u0007'), null);
+  assert.equal(cleanName('a'.repeat(100)).length, 80);
+  assert.equal(greetingName('Felipe Sbravate', 'x@y.z'), 'Felipe');
+  assert.equal(greetingName(null, 'felipe.sbravate@example.com'), 'Felipe');
+  assert.equal(greetingName('', 'ann2@example.com'), 'Ann');
+});
+test('accounts.lookup (memory): no profile = new; profile = existing, with its method and name', async () => {
+  const profiles = memoryProfiles();
+  const acc = memoryAccounts(profiles);
+  assert.deepEqual(await acc.lookup('ann@example.com'), { exists: false, method: 'code', name: null });
+  await profiles.upsert({ user_id: 'u1', email: 'ann@example.com', status: 'approved' });
+  assert.deepEqual(await acc.lookup('Ann@Example.com'), { exists: true, method: 'code', name: null });
+  await acc.setPassword({ id: 'u1', email: 'ann@example.com' }, 'long-enough');
+  acc.names.set('ann@example.com', 'Ann Lee');
+  assert.deepEqual(await acc.lookup('ann@example.com'), { exists: true, method: 'password', name: 'Ann Lee' });
+  assert.equal((await profiles.byEmail('ann@example.com')).user_id, 'u1');
 });

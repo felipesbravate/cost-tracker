@@ -17,5 +17,6 @@ export async function currentUser() {
   const sb = await authClient();
   const { data, error } = await sb.auth.getUser();
   if (error || !data?.user) return null;
-  return { id: data.user.id, email: data.user.email ?? null };
+  const full = data.user.user_metadata && data.user.user_metadata.full_name;
+  return { id: data.user.id, email: data.user.email ?? null, name: typeof full === 'string' ? full.slice(0, 80) : null };
 }
