@@ -83,7 +83,8 @@ export function TrackerCard({ model, y, monthIdx, breakdownType, breakdownGroup,
   const eligible = model.isFutureMonth(y, monthIdx);
   const topTab = topTabFor(breakdownType);
   const color = GROUP_COLOR[breakdownType];
-  const rows = bd.rows.slice().sort((a, b) => b.amount - a.amount);
+  // Always the user's order (the year's categories), never re-sorted by amount: bars and the list below match.
+  const rows = bd.rows;
   const maxV = Math.max(1, ...rows.map((r) => r.amount));
 
   const counter = (row) => {
@@ -130,7 +131,7 @@ export function TrackerCard({ model, y, monthIdx, breakdownType, breakdownGroup,
             <FragmentDivider key={r.category} divider={i > 0}>
               <div className="bd-block">
                 <div className="bd-block-title">{r.category}</div>
-                {r.items.slice().sort((a, b) => b.amount - a.amount).map((it) => (
+                {r.items.map((it) => (
                   <BreakdownRow key={it.item} name={it.item} amount={it.amount} currency={cur} state={state(it)} counter={counter(it)} />
                 ))}
               </div>

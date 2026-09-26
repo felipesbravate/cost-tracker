@@ -386,8 +386,9 @@ export function createModel({ data: DATA, entries: ENTRIES, overrides: OVERRIDES
     if (type === 'Income' || type === 'Investments') {
       const t = type === 'Income' ? 'income' : 'investment';
       const rows = listItemsForMonth(yi, mi, t, null).map((r) => itemRowFor(yi, mi, t, null, r, y));
-      ((t === 'income' ? TX.incomes : TX.investments) || []).forEach((item) => { if (!rows.some((r) => r.item === item)) rows.push(zeroRow(t, null, null, item, y, mi)); });
-      return { flat: true, rows };
+      const order = (t === 'income' ? TX.incomes : TX.investments) || [];
+      order.forEach((item) => { if (!rows.some((r) => r.item === item)) rows.push(zeroRow(t, null, null, item, y, mi)); });
+      return { flat: true, rows: inOrder(rows, order, (r) => r.item) };
     }
     const catMap = new Map();
     const catOf = (name) => { if (!catMap.has(name)) catMap.set(name, { category: name, amount: 0, items: [] }); return catMap.get(name); };
@@ -397,11 +398,25 @@ export function createModel({ data: DATA, entries: ENTRIES, overrides: OVERRIDES
       cat.amount += row.amount;
       cat.items.push(row);
     });
-    Object.entries((TX.expenses || {})[type] || {}).forEach(([category, items]) => {
+    const groupTx = (TX.expenses || {})[type] || {};
+    Object.entries(groupTx).forEach(([category, items]) => {
       const cat = catOf(category);
       items.forEach((item) => { if (!cat.items.some((i) => i.item === item)) cat.items.push(zeroRow('expense', type, category, item, y, mi)); });
     });
-    return { flat: false, rows: [...catMap.values()] };
+    // Categories and their items always in the order the user set (the year's taxonomy), never by amount; anything
+    // not in it (e.g. an old entry's item) comes after, in the order it was found.
+    const cats = inOrder([...catMap.values()], Object.keys(groupTx), (c) => c.category);
+    cats.forEach((c) => { c.items = inOrder(c.items, groupTx[c.category] || [], (r) => r.item); });
+    return { flat: false, rows: cats };
+  }
+  // Sorts `list` by the position of key(x) in `order`; unknown keys keep their relative order at the end.
+  function inOrder(list, order, key) {
+    const pos = new Map(order.map((k, i) => [k, i]));
+    return list.map((x, i) => [x, i]).sort((a, b) => {
+      const pa = pos.has(key(a[0])) ? pos.get(key(a[0])) : order.length + a[1];
+      const pb = pos.has(key(b[0])) ? pos.get(key(b[0])) : order.length + b[1];
+      return pa - pb;
+    }).map(([x]) => x);
   }
 
   // Annual totals for the year-over-year chart.
