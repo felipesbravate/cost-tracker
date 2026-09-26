@@ -60,6 +60,12 @@ async def main():
             pg, errs = await login(admin_ctx, 'admin@example.com')
             await pg.wait_for_selector('#user-nav'); await pg.wait_for_timeout(700)
             check('admin: tracker renders, no page or CSP errors', not errs, errs)
+            await pg.click('#year-add-toggle'); await pg.wait_for_timeout(300)
+            ya = await pg.evaluate("""() => { const r = e => e.getBoundingClientRect(), p = document.getElementById('year-add-panel'), y = document.getElementById('year-add-year-trigger'), c = document.getElementById('year-add-currency-trigger'), b = document.getElementById('year-add-submit');
+                return { h: r(p).height, border: getComputedStyle(p).borderTopColor, dd: [r(y).width, r(y).height, r(c).width, r(c).height], gap: r(c).left - r(y).right, btn: r(b).height }; }""")
+            check('Add year (DS 79:1242): 40 high pill, border/default, two Tiny dropdowns 96 x 32, 8 apart, 32px Add button',
+                  ya['h'] == 40 and ya['border'] == 'rgb(203, 202, 197)' and ya['dd'] == [96, 32, 96, 32] and ya['gap'] == 8 and ya['btn'] == 32, ya)
+            await pg.click('#year-add-cancel'); await pg.wait_for_timeout(300)
             check('admin: current year auto-created', await pg.locator('.year-btn').count() >= 1)
 
             # 2. manual entry persists across reload; storage holds ciphertext only
@@ -183,10 +189,10 @@ async def main():
                 for (const z of ['', 'small', 'tiny']) { const w = document.createElement('span'); w.className = 'ds-input ' + z; w.innerHTML = '<input value="A">'; host.appendChild(w);
                   const c = getComputedStyle(w), i = getComputedStyle(w.firstChild); out['in-' + (z || 'medium')] = [w.getBoundingClientRect().height, c.paddingLeft, i.fontSize, i.fontWeight, i.lineHeight]; w.remove(); }
                 return out; }""")
-            check('Dropdown sizes (71:1096): Medium 48 / 16 / 14px 500 18, Small 40 / 8 / 12px 500 14, Tiny 24 / 8 / 12px 500 10',
-                  sz['dd-md'] == [48, '16px', '14px', '500', '18px'] and sz['dd-sm'] == [40, '8px', '12px', '500', '14px'] and sz['dd-tiny'] == [24, '8px', '12px', '500', '10px'], sz)
-            check('Input sizes (71:1093): Medium 48 / 16 / 14px 500 18, Small 40 / 8 / 12px 500 14, Tiny 24 / 8 / 12px 500 10',
-                  sz['in-medium'] == [48, '16px', '14px', '500', '18px'] and sz['in-small'] == [40, '8px', '12px', '500', '14px'] and sz['in-tiny'] == [24, '8px', '12px', '500', '10px'], sz)
+            check('Dropdown sizes (71:1096): Medium 48 / 16 / 14px 500 18, Small 40 / 8 / 12px 500 14, Tiny 32 / 8 / 12px 500 10',
+                  sz['dd-md'] == [48, '16px', '14px', '500', '18px'] and sz['dd-sm'] == [40, '8px', '12px', '500', '14px'] and sz['dd-tiny'] == [32, '8px', '12px', '500', '10px'], sz)
+            check('Input sizes (71:1093): Medium 48 / 16 / 14px 500 18, Small 40 / 8 / 12px 500 14, Tiny 32 / 8 / 12px 500 10',
+                  sz['in-medium'] == [48, '16px', '14px', '500', '18px'] and sz['in-small'] == [40, '8px', '12px', '500', '14px'] and sz['in-tiny'] == [32, '8px', '12px', '500', '10px'], sz)
             yd = await pg.evaluate("""() => { const cs = e => getComputedStyle(e), tab = document.createElement('div'); tab.className = 'year-tab'; tab.style.cssText = 'position:relative;width:48px;height:32px;margin:40px';
                 tab.innerHTML = '<button class="year-btn">2031</button><button class="year-del-btn" aria-label="Delete"><svg data-icon="x" viewBox="0 0 10 10" width="10" height="10"></svg></button>'; document.body.appendChild(tab);
                 const b = tab.querySelector('.year-del-btn'), c = cs(b), tr = tab.getBoundingClientRect(), br = b.getBoundingClientRect(), o = { size: [br.width, br.height], dx: br.left - tr.left, dy: br.top - tr.top, bg: c.backgroundColor, r: c.borderRadius, svg: [cs(b.firstChild).width, cs(b.firstChild).height] };

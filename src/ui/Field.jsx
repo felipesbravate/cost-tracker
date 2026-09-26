@@ -21,7 +21,7 @@ export function FieldGroup({ label, className, children }) {
   );
 }
 
-// Input (DS 71:1093). size: 'medium' (default, 48 high, 14px) | 'small' (40, 12px) | 'tiny' (24, 12px). Empty shows the
+// Input (DS 71:1093). size: 'medium' (default, 48 high, 14px) | 'small' (40, 12px) | 'tiny' (32, 12px). Empty shows the
 // placeholder in text/secondary; Filled is Medium text/primary; Focus turns the border border/focus; Disable fills
 // surface/secondary with text/secondary. `icon` = an optional icon before the text (20px at Medium, 12px smaller; the
 // Disable email field shows Lock).

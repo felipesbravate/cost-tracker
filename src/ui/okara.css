@@ -546,7 +546,7 @@
   .ds-dd > select{ display:none; }
   .ds-dd-trigger{
     /* Sizes, Dropdown 71:1096 (Sept 26): Medium h48 px16, 14px Body/Medium/Medium; Small h40 p8, 12px Body/Small/Medium;
-       Tiny h24 p8, 12px Medium on a 10px line. Gap 8, radius/sm, border/default. The default here is Small. */
+       Tiny h32 p8, 12px Medium on a 10px line (Tiny went 24 to 32 on Sept 26). Gap 8, radius/sm, border/default. The default here is Small. */
     display:flex; align-items:center; justify-content:space-between; gap:var(--space-xs);
     width:100%; height:40px; padding:0 var(--space-xs); box-sizing:border-box;
     background:transparent; border:1px solid var(--border-default); border-radius:var(--radius-sm);
@@ -554,7 +554,7 @@
     transition:border-color .12s ease, box-shadow .12s ease;
   }
   .ds-dd--md .ds-dd-trigger{ height:48px; padding:0 var(--space-md); font-size:var(--type-body-medium-medium-size); font-weight:var(--type-body-medium-medium-weight); line-height:var(--type-body-medium-medium-lh); letter-spacing:var(--type-body-medium-medium-ls); }
-  .ds-dd--tiny .ds-dd-trigger{ height:24px; line-height:10px; }
+  .ds-dd--tiny .ds-dd-trigger{ height:32px; line-height:10px; }
   .ds-dd-label{ flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .ds-dd-trigger svg{ flex-shrink:0; color:var(--action-primary); transition:transform .12s ease; }
   .ds-dd.is-empty .ds-dd-trigger{ color:var(--text-secondary); }
@@ -594,7 +594,7 @@
   .year-add-pill{
     position:absolute; top:0; left:0; z-index:10;
     display:flex; align-items:center; gap:var(--space-md); height:40px;
-    background:var(--surface-primary); border:1px solid var(--divider); border-radius:var(--radius-full);
+    background:var(--surface-primary); border:1px solid var(--border-default); border-radius:var(--radius-full); overflow:hidden;
     padding-right:var(--space-tn); box-shadow:0 0 8px color-mix(in srgb, var(--text-primary) 8%, transparent);
     opacity:0; transform:scale(.96); transform-origin:left center; pointer-events:none;
     transition:opacity .18s ease, transform .18s ease;
@@ -618,7 +618,8 @@
     border:none; background:transparent; outline:none; font:inherit; font-size:12px; color:var(--ink);
     width:100%; padding:0; cursor:text;
   }
-  .year-add-pill-currency, .year-add-pill-year{ width:80px; }
+  /* Nav tabs - Add year (DS 79:1242, Sept 26): two Tiny dropdowns, 96 wide, 8 apart; Small button (32). */
+  .year-add-pill-currency, .year-add-pill-year{ width:96px; }
   .year-add-pill .btn-pill{ height:32px; padding:0 var(--space-md); }
   .year-add-pill-field input::placeholder{ color:var(--text-secondary); opacity:1; }
   .year-add-pill .add-status{ position:absolute; top:calc(100% + var(--space-tn)); left:0; white-space:nowrap; }
@@ -1346,7 +1347,7 @@
   .ds-check-label{ font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); color:var(--text-primary); }
 
   /* ---- Input (71:1093, Sept 26): Medium h48 px16 14px (value Body/Medium/Medium, placeholder Regular); Small h40 p8 and
-     Tiny h24 px8, 12px Body/Small/Medium (Tiny on a 10px line) with the placeholder in text/secondary. Gap 8. ---- */
+     Tiny h32 px8, 12px Body/Small/Medium (Tiny on a 10px line) with the placeholder in text/secondary. Gap 8. ---- */
   .ds-input{
     display:flex; align-items:center; gap:var(--space-xs); height:48px; padding:0 var(--space-md); box-sizing:border-box;
     border:1px solid var(--border-default); border-radius:var(--radius-sm); background:var(--surface-primary);
@@ -1365,7 +1366,7 @@
   .ds-input svg{ color:var(--surface-tertiary); flex-shrink:0; }
   .ds-input.small, .ds-input.tiny{ padding:0 var(--space-xs); }
   .ds-input.small{ height:40px; }
-  .ds-input.tiny{ height:24px; }
+  .ds-input.tiny{ height:32px; }
   .ds-input.small input, .ds-input.tiny input, .ds-input.small input::placeholder, .ds-input.tiny input::placeholder{ font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); }
   .ds-input.tiny input{ line-height:10px; }
 

@@ -73,10 +73,10 @@ function AddYearPill({ open, onClose, onSubmit, model, canSave }) {
       <RoundButton icon={x} id="year-add-cancel" label="Close" active onClick={onClose} />
       <div className="year-add-pill-inputs">
         <div className="year-add-pill-year">
-          <Dropdown id="year-add-year" ariaLabel="Year" size="sm" placeholder="Year" value={label} onChange={setLabel} options={yearOptions} />
+          <Dropdown id="year-add-year" ariaLabel="Year" size="tiny" placeholder="Year" value={label} onChange={setLabel} options={yearOptions} />
         </div>
         <div className="year-add-pill-currency">
-          <Dropdown id="year-add-currency" ariaLabel="Currency" size="sm" value={currency} onChange={setCurrency} emptyOption={false}
+          <Dropdown id="year-add-currency" ariaLabel="Currency" size="tiny" value={currency} onChange={setCurrency} emptyOption={false}
             options={[{ value: 'EUR', label: 'EUR' }, { value: 'SEK', label: 'SEK' }]} />
         </div>
       </div>
