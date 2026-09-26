@@ -1,5 +1,5 @@
 {
-  "_note": "Snapshot of the Okara Design System Variables (Figma file 7glNMA9d7iVJFf2CvyrzAb), read Sept 25, 2026 (Typography collection added the same day: DM Sans + Martian Mono). Values are hex or numbers; {\"alias\": name} points at a variable in Primitives. To update: re-read Figma, write this file, run `node scripts/sync-tokens.mjs` (rewrites the token block in src/ui/okara.css), then `npm test`. Sept 25: every SemiBold text style set to Medium (500) except Display/Title (page titles), which stays SemiBold. Sept 26: + neutral/stone-50, border/secondary (Divider, dropdown list, notification panel, user card), border/tertiary (divider in the Entries tooltip).",
+  "_note": "Snapshot of the Okara Design System Variables (Figma file 7glNMA9d7iVJFf2CvyrzAb), read Sept 25, 2026 (Typography collection added the same day: DM Sans + Martian Mono). Values are hex or numbers; {\"alias\": name} points at a variable in Primitives. To update: re-read Figma, write this file, run `node scripts/sync-tokens.mjs` (rewrites the token block in src/ui/okara.css), then `npm test`. Sept 25: every SemiBold text style set to Medium (500) except Display/Title (page titles), which stays SemiBold. Sept 26: + neutral/stone-50, border/secondary (Divider, dropdown list, notification panel, user card), border/tertiary (divider in the Entries tooltip). Later Sept 26: + neutral/stone-500; text/muted and action/disable now stone-500; + border/selected-item (brand/indigo-light: the border of a filled Input or Dropdown).",
   "Primitives": {
     "neutral/page": "#eef5f4",
     "neutral/surface": "#ffffff",
@@ -31,8 +31,8 @@
     "neutral/charcoal-800": "#32312c",
     "neutral/charcoal-900": "#1f1e19",
     "neutral/stone-50": "#efeee5",
-    "neutral/stone-100": "#e4e3da",
     "status/red-deep": "#bd0007",
+    "neutral/stone-100": "#e4e3da",
     "neutral/stone-150": "#deddd4",
     "neutral/stone-300": "#cbcac5",
     "neutral/stone-325": "#cac9c0",
@@ -42,6 +42,7 @@
     "status/green-pale": "#e3f4ec",
     "neutral/stone-400": "#aaa698",
     "status/red-pale": "#ffc4c6",
+    "neutral/stone-500": "#969284",
     "status/yellow-pale": "#ffe9b7",
     "neutral/off-white": "#f9f9f7"
   },
@@ -59,7 +60,7 @@
       "alias": "neutral/ink-2"
     },
     "text/muted": {
-      "alias": "neutral/stone-400"
+      "alias": "neutral/stone-500"
     },
     "border/default": {
       "alias": "neutral/stone-300"
@@ -89,7 +90,7 @@
       "alias": "neutral/stone-325"
     },
     "action/disable": {
-      "alias": "neutral/stone-400"
+      "alias": "neutral/stone-500"
     },
     "action/accent": {
       "alias": "brand/indigo"
@@ -141,6 +142,9 @@
     },
     "border/focus": {
       "alias": "brand/indigo"
+    },
+    "border/selected-item": {
+      "alias": "brand/indigo-light"
     },
     "border/dark": {
       "alias": "neutral/ink"

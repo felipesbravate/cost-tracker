@@ -21,15 +21,16 @@ export function FieldGroup({ label, className, children }) {
   );
 }
 
-// Input (DS 71:1093). size: 'medium' (default, 48 high, 14px) | 'small' (40, 12px) | 'tiny' (32, 12px). Empty shows the
-// placeholder in text/secondary; Filled is Medium text/primary; Focus turns the border border/focus; Disable fills
-// surface/secondary with text/secondary. `icon` = an optional icon before the text (20px at Medium, 12px smaller; the
-// Disable email field shows Lock).
-export function Input({ icon, size = 'medium', className, ...rest }) {
+// Input (DS 71:1093). size: 'medium' (default, 48 high) | 'small' (40) | 'tiny' (32); every size writes 14px Medium.
+// Empty shows the placeholder in text/secondary; Filled (has a value) turns the border border/selected-item; Focus
+// border/focus; Disable fills surface/secondary with text/muted. `icon` = an optional icon before the text (20px at
+// Medium, 12px smaller). The placeholder defaults to " " so an empty field without one still reads as Empty.
+// `ref` (React 19: a plain prop) reaches the <input>.
+export function Input({ icon, size = 'medium', className, placeholder = ' ', ...rest }) {
   return (
     <span className={['ds-input', size !== 'medium' && size, rest.disabled && 'is-disabled', icon && 'has-icon', className].filter(Boolean).join(' ')}>
       {icon && <Icon icon={icon} size={size === 'medium' ? 20 : 12} />}
-      <input {...rest} />
+      <input placeholder={placeholder} {...rest} />
     </span>
   );
 }

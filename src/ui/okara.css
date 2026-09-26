@@ -39,8 +39,8 @@
     --primitive-neutral-charcoal-800: #32312c;
     --primitive-neutral-charcoal-900: #1f1e19;
     --primitive-neutral-stone-50: #efeee5;
-    --primitive-neutral-stone-100: #e4e3da;
     --primitive-status-red-deep: #bd0007;
+    --primitive-neutral-stone-100: #e4e3da;
     --primitive-neutral-stone-150: #deddd4;
     --primitive-neutral-stone-300: #cbcac5;
     --primitive-neutral-stone-325: #cac9c0;
@@ -50,6 +50,7 @@
     --primitive-status-green-pale: #e3f4ec;
     --primitive-neutral-stone-400: #aaa698;
     --primitive-status-red-pale: #ffc4c6;
+    --primitive-neutral-stone-500: #969284;
     --primitive-status-yellow-pale: #ffe9b7;
     --primitive-neutral-off-white: #f9f9f7;
 
@@ -58,7 +59,7 @@
     --surface-secondary: var(--primitive-neutral-surface-secondary);
     --text-primary: var(--primitive-neutral-ink);
     --text-secondary: var(--primitive-neutral-ink-2);
-    --text-muted: var(--primitive-neutral-stone-400);
+    --text-muted: var(--primitive-neutral-stone-500);
     --border-default: var(--primitive-neutral-stone-300);
     --border-secondary: var(--primitive-neutral-stone-50);
     --action-primary: var(--primitive-neutral-ink);
@@ -68,7 +69,7 @@
     --action-secondary-hover: var(--primitive-neutral-stone-100);
     --action-secondary-press: var(--primitive-neutral-stone-150);
     --action-secondary-active: var(--primitive-neutral-stone-325);
-    --action-disable: var(--primitive-neutral-stone-400);
+    --action-disable: var(--primitive-neutral-stone-500);
     --action-accent: var(--primitive-brand-indigo);
     --action-accent-hover: var(--primitive-brand-indigo-light);
     --action-accent-press: var(--primitive-brand-indigo-800);
@@ -86,6 +87,7 @@
     --border-hover: var(--primitive-neutral-stone-350);
     --border-tertiary: var(--primitive-neutral-charcoal-800);
     --border-focus: var(--primitive-brand-indigo);
+    --border-selected-item: var(--primitive-brand-indigo-light);
     --border-dark: var(--primitive-neutral-ink);
     --border-destructive: var(--primitive-status-red-deep);
     --text-white: var(--primitive-neutral-surface);
@@ -547,23 +549,26 @@
   .ds-dd > select{ display:none; }
   .ds-dd-trigger{
     /* Sizes, Dropdown 71:1096 (Sept 26): Medium h48 px16, 14px Body/Medium/Medium; Small h40 p8, 12px Body/Small/Medium;
-       Tiny h32 p8, 12px Medium on a 10px line (Tiny went 24 to 32 on Sept 26). Gap 8, radius/sm, border/default. The default here is Small. */
+       Tiny h32 p8 — every size in Body/Medium/Medium (14 Medium, 18, -2%; re-read Sept 26 evening). Gap 8, radius/sm.
+       Empty: border/default, text/secondary. Filled: border/selected-item, text/primary. Active (open or focused):
+       border/focus. Disable: surface/secondary, text/muted. The default here is Small. */
     display:flex; align-items:center; justify-content:space-between; gap:var(--space-xs);
     width:100%; height:40px; padding:0 var(--space-xs); box-sizing:border-box;
     background:transparent; border:1px solid var(--border-default); border-radius:var(--radius-sm);
-    font-family:inherit; font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); text-align:left; color:var(--text-primary); cursor:pointer;
+    font-family:inherit; font-size:var(--type-body-medium-medium-size); font-weight:var(--type-body-medium-medium-weight); line-height:var(--type-body-medium-medium-lh); letter-spacing:var(--type-body-medium-medium-ls); text-align:left; color:var(--text-primary); cursor:pointer;
     transition:border-color .12s ease, box-shadow .12s ease;
   }
-  .ds-dd--md .ds-dd-trigger{ height:48px; padding:0 var(--space-md); font-size:var(--type-body-medium-medium-size); font-weight:var(--type-body-medium-medium-weight); line-height:var(--type-body-medium-medium-lh); letter-spacing:var(--type-body-medium-medium-ls); }
-  .ds-dd--tiny .ds-dd-trigger{ height:32px; line-height:10px; }
+  .ds-dd--md .ds-dd-trigger{ height:48px; padding:0 var(--space-md); }
+  .ds-dd--tiny .ds-dd-trigger{ height:32px; }
   .ds-dd-label{ flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .ds-dd-trigger svg{ flex-shrink:0; color:var(--action-primary); transition:transform .12s ease; }
   .ds-dd.is-empty .ds-dd-trigger{ color:var(--text-secondary); }
   .ds-dd-trigger:hover{ border-color:var(--border-hover); }
-  .ds-dd.open .ds-dd-trigger, .ds-dd-trigger:focus-visible{ border-color:var(--border-focus); }
+  .ds-dd:not(.is-empty):not(.is-disabled) .ds-dd-trigger{ border-color:var(--border-selected-item); }
+  .ds-dd.open .ds-dd-trigger, .ds-dd .ds-dd-trigger:focus-visible, .ds-dd:not(.is-empty):not(.is-disabled).open .ds-dd-trigger{ border-color:var(--border-focus); }
   .ds-dd-trigger:focus-visible{ outline:none; }
   .ds-dd.open .ds-dd-trigger svg{ transform:rotate(180deg); }
-  .ds-dd.is-disabled .ds-dd-trigger{ background:var(--surface-secondary); color:var(--text-secondary); cursor:not-allowed; border-color:var(--border-default); box-shadow:none; }
+  .ds-dd.is-disabled .ds-dd-trigger{ background:var(--surface-secondary); color:var(--text-muted); cursor:not-allowed; border-color:var(--border-default); box-shadow:none; }
   .ds-dd.is-disabled .ds-dd-trigger svg{ color:var(--action-disable); }
   .ds-dd-menu{
     position:fixed; z-index:80; box-sizing:border-box; width:max(242px, var(--dd-w, 0px)); max-width:calc(100vw - 16px);
@@ -934,7 +939,7 @@
   .bd-tabs-stack{ display:flex; flex-direction:column; gap:var(--space-xs); }
   .add-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-md); }
   .field label{ display:block; font-size:var(--type-body-small-semibold-size); font-weight:var(--type-body-small-semibold-weight); line-height:var(--type-body-small-semibold-lh); letter-spacing:var(--type-body-small-semibold-ls); text-transform:uppercase; color:var(--ink-muted); margin-bottom:var(--space-tn); }
-  .field input{
+  .field input:not(.ds-input input){
     width:100%; font-size:var(--type-body-medium-regular-size); font-weight:var(--type-body-medium-regular-weight); line-height:var(--type-body-medium-regular-lh); letter-spacing:var(--type-body-medium-regular-ls); font-family:inherit; padding:var(--space-xs) var(--space-md); border-radius:var(--radius-sm); border:1px solid var(--border-card);
     background:var(--surface); color:var(--ink);
     transition: border-color .12s ease, box-shadow .12s ease;
@@ -945,7 +950,6 @@
   .field-with-prefix{ position:relative; display:flex; align-items:center; }
   .field-with-prefix .field-prefix{ position:absolute; left:var(--space-md); font-size:var(--type-body-medium-regular-size); font-weight:var(--type-body-medium-regular-weight); line-height:var(--type-body-medium-regular-lh); letter-spacing:var(--type-body-medium-regular-ls); color:var(--ink); pointer-events:none; }
   .field-with-prefix input{ padding-left:28px; }
-  #entry-amount{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
   .add-actions{ display:flex; gap:var(--space-xs); align-items:center; }
   .add-status{ font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); }
   .add-status{ color:var(--text-secondary); }
@@ -1039,12 +1043,13 @@
   .add-panel .is-faded{ opacity:var(--opacity-background); transition:opacity .18s ease; }
   .ap-manual.is-faded{ pointer-events:none; }
   /* Date, drawn as the Dropdown (Medium, 48 in the panel): dd/mm/yyyy + chevron over a transparent native date input. */
-  .date-dd{ position:relative; height:48px; }
-  .date-dd input[type="date"]{ position:absolute; inset:0; width:100%; height:100%; color:transparent; cursor:pointer; }
+  .date-dd{ position:relative; height:48px; box-sizing:border-box; border:1px solid var(--border-selected-item); border-radius:var(--radius-sm); background:var(--surface-primary); transition:border-color .12s ease; }
+  .date-dd:focus-within{ border-color:var(--border-focus); }
+  .field .date-dd input[type="date"]{ position:absolute; inset:0; width:100%; height:100%; padding:0; border:none; background:transparent; color:transparent; cursor:pointer; outline:none; }
   .date-dd input[type="date"]::-webkit-datetime-edit{ opacity:0; }
   .date-dd input[type="date"]::-webkit-calendar-picker-indicator{ position:absolute; inset:0; width:auto; height:auto; opacity:0; cursor:pointer; }
   .date-dd-label{ position:absolute; left:var(--space-md); right:36px; top:50%; transform:translateY(-50%); pointer-events:none;
-    font-size:var(--type-body-medium-regular-size); font-weight:var(--type-body-medium-regular-weight); line-height:var(--type-body-medium-regular-lh); letter-spacing:var(--type-body-medium-regular-ls); color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    font-size:var(--type-body-medium-medium-size); font-weight:var(--type-body-medium-medium-weight); line-height:var(--type-body-medium-medium-lh); letter-spacing:var(--type-body-medium-medium-ls); color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .date-dd .date-dd-chevron{ position:absolute; right:var(--space-md); top:50%; transform:translateY(-50%); width:12px; height:12px; color:var(--action-primary); pointer-events:none; }
   .dz-text{ display:flex; flex-direction:column; align-items:center; gap:var(--space-tn); }
   .dz-line{ display:flex; align-items:center; justify-content:center; gap:var(--space-tn); flex-wrap:wrap; font-size:var(--type-body-medium-semibold-size); font-weight:var(--type-body-medium-semibold-weight); line-height:var(--type-body-medium-semibold-lh); letter-spacing:var(--type-body-medium-semibold-ls); color:var(--ink); }
@@ -1076,18 +1081,15 @@
   /* Labels sit 8 above their field in the panel (Cost-tracker 174:15081). "Month and year" is a 200px Dropdown. */
   #add-panel .field label{ margin-bottom:var(--space-xs); font-size:var(--type-body-small-semibold-size); font-weight:var(--type-body-small-semibold-weight); line-height:var(--type-body-small-semibold-lh); letter-spacing:var(--type-body-small-semibold-ls); }
   #add-panel .field-period .ds-dd, #add-panel .ap-period .ds-dd{ width:200px; max-width:100%; }
-  #add-panel .field input{ height:48px; padding:0 var(--space-md); font-size:var(--type-body-medium-regular-size); font-weight:var(--type-body-medium-regular-weight); line-height:var(--type-body-medium-regular-lh); letter-spacing:var(--type-body-medium-regular-ls); }
-  #add-panel .field input::placeholder{ color:var(--ink-2); opacity:1; }
   #add-panel .add-grid .span-2{ grid-column:1 / -1; }
-  #add-panel .field-with-prefix input{ padding-left:47px; }
   .add-actions .add-status{ font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); }
 
   .rv-table{ display:flex; flex-direction:column; gap:var(--space-xs); }
   .rv-head, .rv-row{ display:flex; align-items:center; gap:var(--space-md); }
   .rv-head{ font-size:var(--type-body-small-semibold-size); font-weight:var(--type-body-small-semibold-weight); line-height:var(--type-body-small-semibold-lh); letter-spacing:var(--type-body-small-semibold-ls); color:var(--ink-muted); text-transform:uppercase; }
   .rv-rows{ display:flex; flex-direction:column; gap:var(--space-tn); }
-  /* Rows hold Small dropdowns and inputs, 40 high since the Sept 26 sizes. */
-  .rv-row{ height:40px; }
+  /* Rows hold Tiny inputs and dropdowns (32; the review screen 229:18167 draws them 32 high). */
+  .rv-row{ height:32px; }
   .c-date{ width:40px; flex-shrink:0; }
   .c-desc{ flex:1 1 0; min-width:0; }
   .c-type, .c-cat{ width:120px; flex-shrink:0; min-width:0; }
@@ -1111,14 +1113,8 @@
   .rv-amt svg{ display:block; flex-shrink:0; }
   .rv-amt.bad{ color:var(--critical); }
   .rv-row:hover .rv-amt{ text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; }
-  .rv-input{
-    width:100%; height:40px; padding:0 var(--space-xs); font-family:inherit; font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); color:var(--ink);
-    background:var(--surface); border:1px solid var(--border-card); border-radius:var(--radius-sm); outline:none; transition:border-color .12s ease, box-shadow .12s ease;
-  }
-  .rv-input:hover{ border-color:var(--state-border-hover); }
-  .rv-input:focus-visible{ border-color:var(--border-focus); }
   .rv-select .ds-dd.is-empty .ds-dd-trigger{ color:var(--critical); }
-  .rv-row .bd-input{ height:40px; gap:var(--space-tn); width:100%; }
+  .rv-row .bd-input{ height:32px; gap:var(--space-tn); width:100%; }
   .rv-row .bd-input input{ width:100%; }
   .rv-rm{ opacity:0; color:var(--critical); transition:opacity .12s ease, background-color .12s ease; }
   .rv-row:hover .rv-rm, .rv-row.is-editing .rv-rm, .rv-rm:focus-visible{ opacity:1; }
@@ -1165,16 +1161,9 @@
   }
   .budget-add-fields{ display:flex; align-items:center; gap:var(--space-xs); flex:1 1 auto; min-width:0; }
   .budget-add-label{ font-size:var(--type-body-small-semibold-size); font-weight:var(--type-body-small-semibold-weight); line-height:var(--type-body-small-semibold-lh); letter-spacing:var(--type-body-small-semibold-ls); color:var(--ink); white-space:nowrap; }
-  .budget-add-input{
-    font-size:var(--type-body-small-regular-size); font-weight:var(--type-body-small-regular-weight); line-height:var(--type-body-small-regular-lh); letter-spacing:var(--type-body-small-regular-ls); font-family:inherit; border:1px solid var(--border-card); border-radius:var(--radius-sm); padding:0 var(--space-xs);
-    background:var(--surface); color:var(--ink); height:32px;
-  }
-  .budget-add-input:focus-visible{ outline:none; border-color:var(--border-focus); }
   .budget-add-cat{ width:120px; flex:0 0 auto; }
   .budget-add-name{ flex:1 1 auto; min-width:0; }
-  .budget-add-amt{ width:80px; flex:0 0 auto; height:32px; }
-  .budget-add-amt .field-prefix{ left:var(--space-xs); font-size:var(--type-body-small-regular-size); font-weight:var(--type-body-small-regular-weight); line-height:var(--type-body-small-regular-lh); letter-spacing:var(--type-body-small-regular-ls); }
-  .budget-add-amt input{ padding-left:22px; height:32px; font-family:var(--font-mono); font-size:var(--type-value-small-size); font-weight:var(--type-value-small-weight); line-height:var(--type-value-small-lh); letter-spacing:var(--type-value-small-ls); text-align:right; width:100%; }
+  .budget-add-amt{ width:112px; flex:0 0 auto; }
   .budget-add-actions{ display:flex; gap:var(--space-tn); flex-shrink:0; }
   #budget-status.err{ display:block; margin-top:var(--space-xs); }
   #budget-panel-hint{ line-height:1.5; }
@@ -1349,29 +1338,29 @@
   .ds-check input:focus-visible + .ds-check-box{ outline:2px solid var(--border-focus); outline-offset:2px; }
   .ds-check-label{ font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); color:var(--text-primary); }
 
-  /* ---- Input (71:1093, Sept 26): Medium h48 px16 14px (value Body/Medium/Medium, placeholder Regular); Small h40 p8 and
-     Tiny h32 px8, 12px Body/Small/Medium (Tiny on a 10px line) with the placeholder in text/secondary. Gap 8. ---- */
+  /* ---- Input (71:1093, re-read Sept 26 evening). Every size writes Body/Medium/Medium (DM Sans 14 Medium, 18, -2%),
+     placeholder included. Medium h48 px16; Small h40 p8; Tiny h32 px8; gap 8, radius/sm.
+     Empty: border/default, text/secondary. Filled: border/selected-item, text/primary. Focus: border/focus.
+     Disable: surface/secondary, border/default, text/muted. `placeholder` defaults to " " so an empty field reads as Empty. ---- */
   .ds-input{
     display:flex; align-items:center; gap:var(--space-xs); height:48px; padding:0 var(--space-md); box-sizing:border-box;
     border:1px solid var(--border-default); border-radius:var(--radius-sm); background:var(--surface-primary);
     transition:border-color .12s ease;
   }
   .ds-input:hover{ border-color:var(--border-hover); }
-  .ds-input:focus-within{ border-color:var(--border-focus); }
+  .ds-input:has(input:not(:placeholder-shown)){ border-color:var(--border-selected-item); }
+  .ds-input:has(input:focus){ border-color:var(--border-focus); }
   .ds-input input{
-    flex:1; min-width:0; border:none; outline:none; background:transparent; padding:0; font-family:inherit;
+    flex:1; min-width:0; height:auto; border:none; outline:none; background:transparent; padding:0; font-family:inherit;
     font-size:var(--type-body-medium-medium-size); font-weight:var(--type-body-medium-medium-weight); line-height:var(--type-body-medium-medium-lh); letter-spacing:var(--type-body-medium-medium-ls); color:var(--text-primary);
   }
-  .ds-input input::placeholder{ font-weight:400; color:var(--text-secondary); opacity:1; }
-  .ds-input.is-disabled{ background:var(--surface-secondary); }
-  .ds-input.is-disabled:hover{ border-color:var(--border-default); }
-  .ds-input.is-disabled input{ font-weight:400; color:var(--text-secondary); cursor:not-allowed; }
+  .ds-input input::placeholder{ color:var(--text-secondary); opacity:1; }
+  .ds-input.is-disabled, .ds-input.is-disabled:hover, .ds-input.is-disabled:has(input){ background:var(--surface-secondary); border-color:var(--border-default); }
+  .ds-input.is-disabled input{ color:var(--text-muted); cursor:not-allowed; }
+  .ds-input.is-disabled input::placeholder{ color:var(--text-muted); }
   .ds-input svg{ color:var(--surface-tertiary); flex-shrink:0; }
-  .ds-input.small, .ds-input.tiny{ padding:0 var(--space-xs); }
-  .ds-input.small{ height:40px; }
-  .ds-input.tiny{ height:32px; }
-  .ds-input.small input, .ds-input.tiny input, .ds-input.small input::placeholder, .ds-input.tiny input::placeholder{ font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); }
-  .ds-input.tiny input{ line-height:10px; }
+  .ds-input.small{ height:40px; padding:var(--space-xs); }
+  .ds-input.tiny{ height:32px; padding:0 var(--space-xs); }
 
   /* avatar, Style=Image and the 88px Account avatar (initial in Value/XL: Martian Mono Medium 36). */
   .ds-avatar.is-image{ background:var(--surface-secondary); overflow:hidden; }

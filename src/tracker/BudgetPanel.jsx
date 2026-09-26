@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { ActionLink, Button, FieldGroup, PanelHeader, RoundButton, Segments } from '../ui/index.js';
+import { ActionLink, Button, FieldGroup, Input, PanelHeader, RoundButton, Segments } from '../ui/index.js';
 import { Icon } from '../ui/Icon.jsx';
 import { checkmark, euro, plus, x } from '../ui/icons.js';
 import { EXP_GROUPS, MONTH_ABBR, fmtNum, parseAmount } from './model.js';
@@ -157,12 +157,9 @@ function AddItemRow({ type, label, onAdd, onCancel }) {
     <div className="budget-add-row">
       <div className="budget-add-fields">
         <span className="budget-add-label">{label + (type === 'expense' ? ' expense' : '')}</span>
-        <input type="text" className="budget-add-input budget-add-cat" placeholder="Category" hidden={type !== 'expense'} value={cat} onChange={(e) => setCat(e.target.value)} />
-        <input ref={nameRef} type="text" className="budget-add-input budget-add-name" placeholder="Item name" value={name} onChange={(e) => setName(e.target.value)} />
-        <div className="field-with-prefix budget-add-amt">
-          <span className="field-prefix">€</span>
-          <input type="text" inputMode="decimal" placeholder="0,00" className="budget-add-input" value={amt} onChange={(e) => setAmt(e.target.value)} />
-        </div>
+        {type === 'expense' && <Input size="tiny" className="budget-add-cat" type="text" placeholder="Category" aria-label="Category" value={cat} onChange={(e) => setCat(e.target.value)} />}
+        <Input size="tiny" className="budget-add-name" ref={nameRef} type="text" placeholder="Item name" aria-label="Item name" value={name} onChange={(e) => setName(e.target.value)} />
+        <Input size="tiny" className="budget-add-amt" icon={euro} type="text" inputMode="decimal" placeholder="0,00" aria-label="Amount" value={amt} onChange={(e) => setAmt(e.target.value)} />
       </div>
       <div className="budget-add-actions">
         <button type="button" className="round-btn tiny primary" aria-label="Add item" onClick={ok}><Icon icon={checkmark} size={12} /></button>

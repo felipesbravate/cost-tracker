@@ -173,7 +173,7 @@ async def main():
             check('tooltip entry: 24px row, 8px gaps (also between amount and remove), 12px dot', t['item']['h'] == 24 and t['item']['gap'] == '8px' and t['item']['rgap'] == '8px' and t['item']['dot'] == [12, 12], t['item'])
             check('tooltip entry text: name 12/500/17 white, date 12/600/14.4 +2% text-secondary', t['name'] == ['12px', '500', '17px', 'rgb(255, 255, 255)'] and t['date'] is not None and t['date'] == ['12px', '600', 'rgb(123, 120, 109)', '14.4px', '0.24px'], [t['name'], t['date']])
             check('tooltip amount: Euro icon + mono 12/500/-0.48px', t['euro'] and 'Mono' in t['amt'][0] and t['amt'][1:] == ['12px', '500', '-0.48px'], t['amt'])
-            check('tooltip remove: Micro round button (14px) with the 10px X drawn on its own 10x10 frame, action/disable', t['del'] and t['del']['w'] == 14 and t['del']['h'] == 14 and t['del']['svg'] == [10, 10] and t['del']['vb'] == '0 0 10 10' and t['del']['color'] == 'rgb(170, 166, 152)', t['del'])
+            check('tooltip remove: Micro round button (14px) with the 10px X drawn on its own 10x10 frame, action/disable', t['del'] and t['del']['w'] == 14 and t['del']['h'] == 14 and t['del']['svg'] == [10, 10] and t['del']['vb'] == '0 0 10 10' and t['del']['color'] == 'rgb(150, 146, 132)', t['del'])
             await pg.keyboard.press('Escape'); await pg.mouse.click(5, 5)
 
             # 2c. years list: newest first, and a duplicated year label appears once
@@ -244,10 +244,21 @@ async def main():
                 for (const z of ['', 'small', 'tiny']) { const w = document.createElement('span'); w.className = 'ds-input ' + z; w.innerHTML = '<input value="A">'; host.appendChild(w);
                   const c = getComputedStyle(w), i = getComputedStyle(w.firstChild); out['in-' + (z || 'medium')] = [w.getBoundingClientRect().height, c.paddingLeft, i.fontSize, i.fontWeight, i.lineHeight]; w.remove(); }
                 return out; }""")
-            check('Dropdown sizes (71:1096): Medium 48 / 16 / 14px 500 18, Small 40 / 8 / 12px 500 14, Tiny 32 / 8 / 12px 500 10',
-                  sz['dd-md'] == [48, '16px', '14px', '500', '18px'] and sz['dd-sm'] == [40, '8px', '12px', '500', '14px'] and sz['dd-tiny'] == [32, '8px', '12px', '500', '10px'], sz)
-            check('Input sizes (71:1093): Medium 48 / 16 / 14px 500 18, Small 40 / 8 / 12px 500 14, Tiny 32 / 8 / 12px 500 10',
-                  sz['in-medium'] == [48, '16px', '14px', '500', '18px'] and sz['in-small'] == [40, '8px', '12px', '500', '14px'] and sz['in-tiny'] == [32, '8px', '12px', '500', '10px'], sz)
+            check('Dropdown sizes (71:1096): Medium 48 / 16, Small 40 / 8, Tiny 32 / 8; all 14px 500 18',
+                  sz['dd-md'] == [48, '16px', '14px', '500', '18px'] and sz['dd-sm'] == [40, '8px', '14px', '500', '18px'] and sz['dd-tiny'] == [32, '8px', '14px', '500', '18px'], sz)
+            check('Input sizes (71:1093): Medium 48 / 16, Small 40 / 8, Tiny 32 / 8; all 14px 500 18',
+                  sz['in-medium'] == [48, '16px', '14px', '500', '18px'] and sz['in-small'] == [40, '8px', '14px', '500', '18px'] and sz['in-tiny'] == [32, '8px', '14px', '500', '18px'], sz)
+            st = await pg.evaluate("""() => { const host = document.body, mk = (h) => { const w = document.createElement('div'); w.innerHTML = h; host.appendChild(w); return w; };
+                const e = mk('<span class="ds-input"><input placeholder="Label"></span>'), f = mk('<span class="ds-input"><input placeholder="Label" value="Felipe"></span>'),
+                      de = mk('<div class="ds-dd ds-dd--md is-empty"><button class="ds-dd-trigger">Select</button></div>'), df = mk('<div class="ds-dd ds-dd--md"><button class="ds-dd-trigger">Rent</button></div>'),
+                      dd = mk('<div class="ds-dd ds-dd--md is-disabled"><button class="ds-dd-trigger" disabled>Select</button></div>');
+                const bc = (w, s) => getComputedStyle(w.querySelector(s)).borderTopColor, col = (w, s) => getComputedStyle(w.querySelector(s)).color;
+                const out = { inEmpty: bc(e, '.ds-input'), inFilled: bc(f, '.ds-input'), ddEmpty: [bc(de, '.ds-dd-trigger'), col(de, '.ds-dd-trigger')], ddFilled: [bc(df, '.ds-dd-trigger'), col(df, '.ds-dd-trigger')], ddDisabled: col(dd, '.ds-dd-trigger'),
+                              ph: getComputedStyle(e.querySelector('input'), '::placeholder').fontWeight };
+                [e, f, de, df, dd].forEach((w) => w.remove()); return out; }""")
+            check('Empty = border/default + text/secondary; Filled = border/selected-item + text/primary; Disable text = text/muted',
+                  st['inEmpty'] == 'rgb(203, 202, 197)' and st['inFilled'] == 'rgb(144, 138, 246)' and st['ddEmpty'] == ['rgb(203, 202, 197)', 'rgb(96, 93, 83)']
+                  and st['ddFilled'] == ['rgb(144, 138, 246)', 'rgb(22, 21, 15)'] and st['ddDisabled'] == 'rgb(150, 146, 132)', st)
             yd = await pg.evaluate("""() => { const cs = e => getComputedStyle(e), tab = document.createElement('div'); tab.className = 'year-tab'; tab.style.cssText = 'position:relative;width:48px;height:32px;margin:40px';
                 tab.innerHTML = '<button class="year-btn">2031</button><button class="year-del-btn" aria-label="Delete"><svg data-icon="x" viewBox="0 0 10 10" width="10" height="10"></svg></button>'; document.body.appendChild(tab);
                 const b = tab.querySelector('.year-del-btn'), c = cs(b), tr = tab.getBoundingClientRect(), br = b.getBoundingClientRect(), o = { size: [br.width, br.height], dx: br.left - tr.left, dy: br.top - tr.top, bg: c.backgroundColor, r: c.borderRadius, svg: [cs(b.firstChild).width, cs(b.firstChild).height] };

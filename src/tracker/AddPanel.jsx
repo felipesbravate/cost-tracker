@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
-import { ActionLink, Button, Divider, Dropdown, Field, FieldGroup, PanelHeader, ProgressBar, RoundButton, Segments } from '../ui/index.js';
+import { ActionLink, Button, Divider, Dropdown, Field, FieldGroup, Input, PanelHeader, ProgressBar, RoundButton, Segments } from '../ui/index.js';
 import { Icon } from '../ui/Icon.jsx';
 import { chevronDown, documentIcon, euro, image, questionFilled, upload, x } from '../ui/icons.js';
 import { sample } from './api.js';
@@ -224,7 +224,7 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
                 <Dropdown id="entry-period" size="md" emptyOption={false} value={periodKey} options={model.periodOptions()} onChange={(v) => { setPeriod(v); setPeriodTouched(true); }} />
               </Field>
               <Field className="span-2" label="Description" htmlFor="entry-desc">
-                <input id="entry-desc" placeholder="e.g. Yego ride" autoComplete="off" value={desc} onChange={(e) => setDesc(e.target.value)} />
+                <Input id="entry-desc" placeholder="e.g. Yego ride" autoComplete="off" value={desc} onChange={(e) => setDesc(e.target.value)} />
               </Field>
               <Field id="entry-category-field" label="Category" htmlFor="entry-cat-trigger" hidden={!isExp}>
                 <Dropdown id="entry-cat" size="md" value={catVal} options={isExp ? simpleOpts(Object.keys(gc).sort()) : []} onChange={(v) => setCat(v)} />
@@ -242,11 +242,8 @@ export function AddPanel({ open, preset, model, yearIdx, monthIdx, onClose, save
                 </div>
               </Field>
               <Field label="Amount" htmlFor="entry-amount">
-                <div className="field-with-prefix">
-                  <span className="field-prefix"><Icon icon={euro} size={20} /></span>
-                  <input id="entry-amount" type="text" placeholder="0,00" inputMode="decimal" autoComplete="off" value={amount} onChange={(e) => setAmount(e.target.value)}
-                    onBlur={(e) => { if (e.target.value.trim()) setAmount(fmtNum(parseAmount(e.target.value))); }} />
-                </div>
+                <Input id="entry-amount" icon={euro} type="text" placeholder="0,00" inputMode="decimal" autoComplete="off" value={amount} onChange={(e) => setAmount(e.target.value)}
+                  onBlur={(e) => { if (e.target.value.trim()) setAmount(fmtNum(parseAmount(e.target.value))); }} />
               </Field>
             </div>
             <div className="add-actions">
@@ -445,10 +442,10 @@ function ReviewRow({ r, iss, editing, period, yl, model, patchRow }) {
   } else catOptions = cats.map((o) => ({ value: o.label, label: o.item, selectedLabel: o.label }));
   return (
     <div className="rv-row is-editing" data-id={r.id}>{date}
-      <div className="c-desc"><input className="rv-input" data-f="desc" aria-label="Description" defaultValue={r.description} placeholder="Description" autoComplete="off"
+      <div className="c-desc"><Input size="tiny" data-f="desc" aria-label="Description" defaultValue={r.description} placeholder="Description" autoComplete="off"
         onChange={(e) => patchRow(r.id, { description: e.target.value })} /></div>
       <div className="c-type rv-select">
-        <Dropdown size="sm" ariaLabel="Type" emptyOption={false} value={typeKey} options={typeOptions} selectProps={{ 'data-f': 'type' }}
+        <Dropdown size="tiny" ariaLabel="Type" emptyOption={false} value={typeKey} options={typeOptions} selectProps={{ 'data-f': 'type' }}
           onChange={(v) => {
             const t = TYPE_OPTS.find((o) => o.key === v); if (!t) return;
             const keep = model.catOptions(t.type, t.group, yl).find((o) => o.label === catLabel);
@@ -456,7 +453,7 @@ function ReviewRow({ r, iss, editing, period, yl, model, patchRow }) {
           }} />
       </div>
       <div className="c-cat rv-select">
-        <Dropdown size="sm" ariaLabel="Category" value={catLabel} options={catOptions} selectProps={{ 'data-f': 'cat' }}
+        <Dropdown size="tiny" ariaLabel="Category" value={catLabel} options={catOptions} selectProps={{ 'data-f': 'cat' }}
           onChange={(v) => { const o = cats.find((x) => x.label === v); patchRow(r.id, { category: o ? o.category : null, item: o ? o.item : null, guess: false }); }}
           onChoose={() => patchRow(r.id, { guess: false })} />
       </div>
