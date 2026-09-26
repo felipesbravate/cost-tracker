@@ -661,16 +661,17 @@
      dedicated "Right" column instead of sitting as page-level sections.
      Previously Expense allocation sat in Row2 and ticker-strip/Row2/hero-chart
      were full-page-width siblings of Row1 — corrected here. ---- */
-  .row1{ display:grid; grid-template-columns:400px 1fr; gap:var(--space-md); margin-bottom:var(--space-lg); }
+  /* Cards sit 24 apart (Ongatu 317:6754, Sept 26); the KPI boxes and the Expense cards keep 16. */
+  .row1{ display:grid; grid-template-columns:400px 1fr; gap:var(--space-lg); margin-bottom:var(--space-lg); }
   /* Cards, KPI boxes and Expense cards have no border (Sept 26). */
   .card{ background:var(--surface); border:none; border-radius:var(--radius-card); padding:var(--space-lg); }
-  .hero-left{ display:flex; flex-direction:column; gap:var(--space-md); }
+  .hero-left{ display:flex; flex-direction:column; gap:var(--space-lg); }
   /* Hugs its own content, like every other card in this column — the
      get_design_context pull for node 2:2 showed this node as flex-[1_0_0]
      (Figma's fill-container shorthand), but that read the container's
      numbers, not the designer's intent; corrected per direct feedback. */
   .hero-left .alloc-card{ flex:0 0 auto; }
-  .hero-right{ display:flex; flex-direction:column; gap:var(--space-md); min-width:0; }
+  .hero-right{ display:flex; flex-direction:column; gap:var(--space-lg); min-width:0; }
   .balance-card .label{ font-size:var(--type-heading-medium-size); font-weight:var(--type-heading-medium-weight); line-height:var(--type-heading-medium-lh); letter-spacing:var(--type-heading-medium-ls); color:var(--ink); text-transform:uppercase; }
   .balance-card .value{ font-family:var(--font-mono); font-size:var(--type-value-xl-size); font-weight:var(--type-value-xl-weight); line-height:var(--type-value-xl-lh); letter-spacing:var(--type-value-xl-ls); margin-top:var(--space-xs); font-variant-numeric:tabular-nums; }
   .pill-delta{
@@ -742,7 +743,7 @@
      live index.html (it had no v2 equivalent until now) and restyled with
      this file's own card/chart tokens instead of copied CSS. ---- */
   .yoy-heading{ font-size:var(--type-heading-large-size); font-weight:var(--type-heading-large-weight); line-height:var(--type-heading-large-lh); letter-spacing:var(--type-heading-large-ls); margin:var(--space-xl) 0 var(--space-tn); }
-  .yoy{ display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md); }
+  .yoy{ display:grid; grid-template-columns:1fr 1fr; gap:var(--space-lg); }
   .card h2{ font-size:var(--type-heading-medium-size); font-weight:var(--type-heading-medium-weight); line-height:var(--type-heading-medium-lh); letter-spacing:var(--type-heading-medium-ls); text-transform:uppercase; color:var(--ink); }
   .card .hint{ font-size:var(--type-body-small-regular-size); font-weight:var(--type-body-small-regular-weight); line-height:var(--type-body-small-regular-lh); letter-spacing:var(--type-body-small-regular-ls); color:var(--ink-2); margin-top:var(--space-tn); }
 
