@@ -101,7 +101,6 @@ export default function LoginApp({ step, email, kind, name, message, sent }) {
       <Shell>
         <div className="login-head">
           <h1 className="login-title">Create account</h1>
-          <p className="login-sub">We sent your sign-in code to <strong>{email}</strong>. It can take a minute to arrive. It&apos;s worth checkin your spam too.</p>
         </div>
         <div className="login-body">
           <form method="post" action="/auth/signup" id="signup-form" className="login-form login-form--tight">
@@ -130,7 +129,7 @@ export default function LoginApp({ step, email, kind, name, message, sent }) {
         <div className="login-head">
           <h1 className="login-title">Sign in</h1>
           {isNew
-            ? <p className="login-sub">We sent your sign-in code to <strong>{email}</strong>. It can take a minute to arrive. It&apos;s worth checkin your spam too.</p>
+            ? <p className="login-sub">We sent your sign-in code to <strong>{email}</strong>. It can take a minute to arrive. It&apos;s worth checking your spam too.</p>
             : <Greeting name={name} email={email} />}
         </div>
         <form method="post" action="/auth/verify" id="code-form" className="login-form">

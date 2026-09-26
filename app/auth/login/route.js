@@ -10,8 +10,8 @@ const back = (path) => new Response(null, { status: 303, headers: { location: pa
 // Step 1 (Ongatu 335:7580): the email decides the next step.
 //   - an account that chose a password (Account > Security): the password step (335:7542), no code;
 //   - any other account: a code is emailed and the code step greets them (335:7606);
-//   - an address with no account: a code is emailed (the account is made with it) and "Create account" asks for a
-//     name (342:7702) before the code step (342:7885).
+//   - an address with no account: "Create account" asks for a name (342:7702); /auth/signup then emails the code
+//     (the account is made with it) and shows the code step (342:7885).
 // `send_code` (Forgot the password?, Re-send code) always emails a code and keeps the step's greeting.
 // These steps say whether an address has an account and greet it by first name. The product asked for that; lookups
 // share the sign-in rate limit per IP, so addresses can't be tried in bulk.
@@ -34,6 +34,10 @@ export async function POST(request) {
     store.set(LOGIN_CTX_COOKIE, encodeCtx({ k: 'password', n: ctx.n }), emailCookieOptions(secure));
     return back('/login?step=password');
   }
+  if (!who.exists && !resend) {
+    store.set(LOGIN_CTX_COOKIE, encodeCtx(ctx), emailCookieOptions(secure));
+    return back('/login?step=new');
+  }
   if (deps.loginLimiter.take(`em:${email}`)) {
     const sb = await authClient();
     // No emailRedirectTo: the email carries a code ({{ .Token }}), not a link.
@@ -46,5 +50,5 @@ export async function POST(request) {
   // A re-send from the code step of a new account keeps the "We sent your sign-in code" version of the step.
   const prev = resend ? form.get('from') : null;
   store.set(LOGIN_CTX_COOKIE, encodeCtx(prev === 'new' ? { k: 'new', n: ctx.n } : ctx), emailCookieOptions(secure));
-  return back(ctx.k === 'new' && !resend ? '/login?step=new' : `/login?step=code${resend ? '&sent=1' : ''}`);
+  return back(`/login?step=code${resend ? '&sent=1' : ''}`);
 }

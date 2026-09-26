@@ -80,8 +80,8 @@ async def main():
                   lg['title'] == 'Sign in or create an account' and lg['tagline'] == 'Take charge of your money' and lg['logo'] == [160, 127, 'vertical'] and lg['top'] == 80
                   and lg['card'] == [480, '40px', '16px', 'rgb(203, 202, 197)'] and abs(lg['gap'] - 40) < 1 and lg['label'] == 'ENTER YOUR EMAIL', lg)
             await sp.fill('#login-email', 'newbie@example.com'); await sp.click('#email-submit'); await sp.wait_for_selector('#signup-submit')
-            check('a new address gets "Create account" with the name and the address filled in (342:7702)',
-                  await sp.inner_text('.login-title') == 'Create account' and await sp.input_value('#signup-email') == 'newbie@example.com' and 'newbie@example.com' in await sp.inner_text('.login-sub'))
+            check('a new address gets "Create account": name, the address filled in, no "we sent" line yet (342:7702)',
+                  await sp.inner_text('.login-title') == 'Create account' and await sp.input_value('#signup-email') == 'newbie@example.com' and await sp.locator('.login-sub').count() == 0)
             await sp.click('#signup-submit'); await sp.wait_for_timeout(300)
             check('Create account: the name is required', 'step=new' in sp.url or await sp.locator('#full-name:invalid').count() == 1)
             await sp.fill('#full-name', 'Nina Newbie'); await sp.click('#signup-submit'); await sp.wait_for_selector('#code-submit')
@@ -89,7 +89,7 @@ async def main():
             await sp.click('#code-0'); await sp.keyboard.type('1a2b3')
             typed = await sp.eval_on_selector('input[name=code]', 'e => e.value')
             check('code step (342:7885): 8 boxes, digits only, typing moves to the next box, "We sent your sign-in code" copy',
-                  boxes == 8 and typed == '123' and 'We sent your sign-in code to' in await sp.inner_text('.login-sub'), [boxes, typed])
+                  boxes == 8 and typed == '123' and 'We sent your sign-in code to newbie@example.com. It can take a minute to arrive. It\'s worth checking your spam too.' == await sp.inner_text('.login-sub'), [boxes, typed])
             await sp.click('#code-0'); await sp.keyboard.press('Backspace'); await sp.keyboard.press('Backspace'); await sp.keyboard.press('Backspace')
             await sp.evaluate("""() => { const dt = new DataTransfer(); dt.setData('text', '9876 5432'); document.getElementById('code-0').dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true })); }""")
             await sp.wait_for_timeout(100)
