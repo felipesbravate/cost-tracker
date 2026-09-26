@@ -3,7 +3,7 @@
 import { headers } from 'next/headers';
 import Root from '../../src/tracker/Root.jsx';
 
-export const metadata = { title: 'Account · Costs Tracker', icons: { icon: 'data:,' }, robots: { index: false, follow: false } };
+export const metadata = { title: 'Account · Ongatu', icons: { icon: 'data:,' }, robots: { index: false, follow: false } };
 export const dynamic = 'force-dynamic'; // a fresh CSP nonce per response (middleware.js)
 
 export default async function Page() {
