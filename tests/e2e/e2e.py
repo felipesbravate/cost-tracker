@@ -421,6 +421,26 @@ async def main():
                 rr = await admin_ctx.request.post(BASE + '/api/read-document', data={'prompt': 'x'}, headers={'origin': BASE, 'x-requested-with': 'costs-tracker'}); codes.append(rr.status)
             check('daily read cap enforced', codes == [200, 200, 429, 429], codes)
 
+            # 7a. over budget: Variable / Groceries has a 10,00 budget this month and two 8,00 entries -> a bell notification;
+            # the Entries tooltip starts with "Budget set"
+            await admin_ctx.request.post(BASE + '/api/db/budgets', headers=hdr, data={'year': ym[0], 'type': 'expense', 'group': 'Variable', 'category': 'Food', 'item': 'Groceries', 'amount': 10, 'createdAt': '2026-01-01T00:00:00Z'})
+            for i, d in enumerate(('03', '05')):
+                await admin_ctx.request.post(BASE + '/api/db/entries', headers=hdr, data={'year': ym[0], 'monthIndex': ym[1], 'type': 'expense', 'group': 'Variable', 'category': 'Food', 'item': 'Groceries',
+                    'description': 'Shop %d' % i, 'amount': 8, 'date': ym[0] + '-%02d-%s' % (ym[1] + 1, d), 'createdAt': ym[0] + '-%02d-%sT10:0%d:00Z' % (ym[1] + 1, d, i)})
+            await pg.reload(); await pg.wait_for_selector('#user-nav'); await pg.wait_for_timeout(900)
+            check('over budget: the bell shows the red dot', await pg.locator('.ds-notif-badge').count() == 1)
+            await pg.click('#notif-btn'); await pg.wait_for_selector('#notif-panel')
+            ntext = await pg.inner_text('#notif-panel')
+            check('over budget: notification names the item, the group, spent and budget', 'Groceries (Variable) is over budget' in ntext and '16,00' in ntext and '10,00' in ntext, ntext)
+            await pg.locator('#notif-panel .ds-notif-item', has_text='Groceries').get_by_role('button', name='View').click(); await pg.wait_for_timeout(400)
+            check('View opens the Variable expenses of that month', await pg.locator('#notif-panel').count() == 0 and 'Groceries' in await pg.inner_text('.breakdown-card'))
+            await pg.locator('.bd-row, .meter-row', has_text='Groceries').first.locator('.note-count').click(); await pg.wait_for_timeout(250)
+            head = await pg.inner_text('#note-tip .tip-head')
+            check('Entries tooltip starts with "Budget set" and the budget', 'Budget set' in head and '10,00' in head, head)
+            await pg.locator('.bd-row, .meter-row', has_text='Groceries').first.locator('.note-count').click(); await pg.wait_for_timeout(200)
+            await pg.reload(); await pg.wait_for_selector('#user-nav'); await pg.wait_for_timeout(900)
+            check('seen alerts: no red dot after reload', await pg.locator('.ds-notif-badge').count() == 0)
+
             # 7b. removing an entry from the Entries tooltip confirms with a toast
             r = await admin_ctx.request.post(BASE + '/api/db/entries', headers=hdr, data={
                 'year': ym[0], 'monthIndex': ym[1], 'type': 'income', 'group': None, 'category': None, 'item': 'Toast test', 'description': 'Toast test', 'amount': 5, 'date': ym[0] + '-%02d-01' % (ym[1] + 1)})

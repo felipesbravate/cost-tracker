@@ -85,7 +85,7 @@ export function UserMenu({ name, image, open, onToggle, onClose, items }) {
 export function NotificationItem({ date, time, children, action }) {
   return (
     <div className="ds-notif-item">
-      <div className="ds-notif-when"><span>{date}</span><span className="ds-notif-dot" aria-hidden="true" /><span>{time}</span></div>
+      <div className="ds-notif-when"><span>{date}</span>{time && <><span className="ds-notif-dot" aria-hidden="true" /><span>{time}</span></>}</div>
       <div className="ds-notif-content">
         <div className="ds-notif-text">{children}</div>
         {action && <Button variant="secondary" size="tiny" onClick={action.onClick} disabled={action.disabled}>{action.label}</Button>}

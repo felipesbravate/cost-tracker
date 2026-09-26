@@ -1,8 +1,9 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Button, Notification, NotificationItem, UserMenu, UserNav } from '../ui/index.js';
+import { Button, Notification, NotificationItem, UserMenu, UserNav, fmtMoney } from '../ui/index.js';
 import { signOut as signOutIcon } from '../ui/icons.js';
 import { listUsers, setUserStatus, signOut } from './api.js';
+import { useSeenAlerts } from './alerts.js';
 
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -13,16 +14,27 @@ export function firstNameOf(email) {
   return part ? part.charAt(0).toUpperCase() + part.slice(1).toLowerCase() : 'there';
 }
 
-// User nav (DS 230:618) in the page header: notifications (for an admin: accounts waiting for approval) and the
-// user menu (Account page, Admin for admins, Sign out). `profile` (useProfile) gives the name and picture.
+// When something happened, as the notification item shows it: "Sep 17" and "14:05" (no time for a date-only entry).
+function whenOf(iso) {
+  if (!iso) return { date: '', time: '' };
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(iso);
+  const d = new Date(dateOnly ? iso + 'T12:00:00' : iso);
+  if (isNaN(d)) return { date: '', time: '' };
+  return { date: `${MON[d.getMonth()]} ${d.getDate()}`, time: dateOnly ? '' : `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` };
+}
+
+// User nav (DS 230:618) in the page header: notifications (over-budget alerts; for an admin also accounts waiting for
+// approval) and the user menu (Account page, Admin for admins, Sign out). `profile` (useProfile) gives the name and picture.
 // Choosing an item doesn't close the menu: it closes only from its top row (chevron, name, avatar) or a click outside.
 // Account on the Account page does nothing; Account elsewhere and Sign out load another page with the menu open.
-export function AccountNav({ me, profile }) {
+// `alerts` = model.budgetAlerts(); `onOpenAlert(alert)` shows that month and group on the dashboard.
+export function AccountNav({ me, profile, alerts = [], onOpenAlert }) {
   const [open, setOpen] = useState(null); // 'notif' | 'user' | null
   const [pending, setPending] = useState([]);
   const [busy, setBusy] = useState({});
   const [dialog, setDialog] = useState(null); // 'admin'
   const close = useCallback(() => setOpen(null), []);
+  const [seen, markSeen] = useSeenAlerts();
 
   const loadPending = useCallback(async () => {
     if (!me || !me.isAdmin) return;
@@ -45,8 +57,17 @@ export function AccountNav({ me, profile }) {
   return (
     <>
       <UserNav>
-        <Notification open={open === 'notif'} unread={pending.length > 0} onClose={close}
-          onToggle={() => { setOpen((o) => (o === 'notif' ? null : 'notif')); if (open !== 'notif') loadPending(); }}>
+        <Notification open={open === 'notif'} unread={pending.length > 0 || (!!seen && alerts.some((a) => !seen.has(a.id)))} onClose={close}
+          onToggle={() => { setOpen((o) => (o === 'notif' ? null : 'notif')); if (open !== 'notif') { loadPending(); markSeen(alerts.map((a) => a.id)); } }}>
+          {alerts.map((a) => {
+            const w = whenOf(a.at);
+            return (
+              <NotificationItem key={a.id} date={w.date} time={w.time}
+                action={onOpenAlert ? { label: 'View', onClick: () => { setOpen(null); onOpenAlert(a); } } : undefined}>
+                {`${a.item} (${a.group}) is over budget in ${MON[a.mi]}: ${fmtMoney(a.spent, 'EUR')} of ${fmtMoney(a.budget, 'EUR')}.`}
+              </NotificationItem>
+            );
+          })}
           {pending.length
             ? pending.map((u) => {
               const d = new Date(u.created_at);
@@ -58,7 +79,7 @@ export function AccountNav({ me, profile }) {
                 </NotificationItem>
               );
             })
-            : <div className="ds-notif-item ds-notif-empty"><div className="ds-notif-text">No notifications.</div></div>}
+            : (!alerts.length && <div className="ds-notif-item ds-notif-empty"><div className="ds-notif-text">No notifications.</div></div>)}
         </Notification>
         <UserMenu name={name} image={profile && profile.image} open={open === 'user'} onClose={close} onToggle={() => setOpen((o) => (o === 'user' ? null : 'user'))} items={items} />
       </UserNav>

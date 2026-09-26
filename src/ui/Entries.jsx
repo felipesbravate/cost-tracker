@@ -28,10 +28,17 @@ export function TooltipEntryItem({ name, date, amount, currency, estimate, prefi
   );
 }
 
-// Entries tooltip (the Entry counter's Pressed state): dark surface listing the entries behind a figure.
-export function EntriesTooltip({ visible, style, footnote, children, tipRef }) {
+// Entries tooltip (the Entry counter's Pressed state): dark surface listing the entries behind a figure. With `budget`
+// (the item's budget for the month) it starts with a "Budget set" header and a divider (146:5497).
+export function EntriesTooltip({ visible, style, footnote, children, tipRef, budget, currency }) {
   return (
     <div id="note-tip" ref={tipRef} className={visible ? 'visible' : undefined} style={style}>
+      {budget != null && (
+        <>
+          <div className="tip-head"><span className="tip-head-label">Budget set</span><span className="tip-head-amount"><Money value={budget} currency={currency} /></span></div>
+          <hr className="tip-head-divider" />
+        </>
+      )}
       {children}
       {footnote && <div className="tip-foot">{footnote}</div>}
     </div>

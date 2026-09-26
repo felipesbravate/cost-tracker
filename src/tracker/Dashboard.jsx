@@ -177,7 +177,7 @@ function ItemTip({ tip, actions }) {
   // Closing fades the tooltip out where it was, with what it showed: without its position it fell back into the page
   // flow (over the Tracker title) and faded there, the flash in Felipe's recording.
   const last = useRef(null);
-  if (!tip) return <EntriesTooltip tipRef={ref} style={last.current ? last.current.style : undefined} footnote={last.current && last.current.foot}>{last.current && last.current.lines}</EntriesTooltip>;
+  if (!tip) return <EntriesTooltip tipRef={ref} style={last.current ? last.current.style : undefined} footnote={last.current && last.current.foot} budget={last.current ? last.current.budget : null} currency={last.current && last.current.cur}>{last.current && last.current.lines}</EntriesTooltip>;
   const { row, cur } = tip;
   const lines = [];
   if (row.deleted) {
@@ -198,8 +198,8 @@ function ItemTip({ tip, actions }) {
   (row.entries || []).forEach((e) => lines.push(<TooltipEntryItem key={'e' + e.id} name={e.description || 'Manual entry'} date={formatEntryDate(e.date) || ''} amount={e.amount} currency={cur} onRemove={() => actions.deleteEntry(e.id)} removeTitle="Delete" />));
   const foot = anyEstimateNote ? "~ estimated (split evenly) — the sheet didn't record this one's exact amount"
     : (row.isEstimate && !row.deleted) ? '≈ projected from recent months — nothing recorded yet. Add a real entry to replace it, or delete it.' : null;
-  if (pos) last.current = { style: pos, lines, foot };
-  return <EntriesTooltip tipRef={ref} visible={!!pos} style={pos || { left: '0px', top: '0px' }} footnote={foot}>{lines}</EntriesTooltip>;
+  if (pos) last.current = { style: pos, lines, foot, budget: row.budget, cur };
+  return <EntriesTooltip tipRef={ref} visible={!!pos} style={pos || { left: '0px', top: '0px' }} footnote={foot} budget={row.budget} currency={cur}>{lines}</EntriesTooltip>;
 }
 function formatEntryDate(iso) {
   const m = iso && iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);

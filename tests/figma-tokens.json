@@ -1,5 +1,5 @@
 {
-  "_note": "Snapshot of the Okara Design System Variables (Figma file 7glNMA9d7iVJFf2CvyrzAb), read Sept 25, 2026 (Typography collection added the same day: DM Sans + Martian Mono). Values are hex or numbers; {\"alias\": name} points at a variable in Primitives. To update: re-read Figma, write this file, run `node scripts/sync-tokens.mjs` (rewrites the token block in src/ui/okara.css), then `npm test`. Sept 25: every SemiBold text style set to Medium (500) except Display/Title (page titles), which stays SemiBold.",
+  "_note": "Snapshot of the Okara Design System Variables (Figma file 7glNMA9d7iVJFf2CvyrzAb), read Sept 25, 2026 (Typography collection added the same day: DM Sans + Martian Mono). Values are hex or numbers; {\"alias\": name} points at a variable in Primitives. To update: re-read Figma, write this file, run `node scripts/sync-tokens.mjs` (rewrites the token block in src/ui/okara.css), then `npm test`. Sept 25: every SemiBold text style set to Medium (500) except Display/Title (page titles), which stays SemiBold. Sept 26: + neutral/stone-50, border/secondary (Divider, dropdown list, notification panel, user card), border/tertiary (divider in the Entries tooltip).",
   "Primitives": {
     "neutral/page": "#eef5f4",
     "neutral/surface": "#ffffff",
@@ -30,8 +30,9 @@
     "status/green-deep": "#0a6d42",
     "neutral/charcoal-800": "#32312c",
     "neutral/charcoal-900": "#1f1e19",
-    "status/red-deep": "#bd0007",
+    "neutral/stone-50": "#efeee5",
     "neutral/stone-100": "#e4e3da",
+    "status/red-deep": "#bd0007",
     "neutral/stone-150": "#deddd4",
     "neutral/stone-300": "#cbcac5",
     "neutral/stone-325": "#cac9c0",
@@ -39,8 +40,8 @@
     "status/ochre-deep": "#7a5703",
     "data/orange": "#ffba3a",
     "status/green-pale": "#e3f4ec",
-    "status/red-pale": "#ffc4c6",
     "neutral/stone-400": "#aaa698",
+    "status/red-pale": "#ffc4c6",
     "status/yellow-pale": "#ffe9b7",
     "neutral/off-white": "#f9f9f7"
   },
@@ -62,6 +63,9 @@
     },
     "border/default": {
       "alias": "neutral/stone-300"
+    },
+    "border/secondary": {
+      "alias": "neutral/stone-50"
     },
     "action/primary": {
       "alias": "neutral/ink"
@@ -131,6 +135,9 @@
     },
     "border/hover": {
       "alias": "neutral/stone-350"
+    },
+    "border/tertiary": {
+      "alias": "neutral/charcoal-800"
     },
     "border/focus": {
       "alias": "brand/indigo"

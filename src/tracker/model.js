@@ -339,13 +339,45 @@ export function createModel({ data: DATA, entries: ENTRIES, overrides: OVERRIDES
       isEstimate: eff.isEstimate, deleted: eff.deleted, override: eff.override,
       baseAmount: eff.baseAmount, estimateSamples: eff.estimateSamples, estimateSource: eff.estimateSource,
       type, group: group || null, yearLabel: y.year, mi,
+      budget: budgetOf(y, mi, type, group, r.category, r.item),
     };
+  }
+  // The item's budget for the month (the Entries tooltip's "Budget set"), or null when none is set.
+  function budgetOf(y, mi, type, group, category, item) {
+    const b = budgetApplies(y, mi) ? findBudget(y.year, type, group, category, item, mi) : null;
+    return b && b.amount > 0 ? b.amount : null;
+  }
+
+  // ---- over-budget alerts (the bell) ----
+  // Variable, Additional and Extra expenses whose recorded entries add up to more than the item's budget, in the months
+  // of the current year up to this one. Newest first. `at` = the date of the entry that took it over.
+  const ALERT_GROUPS = ['Variable', 'Additional', 'Extra'];
+  function budgetAlerts(now = new Date()) {
+    const y = DATA.find((d) => d.year === String(now.getFullYear()));
+    if (!y) return [];
+    const out = [];
+    for (let mi = 0; mi <= now.getMonth(); mi++) {
+      if (!budgetApplies(y, mi)) continue;
+      for (const b of budgetsFor(y.year, mi)) {
+        if (b.type !== 'expense' || !ALERT_GROUPS.includes(b.group) || !(b.amount > 0)) continue;
+        const manual = manualEntriesFor(y, mi, 'expense', b.group, b.category || null, b.item)
+          .slice().sort((a, c) => String(a.date || a.createdAt || '').localeCompare(String(c.date || c.createdAt || '')));
+        let run = 0, crossed = null;
+        for (const e of manual) { run += e.amount || 0; if (crossed === null && run > b.amount + 0.004) crossed = e; }
+        if (!crossed) continue;
+        out.push({
+          id: [y.year, mi, b.group, b.category || '', b.item].join('|'), year: y.year, mi, group: b.group, category: b.category || null, item: b.item,
+          spent: Math.round(run * 100) / 100, budget: b.amount, at: crossed.createdAt || crossed.date || null, date: crossed.date || null,
+        });
+      }
+    }
+    return out.sort((a, c) => String(c.at || '').localeCompare(String(a.at || '')));
   }
   // The Tracker's rows: every item of the year's categories for this type (0,00 when nothing is recorded), plus any
   // item the month has figures for.
   const zeroRow = (type, group, category, item, y, mi) => ({
     item, category: category || null, amount: 0, entries: [], importedCells: [], noteEntries: [], isEstimate: false, deleted: false, override: null,
-    baseAmount: 0, estimateSamples: 0, estimateSource: null, type, group: group || null, yearLabel: y.year, mi, empty: true,
+    baseAmount: 0, estimateSamples: 0, estimateSource: null, type, group: group || null, yearLabel: y.year, mi, empty: true, budget: null,
   });
   function buildBreakdown(y, mi, type) {
     const yi = DATA.indexOf(y);
@@ -465,7 +497,7 @@ export function createModel({ data: DATA, entries: ENTRIES, overrides: OVERRIDES
   return {
     DATA, ENTRIES, OVERRIDES, BUDGETS, BUDGET_DEFAULTS, canAdjustMonthBudget, monthBudgetRows,
     entriesFor, entriesForYear, currentYearMonthIndex, monthHasData, isFutureMonth, defaultMonth,
-    computeMonth, buildBreakdown, buildBudgetSuggestions, yearIncome, yearExpense,
+    computeMonth, buildBreakdown, buildBudgetSuggestions, yearIncome, yearExpense, budgetAlerts,
     taxonomyForYear, catOptions, typeOptsForYear,
     resolveDate, isOpenNextMonthDate, periodYears, periodExists, periodOptions, defaultPeriodKey, entryDateBounds, promptYearLabel,
   };

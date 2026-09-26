@@ -11,6 +11,7 @@ import { arrowStraightLeft, lock, trash, upload } from '../ui/icons.js';
 import { api, deleteMe, deleteMyData, getMe, getSignIn, setSignIn, signOut } from './api.js';
 import { AccountNav } from './AccountBar.jsx';
 import { useConfirm } from './ConfirmModal.jsx';
+import { useBudgetAlertsStandalone } from './alerts.js';
 import { avatarFromFile, removeAvatar, saveAvatar, saveProfile, useProfile } from './profile.js';
 
 const SECTIONS = [
@@ -26,6 +27,7 @@ export default function AccountApp() {
   const [confirmModal, confirm] = useConfirm();
   const [toastEl, showToast] = useToast();
   const [active, setActive] = useState('profile');
+  const alerts = useBudgetAlertsStandalone();
 
   useEffect(() => {
     getMe().then((m) => {
@@ -52,7 +54,7 @@ export default function AccountApp() {
   return (
     <>
       <div className="app-top-gap" />
-      <AppHeader><AccountNav me={me} profile={profile} /></AppHeader>
+      <AppHeader><AccountNav me={me} profile={profile} alerts={alerts} onOpenAlert={(a) => { location.href = '/?alert=' + encodeURIComponent([a.year, a.mi, a.group].join('|')); }} /></AppHeader>
       <div className="wrap acct-page">
         <header className="acct-head">
           <ActionLink href="/" icon={arrowStraightLeft} id="acct-back">Return to dashboard</ActionLink>

@@ -38,8 +38,9 @@
     --primitive-status-green-deep: #0a6d42;
     --primitive-neutral-charcoal-800: #32312c;
     --primitive-neutral-charcoal-900: #1f1e19;
-    --primitive-status-red-deep: #bd0007;
+    --primitive-neutral-stone-50: #efeee5;
     --primitive-neutral-stone-100: #e4e3da;
+    --primitive-status-red-deep: #bd0007;
     --primitive-neutral-stone-150: #deddd4;
     --primitive-neutral-stone-300: #cbcac5;
     --primitive-neutral-stone-325: #cac9c0;
@@ -47,8 +48,8 @@
     --primitive-status-ochre-deep: #7a5703;
     --primitive-data-orange: #ffba3a;
     --primitive-status-green-pale: #e3f4ec;
-    --primitive-status-red-pale: #ffc4c6;
     --primitive-neutral-stone-400: #aaa698;
+    --primitive-status-red-pale: #ffc4c6;
     --primitive-status-yellow-pale: #ffe9b7;
     --primitive-neutral-off-white: #f9f9f7;
 
@@ -59,6 +60,7 @@
     --text-secondary: var(--primitive-neutral-ink-2);
     --text-muted: var(--primitive-neutral-stone-400);
     --border-default: var(--primitive-neutral-stone-300);
+    --border-secondary: var(--primitive-neutral-stone-50);
     --action-primary: var(--primitive-neutral-ink);
     --action-primary-hover: var(--primitive-neutral-charcoal-800);
     --action-primary-press: var(--primitive-neutral-charcoal-900);
@@ -82,6 +84,7 @@
     --data-pink: var(--primitive-data-pink);
     --data-lime: var(--primitive-data-lime);
     --border-hover: var(--primitive-neutral-stone-350);
+    --border-tertiary: var(--primitive-neutral-charcoal-800);
     --border-focus: var(--primitive-brand-indigo);
     --border-dark: var(--primitive-neutral-ink);
     --border-destructive: var(--primitive-status-red-deep);
@@ -357,7 +360,8 @@
      utility classes matching their real Figma geometry/tokens, available for future
      use, not yet placed anywhere in the markup below. ---- */
   /* Divider: a 1px rule in border/card (#d3d2cd), the binding the Cost-tracker designs use for it. */
-  .ds-divider{ border:none; border-top:1px solid var(--divider); margin:0; }
+  /* Divider (43:267): border/secondary since Sept 26. */
+  .ds-divider{ border:none; border-top:1px solid var(--border-secondary); margin:0; }
   /* Label: the closest thing to a replacement for the deleted "Tag" component —
      radius/ty (4px) pill, bg/dark fill, 10px SemiBold white text. */
   .ds-label{
@@ -556,7 +560,7 @@
   .ds-dd-menu{
     position:fixed; z-index:80; box-sizing:border-box; width:max(242px, var(--dd-w, 0px)); max-width:calc(100vw - 16px);
     overflow-y:auto; overscroll-behavior:contain;
-    background:var(--surface-primary); border:1px solid var(--border-default); border-radius:var(--radius-md); padding:var(--space-md);
+    background:var(--surface-primary); border:1px solid var(--border-secondary); border-radius:var(--radius-md); padding:var(--space-md);
     box-shadow:0 0 8px color-mix(in srgb, var(--text-primary) 8%, transparent);
     display:flex; flex-direction:column; gap:var(--space-xs);
   }
@@ -1207,7 +1211,7 @@
   .ds-user-card{
     position:absolute; top:0; right:0; z-index:65; width:200px; box-sizing:border-box;
     display:flex; flex-direction:column; gap:var(--space-tn); padding:var(--space-tn) var(--space-tn) var(--space-xs) var(--space-tn);
-    background:var(--surface-primary); border-radius:16px 24px 16px 16px;
+    background:var(--surface-primary); border-radius:16px 24px 16px 16px; border:1px solid var(--border-secondary);
     box-shadow:0 0 8px color-mix(in srgb, var(--text-primary) 8%, transparent);
   }
   .ds-user-card > .ds-user-info{ width:100%; }
@@ -1241,7 +1245,7 @@
   .ds-notif-panel{
     position:absolute; top:40px; right:0; z-index:65; width:320px; max-width:calc(100vw - 32px); box-sizing:border-box;
     display:flex; flex-direction:column; gap:var(--space-tn); padding:var(--space-xs);
-    background:var(--surface-primary); border-radius:16px 24px 16px 16px;
+    background:var(--surface-primary); border-radius:16px 24px 16px 16px; border:1px solid var(--border-secondary);
     box-shadow:0 0 8px color-mix(in srgb, var(--text-primary) 8%, transparent);
     max-height:min(480px, calc(100vh - 120px)); overflow-y:auto;
   }
@@ -1414,3 +1418,11 @@
   .ds-menu-item:hover svg, .ds-menu-item.is-selected svg{ color:var(--surface-dark); }
   .ds-menu-item.is-selected{ background:var(--surface-secondary); }
   .ds-menu-item:focus-visible{ outline:2px solid var(--border-focus); outline-offset:2px; }
+
+  /* Entries tooltip header (146:5497): "Budget set" (Heading/Small, text/muted) and the item's budget (Value/Small,
+     text/muted, Euro in action/disable), space-between; then a divider in border/tertiary; 16 above the entries. */
+  #note-tip .tip-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding-right:var(--space-xs); }
+  #note-tip .tip-head-label{ font-size:var(--type-heading-small-size); font-weight:var(--type-heading-small-weight); line-height:var(--type-heading-small-lh); letter-spacing:var(--type-heading-small-ls); color:var(--text-muted); }
+  #note-tip .tip-head-amount{ font-family:var(--font-mono); font-size:var(--type-value-small-size); font-weight:var(--type-value-small-weight); line-height:var(--type-value-small-lh); letter-spacing:var(--type-value-small-ls); color:var(--text-muted); white-space:nowrap; font-variant-numeric:tabular-nums; }
+  #note-tip .tip-head-amount .money-ic{ color:var(--action-disable); }
+  #note-tip .tip-head-divider{ border:none; border-top:1px solid var(--border-tertiary); margin:var(--space-md) var(--space-xs) var(--space-md) 0; }

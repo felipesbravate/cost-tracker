@@ -35,6 +35,7 @@ export default function TrackerApp() {
   const [tip, setTip] = useState(null);
   const [confirmModal, confirm] = useConfirm();
   const profile = useProfile(me);
+  const pendingAlert = useRef(null);
   const [addPanel, setAddPanel] = useState({ open: false, preset: { type: 'expense', group: 'Fixed' } });
   const [pendingYear, setPendingYear] = useState(null);
   const [monthBudget, setMonthBudget] = useState(null); // { yearIdx, monthIdx } while "Adjust month's budget" is open
@@ -56,6 +57,8 @@ export default function TrackerApp() {
         // Account > Import data lands here with ?add=1: open the Add panel (upload a spreadsheet or documents).
         const q = new URLSearchParams(location.search);
         if (q.get('add') === '1') { setAddPanel((p) => ({ ...p, open: true })); history.replaceState(null, '', location.pathname); }
+        // A notification's "View" from another page: /?alert=<year>|<month>|<group> opens that month and group.
+        if (q.get('alert')) { pendingAlert.current = q.get('alert'); history.replaceState(null, '', location.pathname); }
       }
     }).catch(() => {});
     const offs = COLLECTIONS.map((name) => db.collection(name).onSnapshot((snap) => {
@@ -277,6 +280,24 @@ export default function TrackerApp() {
     }
   };
 
+  const alerts = useMemo(() => model.budgetAlerts(), [model]);
+  const openAlert = useCallback((a) => {
+    const yi = modelRef.current.DATA.findIndex((d) => d.year === a.year);
+    if (yi < 0) return;
+    setView({ yearIdx: yi, monthIdx: a.mi });
+    setBd({ type: a.group, group: a.group });
+    const el = document.querySelector('.breakdown-card');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+  // Coming from Account with ?alert=…: open it once the years are in.
+  useEffect(() => {
+    if (!pendingAlert.current) return;
+    const [year, mi, group] = pendingAlert.current.split('|');
+    if (!model.DATA.some((d) => d.year === year)) return;
+    pendingAlert.current = null;
+    openAlert({ year, mi: Number(mi), group });
+  }, [model, openAlert]);
+
   const y = model.DATA[view.yearIdx] || model.DATA[model.DATA.length - 1];
   const yearIdx = model.DATA.indexOf(y);
   const monthIdx = view.monthIdx;
@@ -288,7 +309,7 @@ export default function TrackerApp() {
   return (
     <>
       <div className="app-top-gap" />
-      <AppHeader><AccountNav me={me} profile={profile} /></AppHeader>
+      <AppHeader><AccountNav me={me} profile={profile} alerts={alerts} onOpenAlert={openAlert} /></AppHeader>
       <div className={'wrap' + (addingYear ? ' is-adding-year' : '')}>
         <header className="top">
           <h1 className="app-title">{`Hey, ${profile.name}`}</h1>
