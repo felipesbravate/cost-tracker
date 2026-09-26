@@ -94,7 +94,7 @@ export function TrackerCard({ model, y, monthIdx, breakdownType, breakdownGroup,
     const key = `${row.yearLabel}|${row.mi}|${row.type}|${row.group}|${row.category}|${row.item}`;
     const open = tip && tip.key === key;
     return (
-      <EntryCounter variant={row.isEstimate && !row.deleted ? 'estimate' : row.deleted ? 'removed' : undefined} open={open}
+      <EntryCounter variant={row.deleted ? 'removed' : !total && row.isEstimate ? 'icon' : row.isEstimate ? 'estimate' : undefined} open={open}
         onClick={(ev) => { ev.stopPropagation(); setTip(open ? null : { key, row, cur, anchor: ev.currentTarget }); }}>
         {total || (row.deleted ? '×' : (row.isEstimate ? '≈' : '•'))}
       </EntryCounter>

@@ -336,7 +336,7 @@ export default function TrackerApp() {
         <footer className="note" id="app-footer">Costs Tracker. Your entries are encrypted before they are stored. Documents you upload are read once to extract entries and are never saved.</footer>
       </div>
       {toastEl}
-      <Toast id="year-toast" type="neutral" visible={!!yearToast}
+      <Toast id="year-toast" type="neutral" visible={!!yearToast} onClose={hideYearToast}
         action={yearToast ? <Button size="tiny" variant="secondary" className="toast-undo" onClick={yearToast.undo}>Undo</Button> : null}>{yearToast ? yearToast.message : ''}</Toast>
       {confirmModal}
     </>

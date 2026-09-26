@@ -21,14 +21,14 @@ export function FieldGroup({ label, className, children }) {
   );
 }
 
-// Input (DS 71:1093), Size=Medium: 40 high, padding 0 16, radius/sm, border/default, 14px /15.2 -1%. Empty shows the
-// placeholder in text/secondary (Regular); Filled is Medium text/primary; Focus turns the border border/focus;
-// Disable fills surface/secondary with text/secondary. `icon` = an optional 20px icon before the text (the Disable
-// email field shows Lock).
-export function Input({ icon, className, ...rest }) {
+// Input (DS 71:1093). size: 'medium' (default, 48 high, 14px) | 'small' (40, 12px) | 'tiny' (24, 12px). Empty shows the
+// placeholder in text/secondary; Filled is Medium text/primary; Focus turns the border border/focus; Disable fills
+// surface/secondary with text/secondary. `icon` = an optional icon before the text (20px at Medium, 12px smaller; the
+// Disable email field shows Lock).
+export function Input({ icon, size = 'medium', className, ...rest }) {
   return (
-    <span className={['ds-input', rest.disabled && 'is-disabled', icon && 'has-icon', className].filter(Boolean).join(' ')}>
-      {icon && <Icon icon={icon} size={20} />}
+    <span className={['ds-input', size !== 'medium' && size, rest.disabled && 'is-disabled', icon && 'has-icon', className].filter(Boolean).join(' ')}>
+      {icon && <Icon icon={icon} size={size === 'medium' ? 20 : 12} />}
       <input {...rest} />
     </span>
   );

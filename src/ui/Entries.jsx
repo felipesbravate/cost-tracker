@@ -1,12 +1,14 @@
 import { Icon } from './Icon.jsx';
-import { x } from './icons.js';
+import { x, chart } from './icons.js';
 import { Money } from './Money.jsx';
 
-// Entry counter (DS 146:5252): the small dark pill after an item's name. `open` = Pressed (its tooltip is showing).
-// variant: undefined | 'estimate' (grey) | 'removed' (red). `children` is the count or a sign (≈, ×, •).
+// Entry counter (DS 146:5252): the small pill after an item's name. `open` = Pressed (its tooltip is showing).
+// Type=Number: dark pill with the count (or a sign: ×, •). Type=Icon (354:553): nothing recorded yet, only a budget or an
+// estimate: surface/secondary pill with a 10px Chart in surface/tertiary; Hover and Pressed swap the two colours.
+// variant: undefined | 'icon' | 'estimate' (grey) | 'removed' (red).
 export function EntryCounter({ variant, open, className, children, ...rest }) {
-  const cls = ['note-count', variant === 'estimate' && 'is-estimate', variant === 'removed' && 'is-removed', open && 'is-open', className].filter(Boolean).join(' ');
-  return <span className={cls} {...rest}>{children}</span>;
+  const cls = ['note-count', variant === 'icon' && 'is-icon', variant === 'estimate' && 'is-estimate', variant === 'removed' && 'is-removed', open && 'is-open', className].filter(Boolean).join(' ');
+  return <span className={cls} {...rest}>{variant === 'icon' ? <Icon icon={chart} size={10} /> : children}</span>;
 }
 
 // Tooltip entry item (DS 144:4426): dot, name + date, then the amount and an optional remove button.
@@ -31,17 +33,20 @@ export function TooltipEntryItem({ name, date, amount, currency, estimate, prefi
 // Entries tooltip (the Entry counter's Pressed state): dark surface listing the entries behind a figure. With `budget`
 // (the item's budget for the month) it starts with a "Budget set" header and a divider (146:5497).
 // `budgetLabel` names it ("Budget set"; "Estimated" for income). With nothing under it, the divider is left out.
+// With a header and nothing under it, the tooltip says "There's no entries yet." (354:618).
 export function EntriesTooltip({ visible, style, footnote, children, tipRef, budget, budgetLabel = 'Budget set', currency }) {
   const hasLines = Array.isArray(children) ? children.length > 0 : !!children;
+  const empty = budget != null && !hasLines && !footnote;
   return (
     <div id="note-tip" ref={tipRef} className={visible ? 'visible' : undefined} style={style}>
       {budget != null && (
         <>
           <div className="tip-head"><span className="tip-head-label">{budgetLabel}</span><span className="tip-head-amount"><Money value={budget} currency={currency} /></span></div>
-          {(hasLines || footnote) && <hr className="tip-head-divider" />}
+          <hr className="tip-head-divider" />
         </>
       )}
       {children}
+      {empty && <div className="tip-empty">There's no entries yet.</div>}
       {footnote && <div className="tip-foot">{footnote}</div>}
     </div>
   );

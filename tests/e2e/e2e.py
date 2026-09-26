@@ -108,9 +108,9 @@ async def main():
                          name: [cs(name).fontSize, cs(name).fontWeight, cs(name).lineHeight, cs(name).color], date: date ? [cs(date).fontSize, cs(date).fontWeight, cs(date).color, cs(date).lineHeight, cs(date).letterSpacing] : null,
                          amt: [cs(amt).fontFamily.split(',')[0], cs(amt).fontSize, cs(amt).fontWeight, cs(amt).letterSpacing], euro: !!q(amt, '.money-ic svg'),
                          del: del && { w: r(del).width, h: r(del).height, svg: [r(q(del, 'svg')).width, r(q(del, 'svg')).height], vb: q(del, 'svg').getAttribute('viewBox'), color: cs(del).color } }; }""")
-            check('counter: 14px pill, 4px side padding (1px bottom lifts the digits), 8px from the name, action/press while its tooltip is open',
-                  t['badge'] and t['badge']['h'] == 14 and t['badge']['pad'] == '0px 4px 1px' and t['badge']['ml'] == '8px' and t['badge']['bg'] == 'rgb(31, 30, 25)', t['badge'])
-            check('counter text: 10px / 600 / 11.6px / -0.1px, same family as the page (not mono)', t['badge']['font'] == ['10px', '600', '11.6px', '-0.1px'] and 'Mono' not in t['badge']['fam'], t['badge'])
+            check('counter (Sept 26): 14px pill, 4px side padding, 8px from the name, action/press while its tooltip is open',
+                  t['badge'] and t['badge']['h'] == 14 and t['badge']['pad'] == '0px 4px' and t['badge']['ml'] == '8px' and t['badge']['bg'] == 'rgb(31, 30, 25)', t['badge'])
+            check('counter text: 12px / 500 / 10px / -0.24px, same family as the page (not mono)', t['badge']['font'] == ['12px', '500', '10px', '-0.24px'] and 'Mono' not in t['badge']['fam'], t['badge'])
             check('tooltip: dark surface, radius 16, padding 16/8/16/16, 280 wide at least, no shadow', t['tip']['bg'] == 'rgb(22, 21, 15)' and t['tip']['radius'] == '16px' and t['tip']['pad'] == '16px 8px 16px 16px' and t['tip']['w'] >= 280 and t['tip']['shadow'] == 'none', t['tip'])
             check('tooltip opens beside the counter, 4px away, centred on it', abs(t['gapX'] - 4) < 0.6 and abs(t['midDy']) < 1.5, [t['gapX'], t['midDy']])
             check('tooltip entry: 24px row, 8px gaps (also between amount and remove), 12px dot', t['item']['h'] == 24 and t['item']['gap'] == '8px' and t['item']['rgap'] == '8px' and t['item']['dot'] == [12, 12], t['item'])
@@ -167,14 +167,26 @@ async def main():
                   and n['delta']['bg'] in ('rgb(227, 244, 236)', 'rgb(255, 196, 198)') and ('since' in (n['delta']['label'] or '')), n['delta'])
             tv = await pg.evaluate("""() => { const cs = e => getComputedStyle(e), host = document.body, out = {};
                 for (const t of ['success', 'fail', 'neutral']){
-                  const el = document.createElement('div'); el.className = 'ds-toast visible ' + t; el.innerHTML = '<span class="ds-toast-icon"><svg data-icon="checkmark" viewBox="0 0 12 12" width="12" height="12"></svg></span><span>Saved</span>'; host.appendChild(el);
-                  const c = cs(el), i = cs(el.firstChild); const r = el.getBoundingClientRect();
-                  out[t] = { bg: c.backgroundColor, font: [c.fontSize, c.fontWeight, c.lineHeight, c.letterSpacing], gap: c.columnGap, h: r.height, r: c.borderRadius, pad: c.paddingLeft, bottom: innerHeight - r.bottom, right: innerWidth - r.right, icon: [i.width, i.height] };
+                  const el = document.createElement('div'); el.className = 'ds-toast visible ' + t; el.innerHTML = '<span class="ds-toast-strip"></span><span class="ds-toast-msg">Saved</span><button class="round-btn micro ds-toast-close"></button>'; host.appendChild(el);
+                  const c = cs(el), st = el.children[0], m = cs(el.children[1]); const r = el.getBoundingClientRect();
+                  out[t] = { bg: c.backgroundColor, font: [m.fontSize, m.fontWeight, m.lineHeight, m.letterSpacing, m.color], gap: c.columnGap, h: r.height, w: r.width, r: c.borderRadius, padR: c.paddingRight, top: r.top, right: innerWidth - r.right, strip: [st.getBoundingClientRect().width, st.getBoundingClientRect().height, cs(st).backgroundColor], close: [el.children[2].getBoundingClientRect().width] };
                   el.remove(); }
                 return out; }""")
-            check('Toast (Sept 24): every type on surface/accent-deep, 14px SemiBold /15.2 -1%, 16px gap, 12px icon, 40 high, radius 8',
-                  all(tv[k]['bg'] == 'rgb(6, 0, 108)' and tv[k]['font'] == ['14px', '600', '15.2px', '-0.14px'] and tv[k]['gap'] == '16px' and tv[k]['h'] == 40 and tv[k]['r'] == '8px' and tv[k]['pad'] == '16px' and tv[k]['icon'] == ['12px', '12px'] for k in tv), tv)
-            check('Toast sits bottom-right, 24px from the window edges', all(abs(tv[k]['bottom'] - 24) < 1 and abs(tv[k]['right'] - 24) < 1 for k in tv), tv)
+            check('Toast (DS 304:659): surface/dark, 12px/500/14 white, 16px gap, 48 high, 240 wide at least, radius 8, 14px X',
+                  all(tv[k]['bg'] == 'rgb(22, 21, 15)' and tv[k]['font'] == ['12px', '500', '14px', '-0.24px', 'rgb(255, 255, 255)'] and tv[k]['gap'] == '16px' and tv[k]['h'] == 48 and tv[k]['w'] >= 240 and tv[k]['r'] == '8px' and tv[k]['padR'] == '16px' and tv[k]['close'] == [14] for k in tv), tv)
+            check('Toast strip: 16px, full height; Positive brand/mint, Negative data/red, Neutral surface/tertiary',
+                  all(tv[k]['strip'][:2] == [16, 48] for k in tv) and [tv[k]['strip'][2] for k in ('success', 'fail', 'neutral')] == ['rgb(19, 208, 117)', 'rgb(189, 0, 7)', 'rgb(96, 93, 83)'], tv)
+            check('Toast sits top-right (Ongatu 238:7184): 24px from the right, 116 from the top', all(abs(tv[k]['top'] - 116) < 1 and abs(tv[k]['right'] - 24) < 1 for k in tv), tv)
+            sz = await pg.evaluate("""() => { const out = {}; const host = document.body;
+                for (const z of ['md', 'sm', 'tiny']) { const w = document.createElement('div'); w.className = 'ds-dd ds-dd--' + z; w.innerHTML = '<button class="ds-dd-trigger"><span class="ds-dd-label">A</span></button>'; host.appendChild(w);
+                  const t = w.firstChild, c = getComputedStyle(t); out['dd-' + z] = [t.getBoundingClientRect().height, c.paddingLeft, c.fontSize, c.fontWeight, c.lineHeight]; w.remove(); }
+                for (const z of ['', 'small', 'tiny']) { const w = document.createElement('span'); w.className = 'ds-input ' + z; w.innerHTML = '<input value="A">'; host.appendChild(w);
+                  const c = getComputedStyle(w), i = getComputedStyle(w.firstChild); out['in-' + (z || 'medium')] = [w.getBoundingClientRect().height, c.paddingLeft, i.fontSize, i.fontWeight, i.lineHeight]; w.remove(); }
+                return out; }""")
+            check('Dropdown sizes (71:1096): Medium 48 / 16 / 14px 500 18, Small 40 / 8 / 12px 500 14, Tiny 24 / 8 / 12px 500 10',
+                  sz['dd-md'] == [48, '16px', '14px', '500', '18px'] and sz['dd-sm'] == [40, '8px', '12px', '500', '14px'] and sz['dd-tiny'] == [24, '8px', '12px', '500', '10px'], sz)
+            check('Input sizes (71:1093): Medium 48 / 16 / 14px 500 18, Small 40 / 8 / 12px 500 14, Tiny 24 / 8 / 12px 500 10',
+                  sz['in-medium'] == [48, '16px', '14px', '500', '18px'] and sz['in-small'] == [40, '8px', '12px', '500', '14px'] and sz['in-tiny'] == [24, '8px', '12px', '500', '10px'], sz)
             yd = await pg.evaluate("""() => { const cs = e => getComputedStyle(e), tab = document.createElement('div'); tab.className = 'year-tab'; tab.style.cssText = 'position:relative;width:48px;height:32px;margin:40px';
                 tab.innerHTML = '<button class="year-btn">2031</button><button class="year-del-btn" aria-label="Delete"><svg data-icon="x" viewBox="0 0 10 10" width="10" height="10"></svg></button>'; document.body.appendChild(tab);
                 const b = tab.querySelector('.year-del-btn'), c = cs(b), tr = tab.getBoundingClientRect(), br = b.getBoundingClientRect(), o = { size: [br.width, br.height], dx: br.left - tr.left, dy: br.top - tr.top, bg: c.backgroundColor, r: c.borderRadius, svg: [cs(b.firstChild).width, cs(b.firstChild).height] };
@@ -269,7 +281,7 @@ async def main():
                          itemGap: its.length > 1 ? r(its[1]).top - r(its[0]).bottom : 4, itemX: r(its[0]).left - r(menu).left - 1, tFont: [cs(t).fontSize, cs(t).lineHeight, cs(t).letterSpacing], tPad: cs(t).padding, tBg: cs(t).backgroundColor, tSel: cs(its[0]).fontWeight }; }""")
             check('menu: padding 16, group label 14px/600/15.2 flush, rows 25px tall with 4/8 padding, 4px apart, 12px/500/17',
                   m['pad'] == '16px' and m['gFont'] == ['14px', '600', '15.2px'] and abs(m['gX'] - 16) < 0.6 and m['itemH'] == 25 and m['itemPad'] == '4px 8px' and m['iFont'] == ['12px', '500', '17px'] and m['itemGap'] == 4 and abs(m['itemX'] - 16) < 0.6, m)
-            check('trigger in the panel: 14px / 15.2px / -0.14px, 16px side padding, no fill', m['tFont'] == ['14px', '15.2px', '-0.14px'] and m['tPad'] == '0px 16px' and m['tBg'] == 'rgba(0, 0, 0, 0)', m)
+            check('trigger in the panel: 14px / 18px / -0.28px, 16px side padding, no fill', m['tFont'] == ['14px', '18px', '-0.28px'] and m['tPad'] == '0px 16px' and m['tBg'] == 'rgba(0, 0, 0, 0)', m)
             await pg.keyboard.press('Escape'); await pg.wait_for_selector('.ds-dd-menu', state='detached')
             # keyboard: open with Enter, move, choose with Enter; Escape only closes the menu
             await pg.focus('#entry-item-trigger'); await pg.keyboard.press('Enter'); await pg.wait_for_selector('.ds-dd-menu')
@@ -432,7 +444,7 @@ async def main():
             await pg.click('#notif-btn'); await pg.wait_for_selector('#notif-panel')
             ntext = await pg.inner_text('#notif-panel')
             check('over budget: notification names the item, the group, spent and budget', 'Groceries (Variable) is over budget' in ntext and '16,00' in ntext and '10,00' in ntext, ntext)
-            await pg.locator('#notif-panel .ds-notif-item', has_text='Groceries').get_by_role('button', name='View').click(); await pg.wait_for_timeout(400)
+            await pg.locator('#notif-panel .ds-notif-item', has_text='Groceries').get_by_role('button', name='View').first.click(); await pg.wait_for_timeout(400)
             check('View opens the Variable expenses of that month', await pg.locator('#notif-panel').count() == 0 and 'Groceries' in await pg.inner_text('.breakdown-card'))
             await pg.locator('.bd-row, .meter-row', has_text='Groceries').first.locator('.note-count').click(); await pg.wait_for_timeout(250)
             head = await pg.inner_text('#note-tip .tip-head')
@@ -444,8 +456,9 @@ async def main():
             await pg.reload(); await pg.wait_for_selector('#user-nav'); await pg.wait_for_timeout(900)
             await pg.click('#breakdown-top-seg button[data-v=Expenses]'); await pg.click('#breakdown-group-seg button[data-v=Variable]'); await pg.wait_for_timeout(300)
             await pg.locator('.bd-row, .meter-row', has_text='Budget only').first.locator('.note-count').click(); await pg.wait_for_timeout(250)
-            t = await pg.evaluate("() => ({ head: document.querySelector('#note-tip .tip-head')?.textContent, items: document.querySelectorAll('#note-tip .tip-item').length, foot: !!document.querySelector('#note-tip .tip-foot'), hr: !!document.querySelector('#note-tip .tip-head-divider') })")
-            check('budget without entries: header only (no line, no explanation, no divider)', 'Budget set' in (t['head'] or '') and t['items'] == 0 and not t['foot'] and not t['hr'], t)
+            t = await pg.evaluate("() => { const b = document.querySelector('.note-count.is-open'), cs = getComputedStyle(b); return { head: document.querySelector('#note-tip .tip-head')?.textContent, items: document.querySelectorAll('#note-tip .tip-item').length, foot: !!document.querySelector('#note-tip .tip-foot'), hr: !!document.querySelector('#note-tip .tip-head-divider'), empty: document.querySelector('#note-tip .tip-empty')?.textContent, icon: b.classList.contains('is-icon') && !!b.querySelector('svg'), bg: cs.backgroundColor, color: cs.color }; }")
+            check('budget without entries (354:618): header, divider, "There\'s no entries yet."', 'Budget set' in (t['head'] or '') and t['items'] == 0 and not t['foot'] and t['hr'] and t['empty'] == "There's no entries yet.", t)
+            check('budget without entries: the counter is Type=Icon (Chart), pressed = surface/tertiary with surface/secondary icon', t['icon'] and t['bg'] == 'rgb(96, 93, 83)' and t['color'] == 'rgb(239, 238, 229)', t)
             await pg.locator('.bd-row, .meter-row', has_text='Budget only').first.locator('.note-count').click(); await pg.wait_for_timeout(200)
             await pg.click('#breakdown-top-seg button[data-v=Income]'); await pg.wait_for_timeout(300)
             await pg.locator('.bd-row, .meter-row', has_text='Estimated pay').first.locator('.note-count').click(); await pg.wait_for_timeout(250)

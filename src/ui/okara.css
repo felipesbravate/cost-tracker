@@ -502,36 +502,41 @@
      "Plus" and renders as a plain plus glyph, not a rotated X; taken at
      face value rather than assumed to be a mislabeled close icon. */
   .ds-toast{
-    /* Toast (DS 173:6658, Sept 24 pull): every type is surface/accent-deep, 40 high, 16 side padding, 16 gap, radius/sm,
-       shadow 0 0 8 ink@8%, 14px SemiBold /15.2 -1% white. Success = Checkmark, Fail = Negative/Filled, Neutral = no icon.
-       "Toast position" frames (229:19384, 238:7184): bottom-right, 24px from the window edges. */
-    position:fixed; right:24px; bottom:24px; z-index:70;
-    display:inline-flex; align-items:center; gap:var(--space-md); height:40px; padding:0 var(--space-md);
-    border-radius:var(--radius-sm); max-width:calc(100vw - 48px); box-sizing:border-box;
-    background:var(--surface-accent-deep);
-    font-size:var(--type-body-medium-semibold-size); font-weight:var(--type-body-medium-semibold-weight); line-height:var(--type-body-medium-semibold-lh); letter-spacing:var(--type-body-medium-semibold-ls); color:var(--text-white); white-space:nowrap;
+    /* Toast (DS 304:659, Sept 26): surface/dark, radius/sm, Floating shadow (0 0 8 ink@8%), min 240 / max 400 wide, min 48
+       high, gap 16, padding-right 16, clipped. Left: a 16px strip (Positive brand/mint, Negative data/red, Neutral
+       surface/tertiary). Message: Body/Small/Medium white, 16px above and below. Right: Micro round button, X in surface/body.
+       Position (Ongatu "Toast position" 238:7184): 24px from the right, 116px from the top (12px under the app header). */
+    position:fixed; right:24px; top:116px; z-index:70;
+    display:flex; align-items:stretch; gap:var(--space-md); min-height:48px; padding:0 var(--space-md) 0 0;
+    width:max-content; min-width:240px; max-width:min(400px, calc(100vw - 48px)); box-sizing:border-box; overflow:hidden;
+    border-radius:var(--radius-sm); background:var(--surface-dark);
     box-shadow:0 0 8px color-mix(in srgb, var(--text-primary) 8%, transparent);
-    opacity:0; transform:translateY(12px); pointer-events:none; transition:opacity .18s ease, transform .18s ease;
+    opacity:0; transform:translateY(-8px); pointer-events:none; transition:opacity .18s ease, transform .18s ease;
   }
   .ds-toast.visible{ opacity:1; transform:translateY(0); pointer-events:auto; }
-  .ds-toast .ds-toast-icon{ flex-shrink:0; display:flex; width:12px; height:12px; color:var(--surface-primary); }
-  .ds-toast svg{ display:block; }
-  .ds-toast > span:last-child{ overflow:hidden; text-overflow:ellipsis; }
-  /* The year-delete undo uses the same Toast look (Neutral) plus a Tiny button; Figma's Toast has no button slot. */
-  .ds-toast .toast-undo{ margin-left:auto; }
+  .ds-toast-strip{ flex:none; width:16px; background:var(--primitive-brand-mint); }
+  .ds-toast.fail .ds-toast-strip{ background:var(--action-destructive); }
+  .ds-toast.neutral .ds-toast-strip{ background:var(--surface-tertiary); }
+  .ds-toast-msg{
+    flex:1 1 auto; min-width:0; align-self:center; padding:var(--space-md) 0;
+    font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); color:var(--text-white);
+  }
+  .ds-toast .ds-toast-close{ align-self:flex-start; margin-top:var(--space-md); color:var(--surface-body); }
+  .ds-toast .ds-toast-close:hover{ background:rgba(255,255,255,.18); }
+  .ds-toast .ds-toast-close:active{ background:rgba(255,255,255,.28); }
+  /* The year-delete Undo (a Tiny button) sits before the X; the DS Toast has no slot for it. */
+  .ds-toast .toast-undo{ align-self:center; flex:none; color:var(--text-white); border-color:var(--text-muted); background:transparent; }
+  .ds-toast .toast-undo:hover{ background:rgba(255,255,255,.18); }
 
   /* ---- Dropdown, one component for every choice field in the product.
      Figma (Costly Design System), measured from the file on Sept 21, 2026:
-     trigger = Dropdown set 71:1096 (Medium h40 px16 14px/15.2 -1%, Small h32 p8 12px/17,
-     Tiny h24 p8 10px; gap 8, 1px border/default, radius/sm, no fill; Empty text is
-     text/secondary, Filled and Active text/primary, Active border is border/focus,
-     Disable text/muted); DropdownItem = set 183:6858 (padding 4/8, radius/ty, 12px
+     trigger = Dropdown set 71:1096 (sizes updated Sept 26, see .ds-dd-trigger; gap 8, 1px border/default, radius/sm,
+     no fill; Empty text is text/secondary, Filled and Active text/primary, Active border is border/focus,
+     Disable surface/secondary with text/secondary); DropdownItem = set 183:6858 (padding 4/8, radius/ty, 12px
      Medium /17, Hover fill surface/accent-light); list = Dropdown-list set 182:6851,
      Type=Group 182:6850 and Type=Simple 183:6887: width 242, padding 16, 1px border,
      radius/sm, shadow 0 0 8 ink@8%; Group blocks gap 8, label 12px SemiBold /17 -1%
      flush left, items gap 4, blocks split by a divider; Simple = flat items, no gap.
-     Trigger height in the Add-entry panel is 48 because the panel screen (52:3443)
-     overrides Medium to 48 on its Dropdown and Input instances.
      It is a progressive enhancement over a real <select> (see the DD module in the
      script): the select stays in the DOM, hidden, and keeps the value, so .value and
      'change' work as they always did. <optgroup> becomes a Group block; options
@@ -540,14 +545,16 @@
   .ds-dd{ position:relative; display:block; min-width:0; }
   .ds-dd > select{ display:none; }
   .ds-dd-trigger{
+    /* Sizes, Dropdown 71:1096 (Sept 26): Medium h48 px16, 14px Body/Medium/Medium; Small h40 p8, 12px Body/Small/Medium;
+       Tiny h24 p8, 12px Medium on a 10px line. Gap 8, radius/sm, border/default. The default here is Small. */
     display:flex; align-items:center; justify-content:space-between; gap:var(--space-xs);
-    width:100%; height:32px; padding:0 var(--space-xs); box-sizing:border-box;
+    width:100%; height:40px; padding:0 var(--space-xs); box-sizing:border-box;
     background:transparent; border:1px solid var(--border-default); border-radius:var(--radius-sm);
-    font-family:inherit; font-size:var(--type-body-small-regular-size); font-weight:var(--type-body-small-regular-weight); line-height:var(--type-body-small-regular-lh); letter-spacing:var(--type-body-small-regular-ls); text-align:left; color:var(--text-primary); cursor:pointer;
+    font-family:inherit; font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); text-align:left; color:var(--text-primary); cursor:pointer;
     transition:border-color .12s ease, box-shadow .12s ease;
   }
-  .ds-dd--md .ds-dd-trigger{ height:40px; padding:0 var(--space-md); font-size:var(--type-body-medium-regular-size); font-weight:var(--type-body-medium-regular-weight); line-height:var(--type-body-medium-regular-lh); letter-spacing:var(--type-body-medium-regular-ls); }
-  .ds-dd--tiny .ds-dd-trigger{ height:24px; font-size:var(--type-label-tiny-regular-size); font-weight:var(--type-label-tiny-regular-weight); line-height:var(--type-label-tiny-regular-lh); letter-spacing:var(--type-label-tiny-regular-ls); }
+  .ds-dd--md .ds-dd-trigger{ height:48px; padding:0 var(--space-md); font-size:var(--type-body-medium-medium-size); font-weight:var(--type-body-medium-medium-weight); line-height:var(--type-body-medium-medium-lh); letter-spacing:var(--type-body-medium-medium-ls); }
+  .ds-dd--tiny .ds-dd-trigger{ height:24px; line-height:10px; }
   .ds-dd-label{ flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .ds-dd-trigger svg{ flex-shrink:0; color:var(--action-primary); transition:transform .12s ease; }
   .ds-dd.is-empty .ds-dd-trigger{ color:var(--text-secondary); }
@@ -555,7 +562,7 @@
   .ds-dd.open .ds-dd-trigger, .ds-dd-trigger:focus-visible{ border-color:var(--border-focus); }
   .ds-dd-trigger:focus-visible{ outline:none; }
   .ds-dd.open .ds-dd-trigger svg{ transform:rotate(180deg); }
-  .ds-dd.is-disabled .ds-dd-trigger{ color:var(--text-muted); cursor:not-allowed; border-color:var(--border-default); box-shadow:none; }
+  .ds-dd.is-disabled .ds-dd-trigger{ background:var(--surface-secondary); color:var(--text-secondary); cursor:not-allowed; border-color:var(--border-default); box-shadow:none; }
   .ds-dd.is-disabled .ds-dd-trigger svg{ color:var(--action-disable); }
   .ds-dd-menu{
     position:fixed; z-index:80; box-sizing:border-box; width:max(242px, var(--dd-w, 0px)); max-width:calc(100vw - 16px);
@@ -821,16 +828,22 @@
      centred 11.6px line, which showed as text hanging low in the pill (measured on a 2x screenshot: 3.5px above, 2.5px below).
      Default / Hover / Pressed fills are action/default, action/hover, action/press. Pressed is the state with its
      tooltip open (.is-open). The estimate and removed tints are not in the design system yet. */
+  /* Entry counter (DS 146:5252, Sept 26): 14 high, padding 0 4, radius/full. Number = action/primary (hover, press) with the
+     count in Body/Small/Medium on a 10px line, white. Icon = surface/secondary with a 10px Chart in surface/tertiary; Hover and
+     Pressed swap them. */
   .note-count{
-    display:inline-flex; align-items:center; justify-content:center;
-    min-width:14px; height:14px; padding:0 var(--space-tn) 1px; margin-left:var(--space-xs); border-radius:var(--radius-full);
+    display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;
+    min-width:14px; height:14px; padding:0 var(--space-tn); margin-left:var(--space-xs); border-radius:var(--radius-full);
     background:var(--action-primary); color:var(--on-primary);
-    font-size:var(--type-label-tiny-semibold-size); font-weight:var(--type-label-tiny-semibold-weight); line-height:var(--type-label-tiny-semibold-lh); letter-spacing:var(--type-label-tiny-semibold-ls); font-variant-numeric:tabular-nums;
+    font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:10px; letter-spacing:var(--type-body-small-medium-ls); font-variant-numeric:tabular-nums;
     vertical-align:middle; cursor:pointer; transition: background-color .12s ease;
   }
   .note-count:hover{ background:var(--action-primary-hover); }
   .note-count:active, .note-count.is-open{ background:var(--action-primary-press); }
   .note-count.is-estimate{ background:var(--ink-muted); }
+  .note-count.is-icon{ background:var(--surface-secondary); color:var(--surface-tertiary); }
+  .note-count.is-icon:hover, .note-count.is-icon:active, .note-count.is-icon.is-open{ background:var(--surface-tertiary); color:var(--surface-secondary); }
+  .note-count.is-icon svg{ display:block; }
   .note-count.is-removed{ background:var(--critical); }
 
   /* Entries tooltip (DS node 146:5252, "Entries tootip" + node 144:4426 "Tooltip entry item"). Opens beside its counter,
@@ -1061,8 +1074,6 @@
   #add-panel .field-period .ds-dd, #add-panel .ap-period .ds-dd{ width:200px; max-width:100%; }
   #add-panel .field input{ height:48px; padding:0 var(--space-md); font-size:var(--type-body-medium-regular-size); font-weight:var(--type-body-medium-regular-weight); line-height:var(--type-body-medium-regular-lh); letter-spacing:var(--type-body-medium-regular-ls); }
   #add-panel .field input::placeholder{ color:var(--ink-2); opacity:1; }
-  /* Dropdowns in the panel match the 48px inputs beside them (Figma's Medium is 40). */
-  #add-panel .ds-dd--md .ds-dd-trigger{ height:48px; }
   #add-panel .add-grid .span-2{ grid-column:1 / -1; }
   #add-panel .field-with-prefix input{ padding-left:47px; }
   .add-actions .add-status{ font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); }
@@ -1071,7 +1082,8 @@
   .rv-head, .rv-row{ display:flex; align-items:center; gap:var(--space-md); }
   .rv-head{ font-size:var(--type-body-small-semibold-size); font-weight:var(--type-body-small-semibold-weight); line-height:var(--type-body-small-semibold-lh); letter-spacing:var(--type-body-small-semibold-ls); color:var(--ink-muted); text-transform:uppercase; }
   .rv-rows{ display:flex; flex-direction:column; gap:var(--space-tn); }
-  .rv-row{ height:32px; }
+  /* Rows hold Small dropdowns and inputs, 40 high since the Sept 26 sizes. */
+  .rv-row{ height:40px; }
   .c-date{ width:40px; flex-shrink:0; }
   .c-desc{ flex:1 1 0; min-width:0; }
   .c-type, .c-cat{ width:120px; flex-shrink:0; min-width:0; }
@@ -1096,13 +1108,13 @@
   .rv-amt.bad{ color:var(--critical); }
   .rv-row:hover .rv-amt{ text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; }
   .rv-input{
-    width:100%; height:32px; padding:0 var(--space-xs); font-family:inherit; font-size:var(--type-body-small-regular-size); font-weight:var(--type-body-small-regular-weight); line-height:var(--type-body-small-regular-lh); letter-spacing:var(--type-body-small-regular-ls); color:var(--ink);
+    width:100%; height:40px; padding:0 var(--space-xs); font-family:inherit; font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); color:var(--ink);
     background:var(--surface); border:1px solid var(--border-card); border-radius:var(--radius-sm); outline:none; transition:border-color .12s ease, box-shadow .12s ease;
   }
   .rv-input:hover{ border-color:var(--state-border-hover); }
   .rv-input:focus-visible{ border-color:var(--border-focus); }
   .rv-select .ds-dd.is-empty .ds-dd-trigger{ color:var(--critical); }
-  .rv-row .bd-input{ height:32px; gap:var(--space-tn); width:100%; }
+  .rv-row .bd-input{ height:40px; gap:var(--space-tn); width:100%; }
   .rv-row .bd-input input{ width:100%; }
   .rv-rm{ opacity:0; color:var(--critical); transition:opacity .12s ease, background-color .12s ease; }
   .rv-row:hover .rv-rm, .rv-row.is-editing .rv-rm, .rv-rm:focus-visible{ opacity:1; }
@@ -1333,9 +1345,10 @@
   .ds-check input:focus-visible + .ds-check-box{ outline:2px solid var(--border-focus); outline-offset:2px; }
   .ds-check-label{ font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); color:var(--text-primary); }
 
-  /* ---- Input (71:1093), Size=Medium ---- */
+  /* ---- Input (71:1093, Sept 26): Medium h48 px16 14px (value Body/Medium/Medium, placeholder Regular); Small h40 p8 and
+     Tiny h24 px8, 12px Body/Small/Medium (Tiny on a 10px line) with the placeholder in text/secondary. Gap 8. ---- */
   .ds-input{
-    display:flex; align-items:center; gap:var(--space-xs); height:40px; padding:0 var(--space-md); box-sizing:border-box;
+    display:flex; align-items:center; gap:var(--space-xs); height:48px; padding:0 var(--space-md); box-sizing:border-box;
     border:1px solid var(--border-default); border-radius:var(--radius-sm); background:var(--surface-primary);
     transition:border-color .12s ease;
   }
@@ -1350,6 +1363,11 @@
   .ds-input.is-disabled:hover{ border-color:var(--border-default); }
   .ds-input.is-disabled input{ font-weight:400; color:var(--text-secondary); cursor:not-allowed; }
   .ds-input svg{ color:var(--surface-tertiary); flex-shrink:0; }
+  .ds-input.small, .ds-input.tiny{ padding:0 var(--space-xs); }
+  .ds-input.small{ height:40px; }
+  .ds-input.tiny{ height:24px; }
+  .ds-input.small input, .ds-input.tiny input, .ds-input.small input::placeholder, .ds-input.tiny input::placeholder{ font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); }
+  .ds-input.tiny input{ line-height:10px; }
 
   /* avatar, Style=Image and the 88px Account avatar (initial in Value/XL: Martian Mono Medium 36). */
   .ds-avatar.is-image{ background:var(--surface-secondary); overflow:hidden; }
@@ -1425,4 +1443,5 @@
   #note-tip .tip-head-label{ font-size:var(--type-heading-small-size); font-weight:var(--type-heading-small-weight); line-height:var(--type-heading-small-lh); letter-spacing:var(--type-heading-small-ls); color:var(--text-muted); }
   #note-tip .tip-head-amount{ font-family:var(--font-mono); font-size:var(--type-value-small-size); font-weight:var(--type-value-small-weight); line-height:var(--type-value-small-lh); letter-spacing:var(--type-value-small-ls); color:var(--text-muted); white-space:nowrap; font-variant-numeric:tabular-nums; }
   #note-tip .tip-head-amount .money-ic{ color:var(--action-disable); }
+  #note-tip .tip-empty{ font-size:var(--type-body-small-medium-size); font-weight:var(--type-body-small-medium-weight); line-height:var(--type-body-small-medium-lh); letter-spacing:var(--type-body-small-medium-ls); color:var(--text-muted); }
   #note-tip .tip-head-divider{ border:none; border-top:1px solid var(--border-tertiary); margin:var(--space-md) var(--space-xs) var(--space-md) 0; }

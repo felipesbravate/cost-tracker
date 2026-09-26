@@ -108,7 +108,7 @@ export const CASES = [
         </EntriesTooltip>
       </Contain>) },
   { id: 'toast-success', legacy: { state: 'toast', selector: '#ds-toast' }, compare: '.ds-toast',
-    render: () => <Contain height={80} width={1000}><Toast type="success" visible>"Side project" added to Sep 2026.</Toast></Contain> },
+    render: () => <Contain height={180} width={1000}><Toast type="success" visible onClose={() => {}}>"Side project" added to Sep 2026.</Toast></Contain> },
 
   // ---- states the dashboard doesn't show on its own ----
   { id: 'buttons', render: () => (
@@ -156,7 +156,7 @@ export const CASES = [
   { id: 'toasts', render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start' }}>
       {/* the Toast is position:fixed; a transformed box becomes its containing block, so it stays in the gallery */}
-      {['success', 'fail', 'neutral'].map((t) => <Contain key={t} height={56} width={360}><Toast type={t} visible>{`"Side project" added to Sep 2026.`}</Toast></Contain>)}
+      {['success', 'fail', 'neutral'].map((t) => <Contain key={t} height={180} width={320}><Toast type={t} visible onClose={() => {}}>{`"Side project" added to Sep 2026.`}</Toast></Contain>)}
     </div>) },
   { id: 'action-link', render: () => <div style={{ display: 'flex', gap: 16 }}><ActionLink icon={reload}>Restore</ActionLink><ActionLink>Click to upload</ActionLink><ActionLink disabled>Disabled</ActionLink></div> },
   { id: 'dropdowns', render: () => (
